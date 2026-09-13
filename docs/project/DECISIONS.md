@@ -143,3 +143,27 @@
 - "Compass" phản ánh đúng chức năng — định hướng, giúp biết nên làm gì tiếp theo — sát với vai trò decompose/lập kế hoạch hơn các gợi ý khác (Ledger, Tempo, Cadence)
 
 **Trade-off:** Tên có thể khiến người ngoài nhầm là sub-module của jarvis-desktop chứ không phải service độc lập 24/7. Chấp nhận vì đây là chi tiết hạ tầng người dùng cuối không thấy (xem D-002).
+
+---
+
+## D-010 — Deploy target: Cloudflare Python Workers; Railway là phương án dự phòng
+
+**Date:** 2026-09-13
+**Status:** Accepted
+
+**Quyết định:** MVP deploy trên Cloudflare Workers dùng Python Workers runtime (hỗ trợ FastAPI native qua ASGI, chạy trên nền Pyodide/WebAssembly). Database dùng Supabase (Postgres) như đã quen thuộc từ các project trước — không chuyển sang Cloudflare D1 ở giai đoạn này. Railway được ghi nhận là phương án dự phòng/thay thế nếu Cloudflare Python Workers gặp vấn đề tương thích không giải quyết được.
+
+**Lý do:**
+- Cloudflare Workers giờ hỗ trợ Python cấp độ nhất đẳng, FastAPI chạy được không cần patch, giữ nguyên toàn bộ code Python đã quen thuộc từ jarvis-desktop — không phải học runtime/ngôn ngữ mới
+- Chi phí ở mức traffic thấp (~15 lượt/ngày) có thể gần như miễn phí hoàn toàn trên Cloudflare, thấp hơn đáng kể so với Railway (~$5-10/tháng tối thiểu)
+- Cold start đã cải thiện mạnh nhờ memory snapshot (~1 giây thay vì ~10 giây), chấp nhận được cho use case planning (không phải voice loop liên tục)
+- Sẵn hệ sinh thái binding nếu cần mở rộng sau (Durable Objects cho session state, Cron Triggers cho F10 proactive check-in, Workflows cho tác vụ chạy dài)
+
+**Trade-off / rủi ro đã biết:**
+- Tính năng FastAPI-trên-Python-Workers còn rất mới (ra mắt khoảng tháng 9/2026), ít tiền lệ thực chiến, ít tài liệu debug cộng đồng
+- Chưa xác nhận toàn bộ dependency cần thiết (anthropic SDK, scheduler cho cron, driver kết nối Postgres) có tương thích hoàn toàn với môi trường Pyodide hay không — cần test thực tế sớm trong giai đoạn setup, trước khi build feature phức tạp lên trên
+- Model thực thi Worker khác hẳn container thường trực — request-response ngắn hạn, không giữ process chạy liên tục; nếu multi-turn clarify session (F02) cần giữ state phức tạp, có thể phải dùng Durable Objects hoặc lưu toàn bộ vào Supabase thay vì giữ trong memory như jarvis-desktop hiện tại
+
+**Kế hoạch dự phòng:** Nếu trong quá trình setup phát hiện dependency quan trọng không chạy được trên Python Workers (đặc biệt anthropic SDK hoặc DB driver), chuyển sang Railway (Hobby $5/tháng) — không đổi code logic, chỉ đổi deploy target và cách expose HTTP endpoint, vì code vẫn là FastAPI chuẩn.
+
+**Supersedes:** Phần "Deploy target" và "Database" trong REQUIREMENTS §8 (trước đó để pending, giờ đã chốt).
