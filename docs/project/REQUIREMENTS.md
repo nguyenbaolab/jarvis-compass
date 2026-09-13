@@ -81,5 +81,4 @@ Telegram Bot App Android riêng
 
 ## §8 Pending — chưa chốt
 
-- Framework backend cụ thể: FastAPI được đề xuất trước đó, cần xác nhận
 - Tên tool cụ thể trong jarvis-desktop tool_router (`manage_plan` hoặc tên khác) — cần viết prompt implement riêng cho jarvis-desktop sau khi jarvis-compass có hình hài cơ bản
