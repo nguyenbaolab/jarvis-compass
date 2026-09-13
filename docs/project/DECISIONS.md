@@ -146,24 +146,37 @@
 
 ---
 
-## D-010 — Deploy target: Cloudflare Python Workers; Railway là phương án dự phòng
+## D-010 — Deploy target: Cloudflare Python Workers; DB access qua PostgREST thay vì driver TCP
 
 **Date:** 2026-09-13
 **Status:** Accepted
 
-**Quyết định:** MVP deploy trên Cloudflare Workers dùng Python Workers runtime (hỗ trợ FastAPI native qua ASGI, chạy trên nền Pyodide/WebAssembly). Database dùng Supabase (Postgres) như đã quen thuộc từ các project trước — không chuyển sang Cloudflare D1 ở giai đoạn này. Railway được ghi nhận là phương án dự phòng/thay thế nếu Cloudflare Python Workers gặp vấn đề tương thích không giải quyết được.
+**Quyết định:** MVP deploy trên Cloudflare Workers dùng Python Workers runtime (hỗ trợ FastAPI native qua ASGI, chạy trên nền Pyodide/WebAssembly). Database dùng Supabase (Postgres), nhưng truy cập qua **PostgREST** (package `postgrest-py`, HTTP client) thay vì driver TCP trực tiếp (asyncpg/psycopg) — do driver TCP không tương thích Pyodide. Railway được ghi nhận là phương án dự phòng nếu phát sinh vấn đề tương thích khác không giải quyết được.
 
 **Lý do:**
-- Cloudflare Workers giờ hỗ trợ Python cấp độ nhất đẳng, FastAPI chạy được không cần patch, giữ nguyên toàn bộ code Python đã quen thuộc từ jarvis-desktop — không phải học runtime/ngôn ngữ mới
-- Chi phí ở mức traffic thấp (~15 lượt/ngày) có thể gần như miễn phí hoàn toàn trên Cloudflare, thấp hơn đáng kể so với Railway (~$5-10/tháng tối thiểu)
-- Cold start đã cải thiện mạnh nhờ memory snapshot (~1 giây thay vì ~10 giây), chấp nhận được cho use case planning (không phải voice loop liên tục)
-- Sẵn hệ sinh thái binding nếu cần mở rộng sau (Durable Objects cho session state, Cron Triggers cho F10 proactive check-in, Workflows cho tác vụ chạy dài)
+- Cloudflare Workers hỗ trợ Python cấp độ nhất đẳng, FastAPI chạy được không cần patch, giữ nguyên toàn bộ code Python đã quen thuộc từ jarvis-desktop
+- Chi phí ở mức traffic thấp (~15 lượt/ngày) có thể gần như miễn phí hoàn toàn trên Cloudflare
+- Cold start đã cải thiện mạnh nhờ memory snapshot (~1 giây thay vì ~10 giây)
+- Use case F03-F09 (CRUD cơ bản trên plans/subtasks) không cần SQL phức tạp hay transaction phức tạp — PostgREST hoàn toàn đủ, không mất năng lực gì đáng kể so với driver TCP
 
-**Trade-off / rủi ro đã biết:**
-- Tính năng FastAPI-trên-Python-Workers còn rất mới (ra mắt khoảng tháng 9/2026), ít tiền lệ thực chiến, ít tài liệu debug cộng đồng
-- Chưa xác nhận toàn bộ dependency cần thiết (anthropic SDK, scheduler cho cron, driver kết nối Postgres) có tương thích hoàn toàn với môi trường Pyodide hay không — cần test thực tế sớm trong giai đoạn setup, trước khi build feature phức tạp lên trên
-- Model thực thi Worker khác hẳn container thường trực — request-response ngắn hạn, không giữ process chạy liên tục; nếu multi-turn clarify session (F02) cần giữ state phức tạp, có thể phải dùng Durable Objects hoặc lưu toàn bộ vào Supabase thay vì giữ trong memory như jarvis-desktop hiện tại
+**Kết quả smoke test (2026-09-13, spike trên nhánh main, chưa merge/commit chính thức):**
 
-**Kế hoạch dự phòng:** Nếu trong quá trình setup phát hiện dependency quan trọng không chạy được trên Python Workers (đặc biệt anthropic SDK hoặc DB driver), chuyển sang Railway (Hobby $5/tháng) — không đổi code logic, chỉ đổi deploy target và cách expose HTTP endpoint, vì code vẫn là FastAPI chuẩn.
+Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-py 1.17.2, Pyodide cpython-3.14.2-emscripten-wasm32-musl). Lưu ý: `pywrangler dev` KHÔNG chạy được trên Windows native trong môi trường test này (lỗi venv Pyodide + version workers-py cũ hơn yêu cầu Windows) — dev workflow thực tế cho project này cần qua WSL.
 
-**Supersedes:** Phần "Deploy target" và "Database" trong REQUIREMENTS §8 (trước đó để pending, giờ đã chốt).
+- FastAPI cơ bản: chạy được, HTTP 200
+- `anthropic` SDK: import + khởi tạo client OK, gọi `messages.create()` ra mạng thật thành công (401 vì test bằng key giả — đúng hành vi kỳ vọng)
+- `asyncpg`: FAIL lúc resolve dependency (`pywrangler sync`) — không có wheel WebAssembly tương thích (`cp314`/`wasm32`), môi trường Pyodide bắt buộc `--no-build` nên không compile từ source được
+- `psycopg[binary]` và `psycopg2-binary`: cùng fail lý do tương tự (không có wheel platform tag phù hợp)
+- `postgrest` (postgrest-py, HTTP client dựa trên httpx): resolve OK, import OK, khởi tạo `AsyncPostgrestClient` OK, gọi `execute()` thất bại với ConnectError/DNS do dùng URL giả trong test — đây là lỗi kỳ vọng (domain không tồn tại), KHÔNG phải lỗi môi trường; Worker không crash ở bất kỳ bước nào
+
+**Kết luận:** Hai dependency quan trọng nhất (LLM call qua anthropic SDK, DB access qua PostgREST) đều xác nhận chạy được. Rào cản duy nhất (driver TCP trực tiếp) có đường vòng hợp lý và không mất năng lực cần thiết cho use case này.
+
+**Trade-off / rủi ro còn lại:**
+- Toàn bộ tương tác database phải viết qua REST interface (`postgrest-py`) thay vì SQL/ORM quen thuộc — cần làm quen cú pháp `.from_().select().eq()...` thay vì raw SQL hoặc SQLAlchemy
+- Row Level Security (RLS) của Supabase cần cấu hình đúng vì giờ đi qua REST layer có auth riêng (anon/service key), khác cơ chế connection string trực tiếp
+- Dev workflow hàng ngày cần qua WSL (không chạy `pywrangler dev` trên Windows native được trong setup hiện tại) — cần xác nhận lại khi upgrade `workers-py` lên bản hỗ trợ Windows tốt hơn (changelog Cloudflare ghi cần workers-py >= 1.72.0 cho Windows, PyPI hiện tại là 1.17.2)
+- Tính năng FastAPI-trên-Python-Workers vẫn còn mới, ít tiền lệ thực chiến dài hạn
+
+**Kế hoạch dự phòng:** Nếu phát sinh vấn đề tương thích khác (ví dụ package cần cho F10 cron, hoặc PostgREST không đủ cho nhu cầu query phức tạp hơn về sau), chuyển sang Railway (Hobby $5/tháng) — code logic FastAPI giữ nguyên, chỉ đổi deploy target và cách kết nối DB (có thể quay lại driver TCP thường trên Railway).
+
+**Supersedes:** Bản D-010 trước đó (chưa có kết quả smoke test thực tế).
