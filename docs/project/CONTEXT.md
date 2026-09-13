@@ -15,25 +15,27 @@
 
 ## §2 Module map
 
-- `api/` — FastAPI routes, entry point HTTP
+> **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy toàn bộ package nằm trong `src/`, không phải root.
+
+- `src/api/` — FastAPI routes, entry point HTTP
   - `routes_planning.py` — endpoint cho jarvis-desktop gọi vào khi cần lập kế hoạch (F14)
   - `routes_telegram.py` — webhook nhận message/update từ Telegram Bot API (F11)
-- `core/` — Logic lõi
+- `src/core/` — Logic lõi
   - `llm.py` — Claude API client wrapper (model-agnostic layer, F12), tool calling
   - `planning.py` — Orchestration: nhận yêu cầu → clarify loop (F01, F02) → gọi planning tools → trả kết quả
   - `session.py` — Quản lý session_id cho multi-turn clarify (F02) — lưu trạng thái qua db/, không giữ in-memory (khác jarvis-desktop, vì Worker không giữ process thường trực)
-- `tools/` — Định nghĩa planning tools mà Claude gọi (tương đương tools/ + core/tool_router.py bên jarvis-desktop nhưng phía server)
+- `src/tools/` — Định nghĩa planning tools mà Claude gọi (tương đương tools/ + core/tool_router.py bên jarvis-desktop nhưng phía server)
   - `base.py` — ToolResult, ToolError (giữ pattern giống jarvis-desktop để nhất quán)
   - `plan_tools.py` — create_plan, get_plans, get_plan_detail, update_subtask, add_subtask, revise_plan (F04-F09)
   - `tool_router.py` — TOOL_DEFINITIONS + execute_tool dispatch
-- `db/` — Lớp truy cập Supabase
+- `src/db/` — Lớp truy cập Supabase
   - `client.py` — Khởi tạo AsyncPostgrestClient, wrapper các thao tác CRUD cơ bản
   - `models.py` — Định nghĩa schema plan/subtask (Pydantic models dùng chung cho API + DB layer)
-- `clients/` — Logic đặc thù từng kênh client bên ngoài
+- `src/clients/` — Logic đặc thù từng kênh client bên ngoài
   - `telegram.py` — Xử lý message Telegram, gọi Telegram Bot API để trả lời/gửi check-in
-- `scheduler/` — Proactive check-in cron job (F10)
+- `src/scheduler/` — Proactive check-in cron job (F10)
   - `checkin.py` — Logic chạy khi Cloudflare Cron Trigger kích hoạt, quét plans cần nhắc, gửi qua clients/telegram.py
-- `config/` — Configuration
+- `src/config/` — Configuration
   - `settings.py` — Load env vars (ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_KEY, TELEGRAM_BOT_TOKEN, v.v.)
 - `tests/` — Unit tests
 

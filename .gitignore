@@ -36,3 +36,4 @@ Thumbs.db
 .wrangler/
 node_modules/
 .venv-workers/
+python_modules/
