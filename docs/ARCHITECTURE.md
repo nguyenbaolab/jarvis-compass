@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-> Trạng thái code: mới có khung, src/entry.py chỉ phục vụ /health. Các module và luồng dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
+> Trạng thái code: mới có khung, src/app.py chỉ phục vụ /health. Các module và luồng dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
 
 ## §0 Bối cảnh hệ thống
 
@@ -30,7 +30,7 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 
 ## §2 Module map
 
-> **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy toàn bộ package nằm trong `src/`, không phải root.
+> **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy toàn bộ package nằm trong `src/`, không phải root. Chỉ src/entry.py được import workers (runtime Cloudflare); app FastAPI nằm ở src/app.py để test được trên Python thường.
 
 - `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), webhook Telegram Bot API (F11)
 - `src/core/` — Logic lõi: clarify/orchestration (F01, F02); gọi LLM qua `src/core/llm.py` (F12)

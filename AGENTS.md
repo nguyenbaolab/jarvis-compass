@@ -21,7 +21,7 @@ Theo thứ tự: `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` �
 ## Lệnh
 
 - Cài dependency: `uv sync`
-- Test: chưa có lệnh test chạy được
+- Test: `uv run pytest`
 - Dev (bắt buộc trong WSL): `uv run pywrangler dev` (chưa chạy thử)
 - Deploy: `uv run pywrangler deploy` (chưa chạy thử)
 
