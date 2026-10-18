@@ -1,4 +1,4 @@
-# REQUIREMENTS
+# PRODUCT
 
 ## §1 Tổng quan
 

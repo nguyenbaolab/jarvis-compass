@@ -1,4 +1,4 @@
-# CONTEXT — Bản đồ kỹ thuật
+# ARCHITECTURE
 
 ## §1 Tech stack
 

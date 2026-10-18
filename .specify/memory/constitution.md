@@ -5,8 +5,7 @@ Sync Impact Report
 - Added sections: Core Principles (8 luật), Ràng buộc kỹ thuật, Quy ước mã nguồn, Governance
 - Removed sections: template placeholders only
 - Follow-up TODOs:
-  - docs/DECISIONS.md, docs/PRODUCT.md, docs/ARCHITECTURE.md sẽ được tạo ở bước sau (nguồn hiện tại còn ở docs/project/)
-  - Khi tạo các file docs/ đích, trỏ đường dẫn trong Governance cho khớp
+  - none (docs/DECISIONS.md, docs/PRODUCT.md, docs/ARCHITECTURE.md đã tạo)
 -->
 
 # jarvis-compass Constitution
