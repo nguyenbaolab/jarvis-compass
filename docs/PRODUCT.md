@@ -49,7 +49,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 
 ## §5 Non-functional requirements
 
-- Cost: MVP dùng Claude Haiku 4.5; ước tính ~2.2 USD/tháng ở mức 15 lượt/ngày
+- Cost: MVP dùng Claude Haiku 5.5 (D-004). Ước tính cũ ~2.2 USD/tháng ở mức 15 lượt/ngày được tính theo giá Haiku 4.5, cần tính lại theo giá Haiku 5.5.
 - Các yêu cầu còn lại (thông báo chủ động, chạy 24/7, độ trễ khi desktop gọi sang, giữ ngữ cảnh session, đổi model) nằm trong .specify/memory/constitution.md và docs/DECISIONS.md.
 
 ## §6 Kiến trúc tổng thể (tham chiếu)

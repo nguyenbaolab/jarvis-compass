@@ -54,7 +54,7 @@
 
 ---
 
-## D-004 — Model-agnostic LLM layer, MVP dùng Claude Haiku 4.5
+## D-004 — Model-agnostic LLM layer, MVP dùng Claude Haiku 5.5
 
 **Date:** 2026-09-13
 **Status:** Accepted
@@ -66,6 +66,8 @@
 - Haiku đủ rẻ để thử nghiệm nhanh MVP, chưa cần cam kết Sonnet ngay khi chưa rõ độ phức tạp thực tế của use case clarify + decompose
 
 **Trade-off:** Interface trừu tượng hóa có thể bỏ lỡ tính năng đặc thù của từng provider (ví dụ extended thinking riêng của Claude). Chấp nhận vì ưu tiên tính linh hoạt hơn tối ưu sâu cho một model.
+
+**Cập nhật 2026-10-18:** model MVP đổi từ Claude Haiku 4.5 sang Claude Haiku 5.5 (claude-haiku-5-5) vì đã có bản mới. Lý do chọn dòng Haiku cho MVP giữ nguyên.
 
 ---
 

@@ -23,7 +23,7 @@ Telegram Bot App Android riêng
 
 Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ thuật. Chi tiết bổ sung:
 - **Web framework:** FastAPI, chạy qua ASGI adapter có sẵn của Cloudflare Workers (`workers.asgi`)
-- **LLM:** Claude API (anthropic SDK Python), model MVP: claude-haiku-4-5
+- **LLM:** Claude API (anthropic SDK Python), model MVP: claude-haiku-5-5 (D-004)
 - **Deploy:** Cloudflare Workers (`wrangler deploy` / `pywrangler deploy`)
 - **Cron:** Cloudflare Cron Triggers (cho F10 proactive check-in)
 - **MVP client:** Telegram Bot API
