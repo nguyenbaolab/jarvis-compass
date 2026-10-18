@@ -17,61 +17,44 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 
 ## §3 Feature list
 
-| ID | Tên | Trạng thái | Mô tả ngắn |
-|----|-----|-----------|-----------|
-| F01 | Plan creation via clarifying dialogue | Planned | Nhận yêu cầu lập kế hoạch, chủ động hỏi lại (scope, deadline, constraints) trước khi chốt plan, không tự đoán khi thiếu thông tin |
-| F02 | Multi-turn clarify session tracking | Planned | Track trạng thái hội thoại dang dở qua session_id, nối tiếp câu trả lời clarify qua nhiều lượt nói/nhắn |
-| F03 | Plan storage (own database) | Planned | Lưu plans/subtasks trong database riêng — single source of truth, không sync Google Tasks/Keep |
-| F04 | Planning tool — create_plan | Planned | Tạo plan mới với goal + subtasks, gọi bởi LLM ở planning service |
-| F05 | Planning tool — get_plans | Planned | List active plans / tìm theo keyword |
-| F06 | Planning tool — get_plan_detail | Planned | Xem chi tiết một plan |
-| F07 | Planning tool — update_subtask | Planned | Đánh dấu done/skip/note cho subtask |
-| F08 | Planning tool — add_subtask | Planned | Thêm subtask vào plan đang có |
-| F09 | Planning tool — revise_plan | Planned | Xem lại và đề xuất điều chỉnh plan |
-| F10 | Proactive check-in (remote push) | Planned | Cron job server-side nhắc việc sáng/tối, luôn remote push, không phụ thuộc client có mở app hay không |
-| F11 | Telegram Bot interface (MVP client) | Planned | Text hoặc voice message (Telegram tự transcribe), nhận scheduled check-in qua Telegram Bot API |
-| F12 | Model-agnostic LLM layer | Planned | Interface chuẩn OpenAI-compatible, đổi model chỉ bằng đổi API key/endpoint |
-| F13 | Streaming response + barge-in support | Planned | Hỗ trợ streaming response cho client voice (Mức 1 real-time: STT VAD → streaming → TTS từng câu → barge-in) |
-| F14 | HTTP API cho jarvis-desktop client | Planned | Endpoint để jarvis-desktop gọi sang khi cần lập kế hoạch, qua tool mới trong tool_router |
-| F15 | One-way sync to Google Tasks (display only) | Future | Đồng bộ một chiều database → Google Tasks để xem cho tiện, không phải core kiến trúc, không phải MVP |
-| F16 | Android app với hardware-key trigger | Future | Giai đoạn 2 — Accessibility Service, Power + Volume Up trigger overlay, nhận push qua FCM |
+| ID | Tên | Mô tả ngắn |
+|----|-----|-----------|
+| F01 | Plan creation via clarifying dialogue | Nhận yêu cầu lập kế hoạch, chủ động hỏi lại (scope, deadline, constraints) trước khi chốt plan, không tự đoán khi thiếu thông tin |
+| F02 | Multi-turn clarify session tracking | Track trạng thái hội thoại dang dở qua session_id, nối tiếp câu trả lời clarify qua nhiều lượt nói/nhắn |
+| F03 | Plan storage (own database) | Lưu plans/subtasks trong database riêng — single source of truth, không sync Google Tasks/Keep |
+| F04 | Planning tool — create_plan | Tạo plan mới với goal + subtasks, gọi bởi LLM ở planning service |
+| F05 | Planning tool — get_plans | List active plans / tìm theo keyword |
+| F06 | Planning tool — get_plan_detail | Xem chi tiết một plan |
+| F07 | Planning tool — update_subtask | Đánh dấu done/skip/note cho subtask |
+| F08 | Planning tool — add_subtask | Thêm subtask vào plan đang có |
+| F09 | Planning tool — revise_plan | Xem lại và đề xuất điều chỉnh plan |
+| F10 | Proactive check-in (remote push) | Cron job server-side nhắc việc sáng/tối, luôn remote push, không phụ thuộc client có mở app hay không |
+| F11 | Telegram Bot interface (MVP client) | Text hoặc voice message (Telegram tự transcribe), nhận scheduled check-in qua Telegram Bot API |
+| F12 | Model-agnostic LLM layer | Interface chuẩn OpenAI-compatible, đổi model chỉ bằng đổi API key/endpoint |
+| F13 | Streaming response + barge-in support | Hỗ trợ streaming response cho client voice (Mức 1 real-time: STT VAD → streaming → TTS từng câu → barge-in) |
+| F14 | HTTP API cho jarvis-desktop client | Endpoint để jarvis-desktop gọi sang khi cần lập kế hoạch, qua tool mới trong tool_router |
+| F15 | One-way sync to Google Tasks (display only) | Đồng bộ một chiều database → Google Tasks để xem cho tiện, không phải core kiến trúc, không phải MVP |
+| F16 | Android app với hardware-key trigger | Giai đoạn 2 — Accessibility Service, Power + Volume Up trigger overlay, nhận push qua FCM |
 
 ## §4 Negative scope — cố ý KHÔNG làm
 
-- KHÔNG tách thành nhân vật AI thứ hai (không có "Friday" hay tên riêng khác) — chỉ một nhân vật JARVIS duy nhất trên mọi điểm chạm
-- KHÔNG self-host LLM 24/7 trên máy Lenovo cá nhân — máy đó vẫn dùng hàng ngày, không biến thành server
-- KHÔNG dùng Google Keep — không có API chính thức đầy đủ, chỉ thư viện không chính thức dễ bị chặn
-- KHÔNG dùng Google Tasks làm nguồn lưu trữ chính — giới hạn 1 cấp subtask, không priority/label, và quan trọng nhất: recurring task không lưu lịch sử hoàn thành (ghi đè due date, không tạo record mới), mâu thuẫn với nhu cầu theo dõi tiến độ lâu dài
-- KHÔNG dùng local scheduling (AlarmManager/WorkManager) cho bất kỳ proactive notification nào — đã có tiền lệ lỗi ở Chino's Store (chỉ nhận thông báo nếu app từng mở trước giờ hẹn)
+- KHÔNG có nhân vật AI thứ hai (D-002)
+- KHÔNG self-host LLM 24/7 trên máy Lenovo cá nhân (D-003)
+- KHÔNG dùng Google Keep (D-006)
+- KHÔNG dùng Google Tasks làm nơi lưu chính (D-006)
+- KHÔNG lên lịch thông báo phía client như AlarmManager hay WorkManager (D-007)
 - KHÔNG dùng template kế hoạch cứng trong MVP — LLM-driven trước, đánh giá chất lượng thực tế rồi mới cân nhắc thêm heuristics/template
-- KHÔNG theo đuổi audio-to-audio streaming thực sự (kiểu OpenAI Realtime API/Gemini Live) — phức tạp và tốn kém không tương xứng lợi ích cho use case planning/nhắc việc
+- KHÔNG theo đuổi audio-to-audio streaming kiểu Realtime API hay Gemini Live (D-008)
 - KHÔNG always-listening/wake-word bằng giọng nói trên app mobile Giai đoạn 2 — tốn pin, dễ bị OS kill; dùng hardware-key + Accessibility Service thay thế
 
 ## §5 Non-functional requirements
 
 - Cost: MVP dùng Claude Haiku 4.5; ước tính ~2.2 USD/tháng ở mức 15 lượt/ngày
-- Proactive delivery reliability: mọi check-in chủ động phải đến được client bất kể app có đang mở hay không — bắt buộc remote push (Telegram Bot API ở Giai đoạn 1, FCM ở Giai đoạn 2)
-- Availability: service chạy 24/7 độc lập với máy Lenovo cá nhân — không phụ thuộc máy có bật hay không
-- Voice latency (khi gọi từ jarvis-desktop): giữ trong ngân sách latency hiện có của jarvis-desktop (≤3s voice-in → voice-out, theo REQUIREMENTS §5 của jarvis-desktop) — gọi HTTP sang planning service không được phá vỡ target này
-- Session continuity: multi-turn clarify phải giữ đúng ngữ cảnh qua session_id, không mất context giữa các lượt hỏi lại
-- Model portability: không hardcode vào một LLM provider cụ thể — đổi model/API key/endpoint không cần đổi kiến trúc
+- Các yêu cầu còn lại (thông báo chủ động, chạy 24/7, độ trễ khi desktop gọi sang, giữ ngữ cảnh session, đổi model) nằm trong .specify/memory/constitution.md và docs/DECISIONS.md.
 
 ## §6 Kiến trúc tổng thể (tham chiếu)
 
-JARVIS Desktop (jarvis-desktop repo)
-
-STT/TTS local, LLM local chỉ route ý định
-Tool mới gọi sang jarvis-compass khi cần lập kế hoạch
-│ HTTP API
-▼
-jarvis-compass (repo này)
-Cloud-hosted, 24/7, độc lập máy Lenovo
-Claude API qua model-agnostic layer
-Database riêng (plans/subtasks) — single source of truth
-Cron job proactive check-in, luôn remote push
-▲ ▲
-Telegram Bot App Android riêng
-(MVP, Giai đoạn 1) (Giai đoạn 2, sau)
+Xem docs/ARCHITECTURE.md §0.
 
 ## §7 Versioning
 

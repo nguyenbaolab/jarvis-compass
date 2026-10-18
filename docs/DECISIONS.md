@@ -159,7 +159,7 @@
 - Cold start đã cải thiện mạnh nhờ memory snapshot (~1 giây thay vì ~10 giây)
 - Use case F03-F09 (CRUD cơ bản trên plans/subtasks) không cần SQL phức tạp hay transaction phức tạp — PostgREST hoàn toàn đủ, không mất năng lực gì đáng kể so với driver TCP
 
-**Kết quả smoke test (2026-09-13, spike trên nhánh main, chưa merge/commit chính thức):**
+**Kết quả smoke test (2026-09-13; spike nằm ở commit 8076fef trên nhánh spike/cloudflare-workers-test, không merge vào main; khung app được commit riêng vào main ở 506b1db):**
 
 Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-py 1.17.2, Pyodide cpython-3.14.2-emscripten-wasm32-musl). Lưu ý: `pywrangler dev` KHÔNG chạy được trên Windows native trong môi trường test này (lỗi venv Pyodide + version workers-py cũ hơn yêu cầu Windows) — dev workflow thực tế cho project này cần qua WSL.
 
