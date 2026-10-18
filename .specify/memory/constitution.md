@@ -1,50 +1,58 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: (none) → 1.0.0
+- Modified principles: N/A (first ratification; template placeholders replaced)
+- Added sections: Core Principles (8 luật), Ràng buộc kỹ thuật, Quy ước mã nguồn, Governance
+- Removed sections: template placeholders only
+- Follow-up TODOs:
+  - docs/DECISIONS.md, docs/PRODUCT.md, docs/ARCHITECTURE.md sẽ được tạo ở bước sau (nguồn hiện tại còn ở docs/project/)
+  - Khi tạo các file docs/ đích, trỏ đường dẫn trong Governance cho khớp
+-->
+
+# jarvis-compass Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Một nhân vật duy nhất
+Mọi nội dung người dùng thấy đều là JARVIS; không được tạo tên hay persona AI khác (D-002).
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Worker không giữ trạng thái
+Không lưu session hay hội thoại trong bộ nhớ Python giữa các request; mọi trạng thái phải lưu ở Supabase (D-010).
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Truy cập database qua PostgREST
+Mọi truy cập DB chỉ qua `src/db/client.py` và chỉ bằng PostgREST (`postgrest-py`); cấm driver TCP như asyncpg hay psycopg (D-010).
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Gọi LLM qua lớp trung gian
+Mọi lời gọi LLM chỉ qua `src/core/llm.py`; model, endpoint và API key lấy từ config, không hardcode provider (D-004).
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Thông báo chủ động bằng remote push
+Mọi thông báo chủ động phải đi bằng remote push từ server (Telegram Bot API, sau này FCM); cấm lên lịch phía client (D-007).
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Database riêng là nguồn sự thật
+Database riêng là nguồn sự thật duy nhất cho plan và subtask; Google Tasks và Google Keep không bao giờ là nơi lưu chính (D-006).
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### VII. Ngân sách độ trễ với jarvis-desktop
+Lời gọi từ jarvis-desktop sang compass phải nằm trong ngân sách độ trễ của desktop: tối đa 3 giây từ lúc nói tới lúc nghe trả lời (D-005).
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### VIII. Unit test bắt buộc cho logic
+Mỗi thay đổi logic phải có unit test trong `tests/` và chạy qua trước khi coi là xong.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Ràng buộc kỹ thuật
+
+Stack bắt buộc: Python 3.13+, Cloudflare Python Workers (Pyodide), FastAPI qua ASGI, Supabase qua PostgREST, Claude API, Telegram Bot API; quản lý package bằng uv; `pywrangler dev` chạy trong WSL (D-010).
+
+## Quy ước mã nguồn
+
+Type hints bắt buộc cho mọi function public; Pydantic cho request, response và schema DB; config chỉ đọc qua `src/config/settings.py`; tool dùng mẫu `ToolResult` và `ToolError`; comment tiếng Việt.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution đứng trên mọi plan và spec.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+Mỗi thông tin chỉ nằm ở một nơi: luật ở constitution này; lý do ở `docs/DECISIONS.md`; sản phẩm là gì ở `docs/PRODUCT.md`; code tổ chức thế nào ở `docs/ARCHITECTURE.md`; từng tính năng ở `specs/`. Không chép thông tin từ nơi này sang nơi khác, chỉ trỏ tới.
+
+Thay đổi nào làm một file docs sai thì phải sửa file đó trong cùng thay đổi.
+
+Sửa một luật thì cập nhật quyết định tương ứng trong `docs/DECISIONS.md`.
+
+**Version**: 1.0.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
