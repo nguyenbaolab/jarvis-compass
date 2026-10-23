@@ -63,6 +63,21 @@ def _nfc_strip(value: str) -> str:
     return unicodedata.normalize("NFC", value).strip()
 
 
+def new_subtask(title: str | None) -> Subtask:
+    """Dựng một việc con mới. None hoặc rỗng sau chuẩn hóa là lỗi miền."""
+
+    if title is None:
+        raise PlanDomainError("Việc con không được để trống.")
+    normalized = _nfc_strip(title)
+    if normalized == "":
+        raise PlanDomainError("Việc con không được để trống.")
+    return Subtask(
+        id=str(uuid.uuid4()),
+        title=normalized,
+        status=SubtaskStatus.PENDING,
+    )
+
+
 def normalize_new_plan(
     goal: str | None,
     subtasks: list[str] | None,
@@ -76,19 +91,7 @@ def normalize_new_plan(
         raise PlanDomainError("Mục tiêu không được để trống.")
     if subtasks is None:
         return normalized_goal, ()
-    normalized_subtasks: list[Subtask] = []
-    for raw_title in subtasks:
-        title = _nfc_strip(raw_title)
-        if title == "":
-            raise PlanDomainError("Việc con không được để trống.")
-        normalized_subtasks.append(
-            Subtask(
-                id=str(uuid.uuid4()),
-                title=title,
-                status=SubtaskStatus.PENDING,
-            )
-        )
-    return normalized_goal, tuple(normalized_subtasks)
+    return normalized_goal, tuple(new_subtask(raw_title) for raw_title in subtasks)
 
 
 def normalize_plan_id(plan_id: str | None) -> str:
@@ -123,6 +126,17 @@ def normalize_subtask_status(status: str | None) -> SubtaskStatus:
         return SubtaskStatus(stripped)
     except ValueError:
         raise PlanDomainError("Trạng thái việc con chỉ nhận pending hoặc done.") from None
+
+
+def append_subtask(plan: Plan, subtask: Subtask) -> Plan:
+    """Trả về Plan mới, việc con mới đứng cuối. Không chuẩn hóa và không cấp id."""
+
+    return Plan(
+        id=plan.id,
+        goal=plan.goal,
+        subtasks=plan.subtasks + (subtask,),
+        created_order=plan.created_order,
+    )
 
 
 def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -> Plan:

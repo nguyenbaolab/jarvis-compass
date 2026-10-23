@@ -4,7 +4,9 @@ from core.plans import (
     Plan,
     PlanDomainError,
     PlanStore,
+    append_subtask,
     filter_by_goal_keyword,
+    new_subtask,
     normalize_new_plan,
     normalize_plan_id,
     normalize_subtask_id,
@@ -107,5 +109,27 @@ def update_subtask(
         raise ToolError(str(error)) from error
     if updated is not plan:
         store.replace(updated)
+    body = _plan_json(updated)
+    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
+
+
+def add_subtask(
+    plan_id: str | None,
+    title: str | None,
+    *,
+    store: PlanStore,
+) -> ToolResult:
+    """Thêm một việc con vào cuối, hoặc ném ToolError với đúng câu đầu tiên."""
+
+    try:
+        normalized_plan_id = normalize_plan_id(plan_id)
+        subtask = new_subtask(title)
+    except PlanDomainError as error:
+        raise ToolError(str(error)) from error
+    stored = store.get(normalized_plan_id)
+    if stored is None:
+        raise ToolError("Không có kế hoạch với danh tính này.")
+    updated = append_subtask(stored, subtask)
+    store.replace(updated)
     body = _plan_json(updated)
     return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
