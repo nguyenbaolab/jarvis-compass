@@ -91,7 +91,7 @@ src/tools/
 tests/
 ├── fakes/
 │   ├── __init__.py
-│   └── MemoryPlanStore          # PlanStore trong bộ nhớ, chỉ cho test
+│   └── memory_plan_store.py     # PlanStore trong bộ nhớ, chỉ cho test
 ├── test_create_plan.py          # User Story 1
 ├── test_get_plans.py            # User Story 2 và 3
 └── test_health.py               # đã có, phải vẫn pass
