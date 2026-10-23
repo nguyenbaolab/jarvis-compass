@@ -29,3 +29,11 @@ class MemoryPlanStore:
         """created_order lớn hơn đứng trước. Store rỗng trả tuple rỗng."""
 
         return tuple(sorted(self._plans, key=lambda plan: plan.created_order, reverse=True))
+
+    def get(self, plan_id: str) -> Plan | None:
+        """Trả kế hoạch có id trùng chuỗi được truyền, hoặc None."""
+
+        for plan in self._plans:
+            if plan.id == plan_id:
+                return plan
+        return None

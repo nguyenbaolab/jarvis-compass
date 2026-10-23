@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-> Trạng thái code: src/app.py phục vụ /health. Logic F04 và F05 đã có ở src/core/plans.py và src/tools/plan_tools.py, chưa nối HTTP, LLM hay database. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
+> Trạng thái code: src/app.py phục vụ /health. Logic F04, F05, và F06 đã có ở src/core/plans.py và src/tools/plan_tools.py, chưa nối HTTP, LLM hay database. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
 
 ## §0 Bối cảnh hệ thống
 

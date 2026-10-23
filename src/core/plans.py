@@ -10,7 +10,7 @@ import unicodedata
 
 
 class PlanDomainError(Exception):
-    """Lỗi miền khi đầu vào tạo kế hoạch không hợp lệ."""
+    """Lỗi miền khi đầu vào kế hoạch không hợp lệ."""
 
 
 @dataclass(frozen=True)
@@ -39,6 +39,9 @@ class PlanStore(Protocol):
     def list_newest_first(self) -> tuple[Plan, ...]:
         """Mọi kế hoạch, created_order lớn hơn đứng trước."""
 
+    def get(self, plan_id: str) -> Plan | None:
+        """Trả kế hoạch có đúng id, hoặc None khi không có."""
+
 
 def _nfc_strip(value: str) -> str:
     """Chuẩn hóa NFC rồi bỏ khoảng trắng hai đầu. Khoảng trắng bên trong giữ nguyên."""
@@ -66,6 +69,17 @@ def normalize_new_plan(
             raise PlanDomainError("Việc con không được để trống.")
         normalized_subtasks.append(Subtask(title=title))
     return normalized_goal, tuple(normalized_subtasks)
+
+
+def normalize_plan_id(plan_id: str | None) -> str:
+    """Bỏ khoảng trắng hai đầu của danh tính. None hoặc rỗng sau strip là lỗi miền."""
+
+    if plan_id is None:
+        raise PlanDomainError("Danh tính kế hoạch chưa được đưa.")
+    stripped = plan_id.strip()
+    if stripped == "":
+        raise PlanDomainError("Danh tính kế hoạch chưa được đưa.")
+    return stripped
 
 
 def filter_by_goal_keyword(

@@ -6,6 +6,7 @@ from core.plans import (
     PlanStore,
     filter_by_goal_keyword,
     normalize_new_plan,
+    normalize_plan_id,
 )
 from tools.base import ToolError, ToolResult
 from tools.schemas import PlanJson, PlansJson, SubtaskJson
@@ -54,3 +55,21 @@ def get_plans(
 
     plans = filter_by_goal_keyword(store.list_newest_first(), keyword)
     return ToolResult(success=True, output=_plans_json(plans))
+
+
+def get_plan_detail(
+    plan_id: str | None,
+    *,
+    store: PlanStore,
+) -> ToolResult:
+    """Mở một kế hoạch theo danh tính đã lưu, hoặc ném ToolError."""
+
+    try:
+        normalized_id = normalize_plan_id(plan_id)
+    except PlanDomainError as error:
+        raise ToolError(str(error)) from error
+    plan = store.get(normalized_id)
+    if plan is None:
+        raise ToolError("Không có kế hoạch với danh tính này.")
+    body = _plan_json(plan)
+    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
