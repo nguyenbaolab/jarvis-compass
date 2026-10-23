@@ -1,0 +1,154 @@
+"""User Story 2: get_plans liệt kê kế hoạch đang hoạt động, không lọc."""
+
+import json
+import unicodedata
+
+import pytest
+
+from tests.fakes.memory_plan_store import MemoryPlanStore
+from tools.base import ToolError, ToolResult
+from tools.plan_tools import create_plan, get_plans
+
+
+def _plans(result: ToolResult) -> list[dict]:
+    assert result.success is True
+    data = json.loads(result.output)
+    assert set(data) == {"plans"}
+    for plan in data["plans"]:
+        assert set(plan) == {"id", "goal", "subtasks"}
+        for item in plan["subtasks"]:
+            assert set(item) == {"title"}
+    return data["plans"]
+
+
+def test_list_returns_the_plan_just_created() -> None:
+    store = MemoryPlanStore()
+    created = json.loads(
+        create_plan(
+            "Học tiếng Nhật",
+            ["Học hiragana", "Luyện 10 phút mỗi ngày"],
+            store=store,
+        ).output
+    )
+    listed = _plans(get_plans(store=store))
+    assert listed == [created]
+
+
+def test_lists_newest_first_with_subtasks() -> None:
+    store = MemoryPlanStore()
+    create_plan("A", ["a1"], store=store)
+    create_plan("B", ["b1", "b2"], store=store)
+    create_plan("C", ["c1"], store=store)
+    listed = _plans(get_plans(store=store))
+    assert [plan["goal"] for plan in listed] == ["C", "B", "A"]
+    assert listed[0]["subtasks"] == [{"title": "c1"}]
+    assert listed[1]["subtasks"] == [{"title": "b1"}, {"title": "b2"}]
+    assert listed[2]["subtasks"] == [{"title": "a1"}]
+
+
+def test_same_goal_plans_both_appear() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học tiếng Nhật", ["một"], store=store)
+    create_plan("Học tiếng Nhật", ["hai"], store=store)
+    listed = _plans(get_plans(store=store))
+    assert len(listed) == 2
+    assert listed[0]["id"] != listed[1]["id"]
+    assert listed[0]["goal"] == listed[1]["goal"] == "Học tiếng Nhật"
+
+
+def test_empty_store_returns_empty_list() -> None:
+    result = get_plans(store=MemoryPlanStore())
+    assert result.success is True
+    assert json.loads(result.output) == {"plans": []}
+
+
+def test_rejected_create_does_not_grow_the_list() -> None:
+    store = MemoryPlanStore()
+    create_plan("Giữ", ["một"], store=store)
+    before = _plans(get_plans(store=store))
+    with pytest.raises(ToolError):
+        create_plan("   ", store=store)
+    assert _plans(get_plans(store=store)) == before
+
+
+def test_nfd_goal_is_listed_as_nfc() -> None:
+    store = MemoryPlanStore()
+    nfd_goal = unicodedata.normalize("NFD", "Học tiếng Nhật")
+    created = json.loads(create_plan(nfd_goal, store=store).output)
+    nfc_goal = unicodedata.normalize("NFC", "Học tiếng Nhật")
+    assert created["goal"] == nfc_goal
+    listed = _plans(get_plans(store=store))
+    assert listed[0]["goal"] == nfc_goal
+    assert listed[0]["id"] == created["id"]
+
+
+def test_keyword_matches_goal_not_other_plan() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học tiếng Nhật", ["Học hiragana"], store=store)
+    create_plan("Học guitar", ["Hợp âm"], store=store)
+    listed = _plans(get_plans("Nhật", store=store))
+    assert len(listed) == 1
+    assert listed[0]["goal"] == "Học tiếng Nhật"
+    assert listed[0]["subtasks"] == [{"title": "Học hiragana"}]
+
+
+def test_keyword_tieng_and_casefold_and_padding() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học tiếng Nhật", ["Học hiragana"], store=store)
+    assert _plans(get_plans("tiếng", store=store))[0]["goal"] == "Học tiếng Nhật"
+    assert _plans(get_plans("TIẾNG", store=store))[0]["goal"] == "Học tiếng Nhật"
+    assert _plans(get_plans("  Nhật  ", store=store))[0]["goal"] == "Học tiếng Nhật"
+
+
+def test_tieng_without_diacritic_does_not_match() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học tiếng Nhật", store=store)
+    assert _plans(get_plans("tieng", store=store)) == []
+
+
+def test_keyword_in_subtask_only_does_not_match() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học tiếng Nhật", ["Mua giáo trình Nhật"], store=store)
+    assert _plans(get_plans("giáo trình", store=store)) == []
+
+
+def test_keyword_with_no_match_is_empty_success() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học guitar", store=store)
+    result = get_plans("Nhật", store=store)
+    assert result.success is True
+    assert json.loads(result.output) == {"plans": []}
+
+
+@pytest.mark.parametrize("keyword", [None, "", "   "])
+def test_blank_keyword_matches_unfiltered_list(keyword: str | None) -> None:
+    store = MemoryPlanStore()
+    create_plan("Học guitar", ["một"], store=store)
+    create_plan("Học tiếng Nhật", ["hai"], store=store)
+    assert _plans(get_plans(keyword, store=store)) == _plans(get_plans(store=store))
+
+
+def test_nfd_goal_matches_nfc_keyword() -> None:
+    store = MemoryPlanStore()
+    nfd_goal = unicodedata.normalize("NFD", "Học tiếng Nhật")
+    create_plan(nfd_goal, store=store)
+    keyword = unicodedata.normalize("NFC", "tiếng")
+    listed = _plans(get_plans(keyword, store=store))
+    assert len(listed) == 1
+    assert listed[0]["goal"] == unicodedata.normalize("NFC", "Học tiếng Nhật")
+
+
+def test_keyword_inner_double_space_does_not_match() -> None:
+    store = MemoryPlanStore()
+    create_plan("Học tiếng Nhật", store=store)
+    assert _plans(get_plans("tiếng  Nhật", store=store)) == []
+
+
+def test_two_plans_with_same_goal_both_match_keyword() -> None:
+    store = MemoryPlanStore()
+    first = json.loads(create_plan("Học tiếng Nhật", ["một"], store=store).output)
+    second = json.loads(create_plan("Học tiếng Nhật", ["hai"], store=store).output)
+    listed = _plans(get_plans("Nhật", store=store))
+    assert [plan["id"] for plan in listed] == [second["id"], first["id"]]
+    assert listed[0]["id"] != listed[1]["id"]
+

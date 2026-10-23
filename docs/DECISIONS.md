@@ -182,3 +182,20 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 **Kế hoạch dự phòng:** Nếu phát sinh vấn đề tương thích khác (ví dụ package cần cho F10 cron, hoặc PostgREST không đủ cho nhu cầu query phức tạp hơn về sau), chuyển sang Railway (Hobby $5/tháng) — code logic FastAPI giữ nguyên, chỉ đổi deploy target và cách kết nối DB (có thể quay lại driver TCP thường trên Railway).
 
 **Supersedes:** Bản D-010 trước đó (chưa có kết quả smoke test thực tế).
+
+---
+
+## D-011 — Model miền và cổng lưu trữ đặt ở src/core; tool chỉ là lớp mỏng
+
+**Date:** 2026-10-23
+**Status:** Accepted
+
+**Bối cảnh:** F04 và F05 cần kiểu Plan, luật chuẩn hóa và cổng lưu trữ. Các tool F06 đến F09 và scheduler F10 cũng sẽ cần chúng.
+
+**Quyết định:** Model miền (Plan, Subtask), luật chuẩn hóa, lọc và cổng PlanStore đặt ở src/core/plans.py, chỉ dùng thư viện chuẩn. src/tools/plan_tools.py là lớp mỏng: gọi core, đổi kết quả thành ToolResult và lỗi miền thành ToolError. Chiều phụ thuộc: tools import core; core không import tools hay db. Bản cài đặt PlanStore thật sẽ nằm ở src/db/ (nguyên tắc III).
+
+**Lý do:**
+- Scheduler (F10) và các tool F06 đến F09 dùng lại Plan mà không phải import ngược vào tools.
+- Core không phụ thuộc Pydantic hay database, nên test được bằng store giả trong bộ nhớ.
+
+**Phương án đã bỏ:** đặt Plan và PlanStore trong src/tools/. Gọn hơn cho F04 và F05, nhưng scheduler sẽ phải import từ tools.
