@@ -2,6 +2,8 @@
 
 Tool F05. Người gọi trong lát cắt này là test. Router LLM và route HTTP nằm ngoài phạm vi, xem [spec.md](../spec.md).
 
+Hình việc con từ F07 thêm `id` và `status`. Chi tiết ở [update-subtask.md](../../003-update-subtask/contracts/update-subtask.md).
+
 ## Hàm
 
 ```text

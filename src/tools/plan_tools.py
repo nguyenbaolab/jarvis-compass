@@ -7,6 +7,9 @@ from core.plans import (
     filter_by_goal_keyword,
     normalize_new_plan,
     normalize_plan_id,
+    normalize_subtask_id,
+    normalize_subtask_status,
+    replace_subtask_status,
 )
 from tools.base import ToolError, ToolResult
 from tools.schemas import PlanJson, PlansJson, SubtaskJson
@@ -18,7 +21,10 @@ def _plan_json(plan: Plan) -> PlanJson:
     return PlanJson(
         id=plan.id,
         goal=plan.goal,
-        subtasks=[SubtaskJson(title=item.title) for item in plan.subtasks],
+        subtasks=[
+            SubtaskJson(id=item.id, title=item.title, status=item.status.value)
+            for item in plan.subtasks
+        ],
     )
 
 
@@ -72,4 +78,34 @@ def get_plan_detail(
     if plan is None:
         raise ToolError("Không có kế hoạch với danh tính này.")
     body = _plan_json(plan)
+    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
+
+
+def update_subtask(
+    plan_id: str | None,
+    subtask_id: str | None,
+    status: str | None,
+    *,
+    store: PlanStore,
+) -> ToolResult:
+    """Đặt trạng thái một việc con, hoặc ném ToolError với đúng câu đầu tiên."""
+
+    try:
+        normalized_plan_id = normalize_plan_id(plan_id)
+        normalized_subtask_id = normalize_subtask_id(subtask_id)
+        normalized_status = normalize_subtask_status(status)
+    except PlanDomainError as error:
+        raise ToolError(str(error)) from error
+    plan = store.get(normalized_plan_id)
+    if plan is None:
+        raise ToolError("Không có kế hoạch với danh tính này.")
+    try:
+        updated = replace_subtask_status(
+            plan, normalized_subtask_id, normalized_status
+        )
+    except PlanDomainError as error:
+        raise ToolError(str(error)) from error
+    if updated is not plan:
+        store.replace(updated)
+    body = _plan_json(updated)
     return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))

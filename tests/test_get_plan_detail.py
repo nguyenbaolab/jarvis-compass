@@ -22,9 +22,15 @@ def _plan(result: ToolResult) -> dict:
     data = json.loads(result.output)
     assert set(data) == {"id", "goal", "subtasks"}
     assert _PLAN_ID.fullmatch(data["id"])
+    seen: set[str] = set()
     for item in data["subtasks"]:
-        assert set(item) == {"title"}
+        assert list(item) == ["id", "title", "status"]
         assert isinstance(item["title"], str)
+        assert item["status"] == "pending"
+        assert _PLAN_ID.fullmatch(item["id"])
+        assert item["id"] != data["id"]
+        assert item["id"] not in seen
+        seen.add(item["id"])
     return data
 
 

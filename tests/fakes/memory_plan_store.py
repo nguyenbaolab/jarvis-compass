@@ -13,7 +13,7 @@ class MemoryPlanStore:
         self._next_order = 1
 
     def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
-        """Gán id và created_order. Không chuẩn hóa lại goal hay việc con."""
+        """Gán id kế hoạch và created_order. Giữ nguyên id và status của việc con."""
 
         plan = Plan(
             id=str(uuid.uuid4()),
@@ -37,3 +37,11 @@ class MemoryPlanStore:
             if plan.id == plan_id:
                 return plan
         return None
+
+    def replace(self, plan: Plan) -> None:
+        """Thay kế hoạch cùng id. Không thêm mới và không đụng kế hoạch khác."""
+
+        for index, stored in enumerate(self._plans):
+            if stored.id == plan.id:
+                self._plans[index] = plan
+                return

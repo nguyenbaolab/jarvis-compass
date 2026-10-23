@@ -2,6 +2,8 @@
 
 Nguồn luật nghiệp vụ: [spec.md](./spec.md). Cách chọn id, thứ tự, Unicode, và chỗ đặt mã: [research.md](./research.md). Hình JSON của tool: [contracts/create-plan.md](./contracts/create-plan.md) và [contracts/get-plans.md](./contracts/get-plans.md).
 
+Hình việc con từ F07 thêm `id` và `status`. Chi tiết ở [update-subtask.md](../003-update-subtask/contracts/update-subtask.md).
+
 `Plan`, `Subtask`, `normalize_new_plan`, lỗi miền, `Protocol PlanStore`, và hàm lọc theo từ khóa trong goal nằm ở `src/core/plans.py`. File đó chỉ dùng thư viện chuẩn (`dataclasses`, `typing`, `unicodedata`, `uuid`). Không import FastAPI, Pydantic, `src/tools`, hay `src/db`.
 
 ## Plan

@@ -1,12 +1,16 @@
 """Hình JSON của tool. Model miền không đặt ở file này."""
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 
 class SubtaskJson(BaseModel):
-    """Một việc con trong JSON của tool. Đúng một khóa title."""
+    """Một việc con trong JSON của tool. Đúng ba khóa id, title, status."""
 
+    id: str
     title: str
+    status: Literal["pending", "done"]
 
 
 class PlanJson(BaseModel):

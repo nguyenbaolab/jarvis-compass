@@ -16,8 +16,13 @@ def _plans(result: ToolResult) -> list[dict]:
     assert set(data) == {"plans"}
     for plan in data["plans"]:
         assert set(plan) == {"id", "goal", "subtasks"}
+        seen: set[str] = set()
         for item in plan["subtasks"]:
-            assert set(item) == {"title"}
+            assert list(item) == ["id", "title", "status"]
+            assert item["status"] == "pending"
+            assert item["id"] != plan["id"]
+            assert item["id"] not in seen
+            seen.add(item["id"])
     return data["plans"]
 
 
@@ -41,9 +46,9 @@ def test_lists_newest_first_with_subtasks() -> None:
     create_plan("C", ["c1"], store=store)
     listed = _plans(get_plans(store=store))
     assert [plan["goal"] for plan in listed] == ["C", "B", "A"]
-    assert listed[0]["subtasks"] == [{"title": "c1"}]
-    assert listed[1]["subtasks"] == [{"title": "b1"}, {"title": "b2"}]
-    assert listed[2]["subtasks"] == [{"title": "a1"}]
+    assert [item["title"] for item in listed[0]["subtasks"]] == ["c1"]
+    assert [item["title"] for item in listed[1]["subtasks"]] == ["b1", "b2"]
+    assert [item["title"] for item in listed[2]["subtasks"]] == ["a1"]
 
 
 def test_same_goal_plans_both_appear() -> None:
@@ -89,7 +94,7 @@ def test_keyword_matches_goal_not_other_plan() -> None:
     listed = _plans(get_plans("Nhật", store=store))
     assert len(listed) == 1
     assert listed[0]["goal"] == "Học tiếng Nhật"
-    assert listed[0]["subtasks"] == [{"title": "Học hiragana"}]
+    assert [item["title"] for item in listed[0]["subtasks"]] == ["Học hiragana"]
 
 
 def test_keyword_tieng_and_casefold_and_padding() -> None:

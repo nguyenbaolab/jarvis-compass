@@ -20,9 +20,15 @@ def _plan(result: ToolResult) -> dict:
     data = json.loads(result.output)
     assert set(data) == {"id", "goal", "subtasks"}
     assert _PLAN_ID.fullmatch(data["id"])
+    seen: set[str] = set()
     for item in data["subtasks"]:
-        assert set(item) == {"title"}
+        assert list(item) == ["id", "title", "status"]
         assert isinstance(item["title"], str)
+        assert item["status"] == "pending"
+        assert _PLAN_ID.fullmatch(item["id"])
+        assert item["id"] != data["id"]
+        assert item["id"] not in seen
+        seen.add(item["id"])
     return data
 
 
@@ -36,9 +42,9 @@ def test_create_returns_goal_and_ordered_subtasks() -> None:
         )
     )
     assert data["goal"] == "Học tiếng Nhật"
-    assert data["subtasks"] == [
-        {"title": "Học hiragana"},
-        {"title": "Luyện 10 phút mỗi ngày"},
+    assert [item["title"] for item in data["subtasks"]] == [
+        "Học hiragana",
+        "Luyện 10 phút mỗi ngày",
     ]
     assert len(store.list_newest_first()) == 1
 
@@ -69,13 +75,13 @@ def test_strip_ends_and_keep_inner_spaces() -> None:
     store = MemoryPlanStore()
     data = _plan(create_plan("  Học  tiếng Nhật  ", ["  Học  hiragana  "], store=store))
     assert data["goal"] == "Học  tiếng Nhật"
-    assert data["subtasks"] == [{"title": "Học  hiragana"}]
+    assert [item["title"] for item in data["subtasks"]] == ["Học  hiragana"]
 
 
 def test_duplicate_subtask_titles_stay_in_place() -> None:
     store = MemoryPlanStore()
     data = _plan(create_plan("Ôn bài", ["Đọc", "Đọc"], store=store))
-    assert data["subtasks"] == [{"title": "Đọc"}, {"title": "Đọc"}]
+    assert [item["title"] for item in data["subtasks"]] == ["Đọc", "Đọc"]
 
 
 def test_goal_and_title_are_stored_as_nfc() -> None:
@@ -84,8 +90,8 @@ def test_goal_and_title_are_stored_as_nfc() -> None:
     nfd_title = unicodedata.normalize("NFD", "Học hiragana")
     data = _plan(create_plan(nfd_goal, [nfd_title], store=store))
     assert data["goal"] == unicodedata.normalize("NFC", "Học tiếng Nhật")
-    assert data["subtasks"] == [
-        {"title": unicodedata.normalize("NFC", "Học hiragana")}
+    assert [item["title"] for item in data["subtasks"]] == [
+        unicodedata.normalize("NFC", "Học hiragana")
     ]
 
 
