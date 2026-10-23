@@ -1,0 +1,5 @@
+src/core/plans.py
+src/tools/plan_tools.py
+tests/test_add_subtask.py
+docs/ARCHITECTURE.md
+specs/004-add-subtask/**
