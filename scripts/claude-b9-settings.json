@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status *)", "Bash(git diff *)", "Bash(git --no-pager diff *)",
+      "Bash(git log *)", "Bash(git --no-pager log *)", "Bash(git grep *)",
+      "Bash(git ls-files *)", "Bash(git show *)", "Bash(git --no-pager show *)",
+      "Bash(uv run pytest *)",
+      "Bash(powershell -NoProfile -File scripts/check.ps1 *)",
+      "PowerShell(git status *)", "PowerShell(git diff *)", "PowerShell(git --no-pager diff *)",
+      "PowerShell(git log *)", "PowerShell(git --no-pager log *)", "PowerShell(git grep *)",
+      "PowerShell(git ls-files *)", "PowerShell(git show *)", "PowerShell(git --no-pager show *)",
+      "PowerShell(uv run pytest *)",
+      "PowerShell(.\\scripts\\check.ps1 *)",
+      "PowerShell(Get-Content *)"
+    ],
+    "deny": ["Edit", "Write", "NotebookEdit"]
+  }
+}

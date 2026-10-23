@@ -18,10 +18,14 @@ Mỗi thông tin chỉ nằm ở một nơi; chỉ trỏ tới, không chép.
 
 Theo thứ tự: `/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement` → `/speckit-converge`. Dừng sau mỗi bước để người dùng duyệt.
 
+Ngay sau `/speckit-tasks`: tạo `specs/<thư mục>/allowed-files.txt`, mỗi dòng một đường dẫn tương đối, dấu `/`, gồm mọi file mà `tasks.md` nêu sẽ sửa hoặc tạo, cộng dòng `specs/<thư mục>/**`. Không dùng `*` ở chỗ khác.
+
 ## Lệnh
 
 - Cài dependency: `uv sync`
 - Test: `uv run pytest`
+- Kiểm (test, file thay đổi, luật import): `.\scripts\check.ps1 -AllowList specs/<thư mục>/allowed-files.txt` (mã 0 là đạt, 1 là có mục không đạt, 2 là lỗi cách dùng)
+- Phiên kiểm B9 chỉ đọc bằng Claude Code: `claude --settings scripts\claude-b9-settings.json --permission-mode dontAsk` (chưa chạy thử)
 - Dev (bắt buộc trong WSL): `uv run pywrangler dev` (chưa chạy thử)
 - Deploy: `uv run pywrangler deploy` (chưa chạy thử)
 
@@ -41,4 +45,4 @@ Gặp một trong các trường hợp dưới đây thì dừng, không tự x�
 - Thay đổi đi ngược hướng phụ thuộc của D-011, hoặc đổi trường hay kiểu của model trong src/core.
 - /speckit-converge quá 3 vòng, hoặc cùng một lỗi quay lại lần thứ hai.
 - Lỗi môi trường chưa hiểu (quyền file, khóa git, import runtime). Không nới quyền, không tắt kiểm tra để vượt qua.
-Báo "xong" phải kèm output thật của uv run pytest.
+Báo "xong" phải kèm output thật của `.\scripts\check.ps1 -AllowList specs/<thư mục>/allowed-files.txt`.
