@@ -18,12 +18,14 @@ import db.client
 import db.models
 import scheduler
 import scheduler.checkin
+import spike_cron
 import tools
 import tools.base
 import tools.plan_tools
 import tools.tool_router
 
 app = FastAPI()
+app.include_router(spike_cron.router)
 
 
 @app.get("/health")
