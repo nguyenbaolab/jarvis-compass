@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 import api
 import api.routes_planning
+import api.routes_spike
 import api.routes_telegram
 import clients
 import clients.telegram
@@ -24,6 +25,7 @@ import tools.plan_tools
 import tools.tool_router
 
 app = FastAPI()
+app.include_router(api.routes_spike.router)
 
 
 @app.get("/health")
