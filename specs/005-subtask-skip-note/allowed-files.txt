@@ -1,0 +1,12 @@
+src/core/plans.py
+src/tools/schemas.py
+src/tools/plan_tools.py
+tests/test_subtask_skip_note.py
+tests/test_create_plan.py
+tests/test_get_plans.py
+tests/test_get_plan_detail.py
+tests/test_add_subtask.py
+tests/test_update_subtask.py
+docs/ARCHITECTURE.md
+docs/PRODUCT.md
+specs/005-subtask-skip-note/**
