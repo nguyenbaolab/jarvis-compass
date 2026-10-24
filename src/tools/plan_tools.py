@@ -1,5 +1,8 @@
 """Lớp mỏng: gọi core, đổi kết quả thành ToolResult, đổi lỗi miền thành ToolError."""
 
+from contextlib import contextmanager
+from typing import Callable, Iterator, TypeVar
+
 from core.plans import (
     Plan,
     PlanDomainError,
@@ -19,6 +22,7 @@ from tools.base import ToolError, ToolResult
 from tools.schemas import PlanJson, PlansJson, SubtaskJson
 
 _MISSING_PLAN_MESSAGE = "Không có kế hoạch với danh tính này."
+_FieldValue = TypeVar("_FieldValue")
 
 
 def _plan_json(plan: Plan) -> PlanJson:
@@ -46,6 +50,47 @@ def _plan_tool_result(plan: Plan) -> ToolResult:
     return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
 
 
+@contextmanager
+def _domain_as_tool_error() -> Iterator[None]:
+    """Đổi PlanDomainError thành ToolError, giữ nguyên câu và nguyên nhân."""
+
+    try:
+        yield
+    except PlanDomainError as error:
+        raise ToolError(str(error)) from error
+
+
+def _require_plan(store: PlanStore, plan_id: str) -> Plan:
+    """Lấy kế hoạch theo danh tính đã chuẩn hóa. Không có thì ném ToolError."""
+
+    plan = store.get(plan_id)
+    if plan is None:
+        raise ToolError(_MISSING_PLAN_MESSAGE)
+    return plan
+
+
+def _replace_subtask_field(
+    plan_id: str | None,
+    subtask_id: str | None,
+    raw_value: str | None,
+    store: PlanStore,
+    normalize_value: Callable[[str | None], _FieldValue],
+    replace_field: Callable[[Plan, str, _FieldValue], Plan],
+) -> ToolResult:
+    """Chuẩn hóa ba đầu vào, sửa một việc con, chỉ ghi store khi plan đổi."""
+
+    with _domain_as_tool_error():
+        normalized_plan_id = normalize_plan_id(plan_id)
+        normalized_subtask_id = normalize_subtask_id(subtask_id)
+        normalized_value = normalize_value(raw_value)
+    plan = _require_plan(store, normalized_plan_id)
+    with _domain_as_tool_error():
+        updated = replace_field(plan, normalized_subtask_id, normalized_value)
+    if updated is not plan:
+        store.replace(updated)
+    return _plan_tool_result(updated)
+
+
 def create_plan(
     goal: str | None,
     subtasks: list[str] | None = None,
@@ -54,10 +99,8 @@ def create_plan(
 ) -> ToolResult:
     """Lưu một kế hoạch đã chuẩn hóa, hoặc ném ToolError và không gọi add."""
 
-    try:
+    with _domain_as_tool_error():
         normalized_goal, normalized_subtasks = normalize_new_plan(goal, subtasks)
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
     plan = store.add(normalized_goal, normalized_subtasks)
     return _plan_tool_result(plan)
 
@@ -87,13 +130,9 @@ def get_plan_detail(
 ) -> ToolResult:
     """Mở một kế hoạch theo danh tính đã lưu, hoặc ném ToolError."""
 
-    try:
+    with _domain_as_tool_error():
         normalized_id = normalize_plan_id(plan_id)
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
-    plan = store.get(normalized_id)
-    if plan is None:
-        raise ToolError(_MISSING_PLAN_MESSAGE)
+    plan = _require_plan(store, normalized_id)
     return _plan_tool_result(plan)
 
 
@@ -106,24 +145,9 @@ def update_subtask(
 ) -> ToolResult:
     """Đặt trạng thái một việc con, hoặc ném ToolError với đúng câu đầu tiên."""
 
-    try:
-        normalized_plan_id = normalize_plan_id(plan_id)
-        normalized_subtask_id = normalize_subtask_id(subtask_id)
-        normalized_status = normalize_subtask_status(status)
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
-    plan = store.get(normalized_plan_id)
-    if plan is None:
-        raise ToolError(_MISSING_PLAN_MESSAGE)
-    try:
-        updated = replace_subtask_status(
-            plan, normalized_subtask_id, normalized_status
-        )
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
-    if updated is not plan:
-        store.replace(updated)
-    return _plan_tool_result(updated)
+    return _replace_subtask_field(
+        plan_id, subtask_id, status, store, normalize_subtask_status, replace_subtask_status
+    )
 
 
 def add_subtask(
@@ -134,14 +158,10 @@ def add_subtask(
 ) -> ToolResult:
     """Thêm một việc con vào cuối, hoặc ném ToolError với đúng câu đầu tiên."""
 
-    try:
+    with _domain_as_tool_error():
         normalized_plan_id = normalize_plan_id(plan_id)
         subtask = new_subtask(title)
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
-    stored = store.get(normalized_plan_id)
-    if stored is None:
-        raise ToolError(_MISSING_PLAN_MESSAGE)
+    stored = _require_plan(store, normalized_plan_id)
     updated = append_subtask(stored, subtask)
     store.replace(updated)
     return _plan_tool_result(updated)
@@ -156,19 +176,6 @@ def set_subtask_note(
 ) -> ToolResult:
     """Đặt ghi chú một việc con, hoặc ném ToolError với đúng câu đầu tiên."""
 
-    try:
-        normalized_plan_id = normalize_plan_id(plan_id)
-        normalized_subtask_id = normalize_subtask_id(subtask_id)
-        normalized_note = normalize_subtask_note(note)
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
-    plan = store.get(normalized_plan_id)
-    if plan is None:
-        raise ToolError(_MISSING_PLAN_MESSAGE)
-    try:
-        updated = replace_subtask_note(plan, normalized_subtask_id, normalized_note)
-    except PlanDomainError as error:
-        raise ToolError(str(error)) from error
-    if updated is not plan:
-        store.replace(updated)
-    return _plan_tool_result(updated)
+    return _replace_subtask_field(
+        plan_id, subtask_id, note, store, normalize_subtask_note, replace_subtask_note
+    )
