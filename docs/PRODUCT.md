@@ -25,7 +25,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F04 | Planning tool — create_plan | Tạo plan mới với goal + subtasks, gọi bởi LLM ở planning service |
 | F05 | Planning tool — get_plans | List active plans / tìm theo keyword |
 | F06 | Planning tool — get_plan_detail | Xem chi tiết một plan |
-| F07 | Planning tool — update_subtask | Đánh dấu done/skip/note cho subtask |
+| F07 | Planning tool — update_subtask | Done và skip đặt qua update_subtask; note đặt qua set_subtask_note |
 | F08 | Planning tool — add_subtask | Thêm subtask vào plan đang có |
 | F09 | Planning tool — revise_plan | Xem lại và đề xuất điều chỉnh plan |
 | F10 | Proactive check-in (remote push) | Cron job server-side nhắc việc sáng/tối, luôn remote push, không phụ thuộc client có mở app hay không |

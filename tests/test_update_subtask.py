@@ -34,7 +34,7 @@ def _plan(result: ToolResult) -> dict:
     assert _UUID.fullmatch(data["id"])
     seen: set[str] = set()
     for item in data["subtasks"]:
-        assert list(item) == ["id", "title", "status"]
+        assert list(item) == ["id", "title", "status", "note"]
         assert isinstance(item["title"], str)
         assert item["status"] in {"pending", "done"}
         assert _UUID.fullmatch(item["id"])
@@ -174,7 +174,7 @@ def test_padded_status_and_ids_match() -> None:
 
 _BLANK_PLAN = "Danh tính kế hoạch chưa được đưa."
 _BLANK_SUBTASK = "Danh tính việc con chưa được đưa."
-_BAD_STATUS = "Trạng thái việc con chỉ nhận pending hoặc done."
+_BAD_STATUS = "Trạng thái việc con chỉ nhận pending, done hoặc skipped."
 _MISSING_PLAN = "Không có kế hoạch với danh tính này."
 _NOT_IN_PLAN = "Kế hoạch này không có việc con với danh tính này."
 
@@ -225,7 +225,7 @@ def test_blank_subtask_id_wins_before_lookup(subtask_id: str | None) -> None:
 
 @pytest.mark.parametrize(
     "status",
-    [None, "", "   ", "xong", "chưa xong", "Done", "PENDING", "skipped"],
+    [None, "", "   ", "xong", "chưa xong", "Done", "PENDING"],
 )
 def test_bad_status_wins_before_lookup(status: str | None) -> None:
     store = MemoryPlanStore()

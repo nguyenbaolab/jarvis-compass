@@ -22,7 +22,7 @@ def _plan(result: ToolResult) -> dict:
     assert _PLAN_ID.fullmatch(data["id"])
     seen: set[str] = set()
     for item in data["subtasks"]:
-        assert list(item) == ["id", "title", "status"]
+        assert list(item) == ["id", "title", "status", "note"]
         assert isinstance(item["title"], str)
         assert item["status"] == "pending"
         assert _PLAN_ID.fullmatch(item["id"])

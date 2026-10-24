@@ -4,9 +4,9 @@ Chỉ dùng thư viện chuẩn. Không import FastAPI, Pydantic, tools, hay db.
 """
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
-from typing import Protocol
+from typing import Callable, Protocol
 
 import unicodedata
 
@@ -16,19 +16,21 @@ class PlanDomainError(Exception):
 
 
 class SubtaskStatus(StrEnum):
-    """Trạng thái việc con. Lát này chỉ pending hoặc done."""
+    """Trạng thái việc con: pending, done, hoặc skipped."""
 
     PENDING = "pending"
     DONE = "done"
+    SKIPPED = "skipped"
 
 
 @dataclass(frozen=True)
 class Subtask:
-    """Một việc con. Danh tính giữ nguyên khi trạng thái đổi."""
+    """Một việc con. Danh tính giữ nguyên khi trạng thái hoặc ghi chú đổi."""
 
     id: str
     title: str
     status: SubtaskStatus
+    note: str | None
 
 
 @dataclass(frozen=True)
@@ -75,6 +77,7 @@ def new_subtask(title: str | None) -> Subtask:
         id=str(uuid.uuid4()),
         title=normalized,
         status=SubtaskStatus.PENDING,
+        note=None,
     )
 
 
@@ -116,16 +119,20 @@ def normalize_subtask_id(subtask_id: str | None) -> str:
     return stripped
 
 
+_INVALID_STATUS_MESSAGE = "Trạng thái việc con chỉ nhận pending, done hoặc skipped."
+_MISSING_SUBTASK_MESSAGE = "Kế hoạch này không có việc con với danh tính này."
+
+
 def normalize_subtask_status(status: str | None) -> SubtaskStatus:
-    """Chỉ nhận đúng pending hoặc done sau khi bỏ khoảng trắng hai đầu."""
+    """Chỉ nhận đúng pending, done hoặc skipped sau khi bỏ khoảng trắng hai đầu."""
 
     if status is None:
-        raise PlanDomainError("Trạng thái việc con chỉ nhận pending hoặc done.")
+        raise PlanDomainError(_INVALID_STATUS_MESSAGE)
     stripped = status.strip()
     try:
         return SubtaskStatus(stripped)
     except ValueError:
-        raise PlanDomainError("Trạng thái việc con chỉ nhận pending hoặc done.") from None
+        raise PlanDomainError(_INVALID_STATUS_MESSAGE) from None
 
 
 def _plan_with_subtasks(plan: Plan, subtasks: tuple[Subtask, ...]) -> Plan:
@@ -145,8 +152,12 @@ def append_subtask(plan: Plan, subtask: Subtask) -> Plan:
     return _plan_with_subtasks(plan, plan.subtasks + (subtask,))
 
 
-def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -> Plan:
-    """Trả về đúng plan nếu trạng thái không đổi, hoặc plan mới chỉ đổi việc đó."""
+def _replace_one_subtask(
+    plan: Plan,
+    subtask_id: str,
+    change: Callable[[Subtask], Subtask],
+) -> Plan:
+    """Tìm một việc theo id. Không thấy thì lỗi. Việc không đổi thì trả đúng plan."""
 
     updated: list[Subtask] = []
     found = False
@@ -155,12 +166,46 @@ def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -
             updated.append(item)
             continue
         found = True
-        if item.status == status:
+        changed = change(item)
+        if changed is item:
             return plan
-        updated.append(Subtask(id=item.id, title=item.title, status=status))
+        updated.append(changed)
     if not found:
-        raise PlanDomainError("Kế hoạch này không có việc con với danh tính này.")
+        raise PlanDomainError(_MISSING_SUBTASK_MESSAGE)
     return _plan_with_subtasks(plan, tuple(updated))
+
+
+def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -> Plan:
+    """Trả về đúng plan nếu trạng thái không đổi, hoặc plan mới chỉ đổi việc đó."""
+
+    def change(item: Subtask) -> Subtask:
+        if item.status == status:
+            return item
+        return replace(item, status=status)
+
+    return _replace_one_subtask(plan, subtask_id, change)
+
+
+def normalize_subtask_note(note: str | None) -> str | None:
+    """NFC rồi bỏ khoảng trắng hai đầu. None hoặc rỗng thành không có ghi chú."""
+
+    if note is None:
+        return None
+    normalized = _nfc_strip(note)
+    if normalized == "":
+        return None
+    return normalized
+
+
+def replace_subtask_note(plan: Plan, subtask_id: str, note: str | None) -> Plan:
+    """Trả về đúng plan nếu ghi chú không đổi, hoặc plan mới chỉ đổi việc đó."""
+
+    def change(item: Subtask) -> Subtask:
+        if item.note == note:
+            return item
+        return replace(item, note=note)
+
+    return _replace_one_subtask(plan, subtask_id, change)
 
 
 def filter_by_goal_keyword(

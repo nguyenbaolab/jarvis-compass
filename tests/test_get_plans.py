@@ -18,7 +18,7 @@ def _plans(result: ToolResult) -> list[dict]:
         assert set(plan) == {"id", "goal", "subtasks"}
         seen: set[str] = set()
         for item in plan["subtasks"]:
-            assert list(item) == ["id", "title", "status"]
+            assert list(item) == ["id", "title", "status", "note"]
             assert item["status"] == "pending"
             assert item["id"] != plan["id"]
             assert item["id"] not in seen

@@ -25,7 +25,7 @@ def _plan(result: ToolResult) -> dict:
     assert _UUID.fullmatch(data["id"])
     seen: set[str] = set()
     for item in data["subtasks"]:
-        assert list(item) == ["id", "title", "status"]
+        assert list(item) == ["id", "title", "status", "note"]
         assert isinstance(item["title"], str)
         assert item["status"] in {"pending", "done"}
         assert _UUID.fullmatch(item["id"])
