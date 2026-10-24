@@ -16,6 +16,8 @@ from core.plans import (
 from tools.base import ToolError, ToolResult
 from tools.schemas import PlanJson, PlansJson, SubtaskJson
 
+_MISSING_PLAN_MESSAGE = "Không có kế hoạch với danh tính này."
+
 
 def _plan_json(plan: Plan) -> PlanJson:
     """Dựng PlanJson từ một Plan."""
@@ -28,6 +30,13 @@ def _plan_json(plan: Plan) -> PlanJson:
             for item in plan.subtasks
         ],
     )
+
+
+def _plan_tool_result(plan: Plan) -> ToolResult:
+    """Bọc một Plan thành ToolResult thành công."""
+
+    body = _plan_json(plan)
+    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
 
 
 def create_plan(
@@ -43,8 +52,7 @@ def create_plan(
     except PlanDomainError as error:
         raise ToolError(str(error)) from error
     plan = store.add(normalized_goal, normalized_subtasks)
-    body = _plan_json(plan)
-    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
+    return _plan_tool_result(plan)
 
 
 def _plans_json(plans: tuple[Plan, ...]) -> str:
@@ -78,9 +86,8 @@ def get_plan_detail(
         raise ToolError(str(error)) from error
     plan = store.get(normalized_id)
     if plan is None:
-        raise ToolError("Không có kế hoạch với danh tính này.")
-    body = _plan_json(plan)
-    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
+        raise ToolError(_MISSING_PLAN_MESSAGE)
+    return _plan_tool_result(plan)
 
 
 def update_subtask(
@@ -100,7 +107,7 @@ def update_subtask(
         raise ToolError(str(error)) from error
     plan = store.get(normalized_plan_id)
     if plan is None:
-        raise ToolError("Không có kế hoạch với danh tính này.")
+        raise ToolError(_MISSING_PLAN_MESSAGE)
     try:
         updated = replace_subtask_status(
             plan, normalized_subtask_id, normalized_status
@@ -109,8 +116,7 @@ def update_subtask(
         raise ToolError(str(error)) from error
     if updated is not plan:
         store.replace(updated)
-    body = _plan_json(updated)
-    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
+    return _plan_tool_result(updated)
 
 
 def add_subtask(
@@ -128,8 +134,7 @@ def add_subtask(
         raise ToolError(str(error)) from error
     stored = store.get(normalized_plan_id)
     if stored is None:
-        raise ToolError("Không có kế hoạch với danh tính này.")
+        raise ToolError(_MISSING_PLAN_MESSAGE)
     updated = append_subtask(stored, subtask)
     store.replace(updated)
-    body = _plan_json(updated)
-    return ToolResult(success=True, output=body.model_dump_json(ensure_ascii=False))
+    return _plan_tool_result(updated)

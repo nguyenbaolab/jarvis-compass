@@ -128,15 +128,21 @@ def normalize_subtask_status(status: str | None) -> SubtaskStatus:
         raise PlanDomainError("Trạng thái việc con chỉ nhận pending hoặc done.") from None
 
 
-def append_subtask(plan: Plan, subtask: Subtask) -> Plan:
-    """Trả về Plan mới, việc con mới đứng cuối. Không chuẩn hóa và không cấp id."""
+def _plan_with_subtasks(plan: Plan, subtasks: tuple[Subtask, ...]) -> Plan:
+    """Plan mới cùng id, goal và created_order, với danh sách việc con đã cho."""
 
     return Plan(
         id=plan.id,
         goal=plan.goal,
-        subtasks=plan.subtasks + (subtask,),
+        subtasks=subtasks,
         created_order=plan.created_order,
     )
+
+
+def append_subtask(plan: Plan, subtask: Subtask) -> Plan:
+    """Trả về Plan mới, việc con mới đứng cuối. Không chuẩn hóa và không cấp id."""
+
+    return _plan_with_subtasks(plan, plan.subtasks + (subtask,))
 
 
 def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -> Plan:
@@ -154,12 +160,7 @@ def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -
         updated.append(Subtask(id=item.id, title=item.title, status=status))
     if not found:
         raise PlanDomainError("Kế hoạch này không có việc con với danh tính này.")
-    return Plan(
-        id=plan.id,
-        goal=plan.goal,
-        subtasks=tuple(updated),
-        created_order=plan.created_order,
-    )
+    return _plan_with_subtasks(plan, tuple(updated))
 
 
 def filter_by_goal_keyword(
