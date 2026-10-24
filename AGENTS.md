@@ -26,8 +26,8 @@ Ngay sau `/speckit-tasks`: tạo `specs/<thư mục>/allowed-files.txt`, mỗi d
 - Test: `uv run pytest`
 - Kiểm (test, file thay đổi, luật import): `.\scripts\check.ps1 -AllowList specs/<thư mục>/allowed-files.txt` (mã 0 là đạt, 1 là có mục không đạt, 2 là lỗi cách dùng)
 - Phiên kiểm B9 chỉ đọc bằng Claude Code: `claude --settings scripts\claude-b9-settings.json --permission-mode dontAsk` (chưa chạy thử)
-- Dev (bắt buộc trong WSL): `uv run pywrangler dev` (chưa chạy thử)
-- Deploy: `uv run pywrangler deploy` (chưa chạy thử)
+- Dev (WSL Ubuntu: `wsl -d Ubuntu`; chạy trước `export UV_PROJECT_ENVIRONMENT=$HOME/.venvs/jarvis-compass` để không đè .venv của Windows): `uv run pywrangler dev`
+- Deploy (WSL Ubuntu, cùng biến trên): `uv run pywrangler deploy`. Lần deploy đầu có thể báo lỗi 10007 ở bước bật workers.dev; chạy lại là qua.
 
 ## Quy tắc làm việc
 
