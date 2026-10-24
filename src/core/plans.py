@@ -46,16 +46,16 @@ class Plan:
 class PlanStore(Protocol):
     """Cổng lưu kế hoạch. Lát cắt này không có bản cài đặt trong src/."""
 
-    def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
+    async def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
         """Gán id và created_order, giữ nguyên goal và thứ tự việc con."""
 
-    def list_newest_first(self) -> tuple[Plan, ...]:
+    async def list_newest_first(self) -> tuple[Plan, ...]:
         """Mọi kế hoạch, created_order lớn hơn đứng trước."""
 
-    def get(self, plan_id: str) -> Plan | None:
+    async def get(self, plan_id: str) -> Plan | None:
         """Trả kế hoạch có đúng id, hoặc None khi không có."""
 
-    def replace(self, plan: Plan) -> None:
+    async def replace(self, plan: Plan) -> None:
         """Thay kế hoạch cùng id. Không thêm mới và không cấp lại id việc con."""
 
 

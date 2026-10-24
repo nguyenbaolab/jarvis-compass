@@ -12,7 +12,7 @@ class MemoryPlanStore:
         self._plans: list[Plan] = []
         self._next_order = 1
 
-    def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
+    async def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
         """Gán id kế hoạch và created_order. Giữ nguyên id và status của việc con."""
 
         plan = Plan(
@@ -25,12 +25,12 @@ class MemoryPlanStore:
         self._plans.append(plan)
         return plan
 
-    def list_newest_first(self) -> tuple[Plan, ...]:
+    async def list_newest_first(self) -> tuple[Plan, ...]:
         """created_order lớn hơn đứng trước. Store rỗng trả tuple rỗng."""
 
         return tuple(sorted(self._plans, key=lambda plan: plan.created_order, reverse=True))
 
-    def get(self, plan_id: str) -> Plan | None:
+    async def get(self, plan_id: str) -> Plan | None:
         """Trả kế hoạch có id trùng chuỗi được truyền, hoặc None."""
 
         for plan in self._plans:
@@ -38,7 +38,7 @@ class MemoryPlanStore:
                 return plan
         return None
 
-    def replace(self, plan: Plan) -> None:
+    async def replace(self, plan: Plan) -> None:
         """Thay kế hoạch cùng id. Không thêm mới và không đụng kế hoạch khác."""
 
         for index, stored in enumerate(self._plans):

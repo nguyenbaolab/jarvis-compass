@@ -199,3 +199,18 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 - Core không phụ thuộc Pydantic hay database, nên test được bằng store giả trong bộ nhớ.
 
 **Phương án đã bỏ:** đặt Plan và PlanStore trong src/tools/. Gọn hơn cho F04 và F05, nhưng scheduler sẽ phải import từ tools.
+
+## D-012 — Cổng PlanStore và tool có lưu trữ là bất đồng bộ
+
+**Date:** 2026-10-25
+**Status:** Accepted
+
+**Bối cảnh:** F03 sẽ cài PlanStore bằng PostgREST. Spike khâu 2 (branch spike/supabase-postgrest) chạy được với AsyncPostgrestClient trên Worker; gọi HTTP đồng bộ trên Worker chưa thử.
+
+**Quyết định:** Bốn phương thức của PlanStore là async def. Tool trong src/tools/plan_tools.py có gọi store là async def. Hàm chuẩn hóa và luật miền trong src/core/plans.py giữ đồng bộ. Test chạy hàm async bằng asyncio.run, không thêm plugin pytest.
+
+**Lý do:**
+- App chạy qua ASGI; gọi mạng đồng bộ chặn vòng sự kiện trong lúc chờ DB.
+- Đổi cổng trước F03, tách khỏi việc cài store thật, để lỗi của hai việc không lẫn nhau.
+
+**Phương án đã bỏ:** giữ cổng đồng bộ và dùng client PostgREST đồng bộ (chưa biết chạy được trên Worker, và chặn request khi chờ DB); thêm pytest-asyncio (thêm dependency trong khi asyncio.run đã đủ).

@@ -60,16 +60,16 @@ def _domain_as_tool_error() -> Iterator[None]:
         raise ToolError(str(error)) from error
 
 
-def _require_plan(store: PlanStore, plan_id: str) -> Plan:
+async def _require_plan(store: PlanStore, plan_id: str) -> Plan:
     """Lấy kế hoạch theo danh tính đã chuẩn hóa. Không có thì ném ToolError."""
 
-    plan = store.get(plan_id)
+    plan = await store.get(plan_id)
     if plan is None:
         raise ToolError(_MISSING_PLAN_MESSAGE)
     return plan
 
 
-def _replace_subtask_field(
+async def _replace_subtask_field(
     plan_id: str | None,
     subtask_id: str | None,
     raw_value: str | None,
@@ -83,15 +83,15 @@ def _replace_subtask_field(
         normalized_plan_id = normalize_plan_id(plan_id)
         normalized_subtask_id = normalize_subtask_id(subtask_id)
         normalized_value = normalize_value(raw_value)
-    plan = _require_plan(store, normalized_plan_id)
+    plan = await _require_plan(store, normalized_plan_id)
     with _domain_as_tool_error():
         updated = replace_field(plan, normalized_subtask_id, normalized_value)
     if updated is not plan:
-        store.replace(updated)
+        await store.replace(updated)
     return _plan_tool_result(updated)
 
 
-def create_plan(
+async def create_plan(
     goal: str | None,
     subtasks: list[str] | None = None,
     *,
@@ -101,7 +101,7 @@ def create_plan(
 
     with _domain_as_tool_error():
         normalized_goal, normalized_subtasks = normalize_new_plan(goal, subtasks)
-    plan = store.add(normalized_goal, normalized_subtasks)
+    plan = await store.add(normalized_goal, normalized_subtasks)
     return _plan_tool_result(plan)
 
 
@@ -112,18 +112,18 @@ def _plans_json(plans: tuple[Plan, ...]) -> str:
     return body.model_dump_json(ensure_ascii=False)
 
 
-def get_plans(
+async def get_plans(
     keyword: str | None = None,
     *,
     store: PlanStore,
 ) -> ToolResult:
     """Liệt kê kế hoạch mới hơn đứng trước, rồi lọc theo từ khóa trong goal."""
 
-    plans = filter_by_goal_keyword(store.list_newest_first(), keyword)
+    plans = filter_by_goal_keyword(await store.list_newest_first(), keyword)
     return ToolResult(success=True, output=_plans_json(plans))
 
 
-def get_plan_detail(
+async def get_plan_detail(
     plan_id: str | None,
     *,
     store: PlanStore,
@@ -132,11 +132,11 @@ def get_plan_detail(
 
     with _domain_as_tool_error():
         normalized_id = normalize_plan_id(plan_id)
-    plan = _require_plan(store, normalized_id)
+    plan = await _require_plan(store, normalized_id)
     return _plan_tool_result(plan)
 
 
-def update_subtask(
+async def update_subtask(
     plan_id: str | None,
     subtask_id: str | None,
     status: str | None,
@@ -145,12 +145,12 @@ def update_subtask(
 ) -> ToolResult:
     """Đặt trạng thái một việc con, hoặc ném ToolError với đúng câu đầu tiên."""
 
-    return _replace_subtask_field(
+    return await _replace_subtask_field(
         plan_id, subtask_id, status, store, normalize_subtask_status, replace_subtask_status
     )
 
 
-def add_subtask(
+async def add_subtask(
     plan_id: str | None,
     title: str | None,
     *,
@@ -161,13 +161,13 @@ def add_subtask(
     with _domain_as_tool_error():
         normalized_plan_id = normalize_plan_id(plan_id)
         subtask = new_subtask(title)
-    stored = _require_plan(store, normalized_plan_id)
+    stored = await _require_plan(store, normalized_plan_id)
     updated = append_subtask(stored, subtask)
-    store.replace(updated)
+    await store.replace(updated)
     return _plan_tool_result(updated)
 
 
-def set_subtask_note(
+async def set_subtask_note(
     plan_id: str | None,
     subtask_id: str | None,
     note: str | None,
@@ -176,6 +176,6 @@ def set_subtask_note(
 ) -> ToolResult:
     """Đặt ghi chú một việc con, hoặc ném ToolError với đúng câu đầu tiên."""
 
-    return _replace_subtask_field(
+    return await _replace_subtask_field(
         plan_id, subtask_id, note, store, normalize_subtask_note, replace_subtask_note
     )

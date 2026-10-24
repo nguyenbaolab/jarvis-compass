@@ -1,5 +1,6 @@
 """Helper dùng chung cho các bài test kế hoạch."""
 
+import asyncio
 import json
 import re
 
@@ -22,13 +23,13 @@ class ReplaceCounter(MemoryPlanStore):
         super().__init__()
         self.replace_calls = 0
 
-    def replace(self, plan: Plan) -> None:
+    async def replace(self, plan: Plan) -> None:
         self.replace_calls += 1
-        super().replace(plan)
+        await super().replace(plan)
 
 
 def listed_plans(store: MemoryPlanStore) -> list[dict]:
-    result = get_plans(store=store)
+    result = asyncio.run(get_plans(store=store))
     assert result.success is True
     data = json.loads(result.output)
     assert set(data) == {"plans"}
@@ -76,7 +77,7 @@ def update_subtask_refusal(
     store: MemoryPlanStore,
 ) -> str:
     with pytest.raises(ToolError) as caught:
-        update_subtask(plan_id, subtask_id, status, store=store)
+        asyncio.run(update_subtask(plan_id, subtask_id, status, store=store))
     return str(caught.value)
 
 
