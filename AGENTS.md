@@ -24,6 +24,7 @@ Ngay sau `/speckit-tasks`: tạo `specs/<thư mục>/allowed-files.txt`, mỗi d
 
 - Cài dependency: `uv sync`
 - Test: `uv run pytest`
+- Supabase local, ghim `npx --yes supabase@2.122.0`: `init`, `start`, `db reset`, `status`. `status -o json` của bản 2.122.0 in `API_URL` và `SERVICE_ROLE_KEY`. Pytest đọc `JARVIS_TEST_SUPABASE_URL` và `JARVIS_TEST_SUPABASE_KEY` trong tiến trình, không đọc `SUPABASE_URL` hay `SUPABASE_KEY`. Host phải là `127.0.0.1` hoặc `localhost`, nếu không test thất bại trước khi gọi mạng. `db reset` dựng lại lược đồ. Test tự xóa dòng trong `tests/`, không trong `src/`.
 - Kiểm (test, file thay đổi, luật import): `.\scripts\check.ps1 -AllowList specs/<thư mục>/allowed-files.txt` (mã 0 là đạt, 1 là có mục không đạt, 2 là lỗi cách dùng)
 - Phiên kiểm B9 chỉ đọc bằng Claude Code: `claude --settings scripts\claude-b9-settings.json --permission-mode dontAsk` (chưa chạy thử)
 - Dev (WSL Ubuntu: `wsl -d Ubuntu`; chạy trước `export UV_PROJECT_ENVIRONMENT=$HOME/.venvs/jarvis-compass` để không đè .venv của Windows): `uv run pywrangler dev`
@@ -33,7 +34,7 @@ Ngay sau `/speckit-tasks`: tạo `specs/<thư mục>/allowed-files.txt`, mỗi d
 
 - Làm trên branch riêng; không tự commit hay push, người dùng tự commit.
 - Thay đổi nào làm một file docs sai thì sửa file đó trong cùng thay đổi.
-- Không đọc và không ghi file `.env` thật; chỉ dùng `.env.example`.
+- Không đọc và không ghi file `.env` thật và `.dev.vars`; chỉ dùng `.env.example`.
 - Không sửa `.specify/templates/` và `.cursor/skills/` trừ khi được yêu cầu.
 
 ## Khi nào dừng và chuyển cho người

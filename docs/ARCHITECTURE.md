@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-> Trạng thái code: src/app.py phục vụ /health. Logic F04, F05, F06, F07 (gồm skipped và ghi chú), và F08 đã có ở src/core/plans.py và src/tools/plan_tools.py, chưa nối HTTP, LLM hay database. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
+> Trạng thái code: src/app.py phục vụ /health. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. Bản PlanStore Supabase nằm ở src/db/ và chưa được route sản phẩm, Telegram, hay LLM gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
 
 ## §0 Bối cảnh hệ thống
 
@@ -35,10 +35,10 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 - `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), webhook Telegram Bot API (F11)
 - `src/core/` — Logic lõi: clarify/orchestration (F01, F02); gọi LLM qua `src/core/llm.py` (F12); model miền dùng chung (`Plan`, `Subtask`, `PlanStore`, chuẩn hóa NFC) ở `src/core/plans.py`
 - `src/tools/` — Planning tools phía server (F04–F09) và dispatch tool; `plan_tools` là lớp mỏng gọi core
-- `src/db/` — Truy cập Supabase qua `src/db/client.py`
+- `src/db/` — `client.py` là chỗ duy nhất trong `src/` gọi PostgREST. `plan_store.py` là bản cổng. `models.py` là dòng DB. Hai mốc thời gian chỉ ở bảng việc con.
 - `src/clients/` — Kênh client ngoài: Telegram Bot API (trả lời / check-in)
 - `src/scheduler/` — Proactive check-in cron (F10)
-- `src/config/` — Configuration qua `src/config/settings.py`
+- `src/config/` — `settings.py` đọc `SUPABASE_URL` và `SUPABASE_KEY` từ nguồn người gọi truyền vào, dict hoặc env của Worker, không bằng `os.getenv`
 - `tests/` — Unit tests
 
 ## §3 Request flow (HTTP từ client)

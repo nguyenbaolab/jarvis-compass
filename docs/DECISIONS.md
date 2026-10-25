@@ -214,3 +214,14 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 - Đổi cổng trước F03, tách khỏi việc cài store thật, để lỗi của hai việc không lẫn nhau.
 
 **Phương án đã bỏ:** giữ cổng đồng bộ và dùng client PostgREST đồng bộ (chưa biết chạy được trên Worker, và chặn request khi chờ DB); thêm pytest-asyncio (thêm dependency trong khi asyncio.run đã đủ).
+
+## D-013 — F03 ghi kế hoạch bằng một RPC PostgREST; trạng thái việc con có CHECK
+
+**Date:** 2026-10-25
+**Status:** Accepted
+
+**Bối cảnh:** D-010 chọn PostgREST vì CRUD không cần transaction phức tạp. FR-012 cấm làm mất `created_at` của việc còn danh tính. Mỗi request PostgREST là một transaction riêng, nên nhiều request cho một lần `replace` có thể dừng giữa chừng.
+
+**Quyết định:** `add` và `replace` mỗi cái một hàm SQL, gọi bằng RPC của `postgrest`. Đọc bằng `select`. `status_changed_at` do trigger. Cột `status` có `CHECK (status in ('pending', 'done', 'skipped'))`. CHECK chặn dữ liệu sai từ mọi nơi ghi. Lần đọc vẫn báo trạng thái lạ khi dữ liệu đọc từ kho chứa mã mà bản code đang chạy chưa biết, như khi migration sau thêm mã trong khi code cũ còn đọc. RLS bật; `service_role` được grant; `anon` và `authenticated` không.
+
+**Phương án đã bỏ:** nhiều lời gọi bảng cho một lần `replace`; store tự ghi mốc thời gian; bỏ `CHECK` để ghi một mã lạ vào kho lúc test.

@@ -2,7 +2,7 @@
 
 import uuid
 
-from core.plans import Plan, Subtask
+from core.plans import Plan, PlanDomainError, Subtask
 
 
 class MemoryPlanStore:
@@ -45,3 +45,4 @@ class MemoryPlanStore:
             if stored.id == plan.id:
                 self._plans[index] = plan
                 return
+        raise PlanDomainError("Không có kế hoạch với danh tính này.")
