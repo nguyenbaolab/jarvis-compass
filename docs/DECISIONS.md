@@ -225,3 +225,15 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 **Quyết định:** `add` và `replace` mỗi cái một hàm SQL, gọi bằng RPC của `postgrest`. Đọc bằng `select`. `status_changed_at` do trigger. Cột `status` có `CHECK (status in ('pending', 'done', 'skipped'))`. CHECK chặn dữ liệu sai từ mọi nơi ghi. Lần đọc vẫn báo trạng thái lạ khi dữ liệu đọc từ kho chứa mã mà bản code đang chạy chưa biết, như khi migration sau thêm mã trong khi code cũ còn đọc. RLS bật; `service_role` được grant; `anon` và `authenticated` không.
 
 **Phương án đã bỏ:** nhiều lời gọi bảng cho một lần `replace`; store tự ghi mốc thời gian; bỏ `CHECK` để ghi một mã lạ vào kho lúc test.
+
+**D-014 — execute_tool là lối vào tool call; log bảy khóa là hợp đồng eval**
+
+**Date:** 2026-10-26
+
+**Status:** Accepted
+
+**Bối cảnh:** Sáu tool đã có. Vòng sau nối LLM vào `execute_tool`. Bộ eval cần một dòng log ổn định.
+
+**Quyết định:** `execute_tool` là lối vào duy nhất cho tool call từ LLM. Dòng log bảy khóa của FR-009 trong spec 007 là hợp đồng cho eval. Đổi khóa thì tăng `DEFINITIONS_VERSION` hoặc ghi quyết định mới. `detail` của lỗi unexpected chỉ là tên lớp exception. Hàm log ném Exception thì bị nuốt và kết quả vẫn trả về, nên eval có thể thiếu dòng log khi kênh log hỏng; catalog hỏng đi đường unexpected.
+
+**Phương án đã bỏ:** ghi thông điệp exception vào `detail` rồi tìm cách che secret. Router không biết giá trị secret.

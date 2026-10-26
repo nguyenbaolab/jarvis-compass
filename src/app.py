@@ -16,6 +16,7 @@ import core.session
 import db
 import db.client
 import db.models
+import db.plan_store
 import scheduler
 import scheduler.checkin
 import tools

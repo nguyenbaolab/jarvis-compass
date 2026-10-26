@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-> Trạng thái code: src/app.py phục vụ /health. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. Bản PlanStore Supabase nằm ở src/db/ và chưa được route sản phẩm, Telegram, hay LLM gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
+> Trạng thái code: src/app.py phục vụ /health và nạp db.plan_store. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. execute_tool điều phối sáu tool khi người gọi đưa kho. Route, Telegram, và LLM chưa gọi router. SupabasePlanStore vẫn do người gọi dựng, chưa do route gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
 
 ## §0 Bối cảnh hệ thống
 
@@ -34,7 +34,7 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 
 - `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), webhook Telegram Bot API (F11)
 - `src/core/` — Logic lõi: clarify/orchestration (F01, F02); gọi LLM qua `src/core/llm.py` (F12); model miền dùng chung (`Plan`, `Subtask`, `PlanStore`, chuẩn hóa NFC) ở `src/core/plans.py`
-- `src/tools/` — Planning tools phía server (F04–F09) và dispatch tool; `plan_tools` là lớp mỏng gọi core
+- `src/tools/` — Planning tools phía server (F04–F09). `tool_definitions.py` là catalog tên, mô tả, schema đầu vào, và phiên bản. `tool_router.py` kiểm đầu vào rồi gọi `plan_tools`. `plan_tools` vẫn là lớp mỏng.
 - `src/db/` — `client.py` là chỗ duy nhất trong `src/` gọi PostgREST. `plan_store.py` là bản cổng. `models.py` là dòng DB. Hai mốc thời gian chỉ ở bảng việc con.
 - `src/clients/` — Kênh client ngoài: Telegram Bot API (trả lời / check-in)
 - `src/scheduler/` — Proactive check-in cron (F10)
@@ -69,6 +69,7 @@ Cloudflare Cron Trigger (giờ cấu hình sẵn)
 
 ## §6 Logging
 
+- Mỗi lần điều phối ghi một dòng JSON qua hàm được truyền vào, mặc định in một dòng, không thêm thư viện log.
 - Chưa chốt: loguru chưa chắc chạy được trên Pyodide (chưa có trong pyproject.toml); kiểm khi làm tính năng đầu tiên cần log. Các quy ước code khác: xem constitution, mục Quy ước mã nguồn.
 
 ## §7 Điểm khác biệt quan trọng so với jarvis-desktop (lưu ý khi code)

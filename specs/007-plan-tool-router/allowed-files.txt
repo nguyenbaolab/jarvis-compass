@@ -1,0 +1,11 @@
+src/tools/tool_definitions.py
+src/tools/tool_router.py
+src/app.py
+tests/test_tool_router.py
+tests/test_app_loads_plan_store.py
+tests/test_supabase_plan_store_source.py
+docs/ARCHITECTURE.md
+docs/DECISIONS.md
+specs/007-plan-tool-router/**
+docs/architecture/architecture.json
+docs/architecture/architecture.html
