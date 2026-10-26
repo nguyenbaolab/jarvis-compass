@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "jarvis-compass — kiến trúc trên main",
+    "output": "docs/architecture/architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/nguyenbaolab/jarvis-compass.git",
+      "revision": "ce5b7646a5aa9befebfc46a238409e715e3d5f7f"
+    }
+  },
+  "components": [
+    {
+      "id": "desktop",
+      "type": "external",
+      "label": "planned · jarvis-desktop",
+      "sublabel": "client của F14",
+      "pos": [40, 140],
+      "size": [200, 60],
+      "sources": [{ "path": "src/api/routes_planning.py", "line": 1, "label": "docstring: endpoint cho jarvis-desktop" }]
+    },
+    {
+      "id": "tgapi",
+      "type": "external",
+      "label": "planned · Telegram Bot API",
+      "sublabel": "webhook vào, gửi tin ra (F11)",
+      "pos": [40, 290],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/api/routes_telegram.py", "line": 1, "label": "docstring: webhook Telegram Bot API" },
+        { "path": "src/clients/telegram.py", "line": 1, "label": "docstring: gọi Telegram Bot API" }
+      ]
+    },
+    {
+      "id": "claude",
+      "type": "external",
+      "label": "planned · Claude API",
+      "sublabel": "anthropic SDK (F12)",
+      "pos": [970, 40],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/core/llm.py", "line": 1, "label": "docstring: Claude API client wrapper" },
+        { "path": "pyproject.toml", "line": 5, "end_line": 9, "label": "anthropic có trong dependencies" }
+      ]
+    },
+    {
+      "id": "routes-planning",
+      "type": "backend",
+      "label": "planned · routes (F14)",
+      "sublabel": "src/api/routes_planning.py",
+      "pos": [350, 140],
+      "size": [200, 60],
+      "sources": [{ "path": "src/api/routes_planning.py", "line": 1, "label": "stub docstring, chưa có code" }]
+    },
+    {
+      "id": "routes-telegram",
+      "type": "backend",
+      "label": "planned · webhook (F11)",
+      "sublabel": "src/api/routes_telegram.py",
+      "pos": [350, 290],
+      "size": [200, 60],
+      "sources": [{ "path": "src/api/routes_telegram.py", "line": 1, "label": "stub docstring, chưa có code" }]
+    },
+    {
+      "id": "clarify",
+      "type": "backend",
+      "label": "planned · clarify + session",
+      "sublabel": "src/core/planning.py + session.py",
+      "pos": [660, 215],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/core/planning.py", "line": 1, "label": "stub docstring (F01, F02)" },
+        { "path": "src/core/session.py", "line": 1, "label": "stub docstring (F02)" }
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "backend",
+      "label": "planned · LLM layer (F12)",
+      "sublabel": "src/core/llm.py",
+      "pos": [970, 215],
+      "size": [200, 60],
+      "sources": [{ "path": "src/core/llm.py", "line": 1, "label": "stub docstring, chưa có code" }]
+    },
+    {
+      "id": "tool-router",
+      "type": "backend",
+      "label": "planned · tool_router",
+      "sublabel": "src/tools/tool_router.py",
+      "pos": [970, 400],
+      "size": [200, 60],
+      "sources": [{ "path": "src/tools/tool_router.py", "line": 1, "label": "stub docstring, chưa có code" }]
+    },
+    {
+      "id": "checkin",
+      "type": "backend",
+      "label": "planned · check-in (F10)",
+      "sublabel": "src/scheduler/checkin.py",
+      "pos": [660, 400],
+      "size": [200, 60],
+      "sources": [{ "path": "src/scheduler/checkin.py", "line": 1, "label": "stub docstring, chưa có code" }]
+    },
+    {
+      "id": "tg-client",
+      "type": "backend",
+      "label": "planned · Telegram (F11)",
+      "sublabel": "src/clients/telegram.py",
+      "pos": [350, 400],
+      "size": [200, 60],
+      "sources": [{ "path": "src/clients/telegram.py", "line": 1, "label": "stub docstring, chưa có code" }]
+    },
+    {
+      "id": "db-client",
+      "type": "backend",
+      "label": "db/client · PostgREST",
+      "sublabel": "src/db/client.py",
+      "pos": [40, 540],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/db/client.py", "line": 21, "end_line": 25, "label": "postgrest_client" },
+        { "path": "src/db/client.py", "line": 46, "end_line": 100, "label": "add_plan, list_plans, get_plan, replace_plan" }
+      ]
+    },
+    {
+      "id": "plan-store",
+      "type": "backend",
+      "label": "SupabasePlanStore",
+      "sublabel": "src/db/plan_store.py",
+      "pos": [350, 540],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/db/plan_store.py", "line": 92, "end_line": 129, "label": "SupabasePlanStore" },
+        { "path": "src/db/plan_store.py", "line": 32, "end_line": 77, "label": "plan_from_row" },
+        { "path": "src/db/models.py", "line": 6, "end_line": 24, "label": "SubtaskRow, PlanRow" }
+      ]
+    },
+    {
+      "id": "core",
+      "type": "backend",
+      "label": "core/plans · Plan, PlanStore",
+      "sublabel": "src/core/plans.py",
+      "pos": [660, 540],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/core/plans.py", "line": 26, "end_line": 59, "label": "Subtask, Plan, PlanStore" },
+        { "path": "src/core/plans.py", "line": 84, "end_line": 97, "label": "normalize_new_plan" },
+        { "path": "scripts/check.ps1", "line": 347, "end_line": 349, "label": "luật core không import tools/db" }
+      ]
+    },
+    {
+      "id": "plan-tools",
+      "type": "backend",
+      "label": "plan_tools (6 tool, async)",
+      "sublabel": "src/tools/plan_tools.py",
+      "pos": [970, 540],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/tools/plan_tools.py", "line": 94, "end_line": 181, "label": "create_plan … set_subtask_note" },
+        { "path": "src/tools/base.py", "line": 6, "end_line": 17, "label": "ToolResult, ToolError" },
+        { "path": "src/tools/schemas.py", "line": 8, "end_line": 28, "label": "SubtaskJson, PlanJson, PlansJson" }
+      ]
+    },
+    {
+      "id": "supabase",
+      "type": "database",
+      "label": "Supabase Postgres",
+      "sublabel": "supabase/migrations/*.sql",
+      "pos": [40, 680],
+      "size": [200, 60],
+      "sources": [
+        { "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql", "line": 9, "end_line": 27, "label": "bảng plans, subtasks" },
+        { "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql", "line": 53, "end_line": 59, "label": "RPC add_plan" },
+        { "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql", "line": 116, "end_line": 123, "label": "RPC replace_plan" }
+      ]
+    },
+    {
+      "id": "settings",
+      "type": "backend",
+      "label": "require_supabase()",
+      "sublabel": "src/config/settings.py",
+      "pos": [350, 680],
+      "size": [200, 60],
+      "sources": [{ "path": "src/config/settings.py", "line": 25, "end_line": 38, "label": "require_supabase, SettingsError" }]
+    },
+    {
+      "id": "http-client",
+      "type": "external",
+      "label": "HTTP client",
+      "sublabel": "GET /health",
+      "pos": [40, 800],
+      "size": [200, 60],
+      "sources": [{ "path": "src/app.py", "line": 29, "end_line": 32, "label": "route /health" }]
+    },
+    {
+      "id": "worker-entry",
+      "type": "cloud",
+      "label": "Worker entry · Default",
+      "sublabel": "src/entry.py",
+      "pos": [350, 800],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/entry.py", "line": 1, "end_line": 6, "label": "Default = asgi.entrypoint(app)" },
+        { "path": "wrangler.jsonc", "line": 1, "end_line": 6, "label": "main: src/entry.py" }
+      ]
+    },
+    {
+      "id": "fastapi-app",
+      "type": "backend",
+      "label": "FastAPI app · health()",
+      "sublabel": "src/app.py",
+      "pos": [660, 800],
+      "size": [200, 60],
+      "sources": [{ "path": "src/app.py", "line": 26, "end_line": 32, "label": "app, health" }]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "PLANNED — file stub, chưa có logic (src/)",
+      "wraps": ["routes-planning", "routes-telegram", "clarify", "llm", "tool-router", "checkin", "tg-client"]
+    }
+  ],
+  "connections": [
+    { "id": "desktop-to-routes", "from": "desktop", "to": "routes-planning", "label": "HTTP", "variant": "dashed" },
+    { "id": "tgapi-to-webhook", "from": "tgapi", "to": "routes-telegram", "label": "webhook", "variant": "dashed" },
+    { "id": "routes-to-clarify", "from": "routes-planning", "to": "clarify", "label": "yêu cầu", "variant": "dashed", "fromSide": "right", "toSide": "top" },
+    { "id": "webhook-to-clarify", "from": "routes-telegram", "to": "clarify", "label": "tin nhắn", "variant": "dashed", "fromSide": "right", "toSide": "bottom" },
+    { "id": "clarify-to-llm", "from": "clarify", "to": "llm", "label": "gọi LLM", "variant": "dashed" },
+    { "id": "llm-to-claude", "from": "llm", "to": "claude", "label": "gọi Claude", "variant": "dashed" },
+    { "id": "llm-to-router", "from": "llm", "to": "tool-router", "label": "tool call", "variant": "dashed" },
+    { "id": "router-to-tools", "from": "tool-router", "to": "plan-tools", "label": "execute_tool", "variant": "dashed" },
+    { "id": "checkin-to-tg", "from": "checkin", "to": "tg-client", "label": "gửi nhắc", "variant": "dashed" },
+    { "id": "tg-to-tgapi", "from": "tg-client", "to": "tgapi", "label": "Bot API", "variant": "dashed", "fromSide": "left", "toSide": "bottom" },
+    { "id": "checkin-to-core", "from": "checkin", "to": "core", "label": "dùng Plan", "variant": "dashed" },
+    { "id": "tools-to-core", "from": "plan-tools", "to": "core", "label": "gọi core" },
+    { "id": "store-to-core", "from": "plan-store", "to": "core", "label": "cài PlanStore" },
+    { "id": "store-to-client", "from": "plan-store", "to": "db-client", "label": "gọi client" },
+    { "id": "store-to-settings", "from": "plan-store", "to": "settings", "label": "require_supabase" },
+    { "id": "client-to-supabase", "from": "db-client", "to": "supabase", "label": "HTTPS · /rest/v1" },
+    { "id": "http-to-entry", "from": "http-client", "to": "worker-entry", "label": "GET /health" },
+    { "id": "entry-to-app", "from": "worker-entry", "to": "fastapi-app", "label": "ASGI" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Đã có code — hai cụm chưa nối nhau",
+      "items": [
+        "Cụm 1: chỉ có route GET /health (src/app.py:29-32).",
+        "Cụm 2: plan_tools → core ← SupabasePlanStore → db/client → Supabase.",
+        "app.py chỉ import các module; không route nào gọi plan_tools hay SupabasePlanStore.",
+        "plan_tools nhận store: PlanStore qua tham số; src/ chưa có nơi nào dựng SupabasePlanStore."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Phân lớp (D-011, D-012)",
+      "items": [
+        "D-011: tools import core; core chỉ dùng thư viện chuẩn, không import tools hay db; PlanStore cài ở src/db/.",
+        "scripts/check.ps1:347-349 kiểm luật này bằng git grep trên src/core.",
+        "D-012: bốn phương thức PlanStore và tool có gọi store là async def."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Lưu trữ (D-010, D-013)",
+      "items": [
+        "D-010: truy cập Supabase qua PostgREST (postgrest-py), không dùng driver TCP.",
+        "D-013: add và replace mỗi cái một RPC; CHECK trạng thái; RLS bật, chỉ service_role được grant.",
+        "src/db/client.py là chỗ duy nhất trong src/ tạo AsyncPostgrestClient."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Planned — suy ra từ docstring và docs",
+      "items": [
+        "Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), llm (F12), tool_router, checkin (F10), clients/telegram (F11).",
+        "Nét đứt = planned. Các cạnh này lấy từ docs/ARCHITECTURE.md §3-§4 và D-011 (scheduler dùng lại Plan), không từ code.",
+        "D-004: lớp LLM model-agnostic. D-007: check-in qua remote push, Telegram ở giai đoạn 1.",
+        "pyproject.toml có anthropic nhưng src/ không import; wrangler.jsonc chưa khai báo Cron Trigger.",
+        "settings.py:46-47 khai báo ANTHROPIC_API_KEY và TELEGRAM_BOT_TOKEN; chưa file nào trong src/ đọc."
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Ngoài src/",
+      "items": [
+        "tests/fakes/memory_plan_store.py: MemoryPlanStore, bản PlanStore chỉ dùng cho test.",
+        "db/models.py (PlanRow, SubtaskRow), tools/base.py và tools/schemas.py gộp vào node cha ở phần sources."
+      ]
+    }
+  ]
+}

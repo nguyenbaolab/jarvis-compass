@@ -40,3 +40,5 @@ node_modules/
 python_modules/
 
 .codegraph/
+.archify/
+docs/architecture/*.delivery.json
