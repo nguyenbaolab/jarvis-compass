@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-> Trạng thái code: src/app.py phục vụ /health và nạp db.plan_store. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. execute_tool điều phối sáu tool khi người gọi đưa kho. Route, Telegram, và LLM chưa gọi router. SupabasePlanStore vẫn do người gọi dựng, chưa do route gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
+> Trạng thái code: src/app.py phục vụ /health và nạp db.plan_store. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. execute_tool điều phối sáu tool khi người gọi đưa kho. Lượt mô hình nằm ở src/turns/llm_turn.py, gọi cổng src/core/llm.py rồi execute_tool. Route và Telegram chưa gọi lượt này. Khóa mô hình do người gọi đưa, không đọc từ settings. SupabasePlanStore vẫn do người gọi dựng, chưa do route gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
 
 ## §0 Bối cảnh hệ thống
 
@@ -33,10 +33,11 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 > **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy toàn bộ package nằm trong `src/`, không phải root. Chỉ src/entry.py được import workers (runtime Cloudflare); app FastAPI nằm ở src/app.py để test được trên Python thường.
 
 - `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), webhook Telegram Bot API (F11)
-- `src/core/` — Logic lõi: clarify/orchestration (F01, F02); gọi LLM qua `src/core/llm.py` (F12); model miền dùng chung (`Plan`, `Subtask`, `PlanStore`, chuẩn hóa NFC) ở `src/core/plans.py`
+- `src/core/` — Logic lõi: clarify/orchestration (F01, F02). `llm.py` là cổng trung lập, chỉ thư viện chuẩn. `system_prompt.py` là hằng prompt và `PROMPT_VERSION`. Model miền dùng chung (`Plan`, `Subtask`, `PlanStore`, chuẩn hóa NFC) ở `src/core/plans.py`
+- `src/turns/` — Vòng lặp của một lượt, gọi `execute_tool`, không import SDK.
 - `src/tools/` — Planning tools phía server (F04–F09). `tool_definitions.py` là catalog tên, mô tả, schema đầu vào, và phiên bản. `tool_router.py` kiểm đầu vào rồi gọi `plan_tools`. `plan_tools` vẫn là lớp mỏng.
 - `src/db/` — `client.py` là chỗ duy nhất trong `src/` gọi PostgREST. `plan_store.py` là bản cổng. `models.py` là dòng DB. Hai mốc thời gian chỉ ở bảng việc con.
-- `src/clients/` — Kênh client ngoài: Telegram Bot API (trả lời / check-in)
+- `src/clients/` — Kênh client ngoài: Telegram Bot API (trả lời / check-in). Adapter Anthropic nằm cạnh Telegram và dịch cổng sang SDK.
 - `src/scheduler/` — Proactive check-in cron (F10)
 - `src/config/` — `settings.py` đọc `SUPABASE_URL` và `SUPABASE_KEY` từ nguồn người gọi truyền vào, dict hoặc env của Worker, không bằng `os.getenv`
 - `tests/` — Unit tests
@@ -46,8 +47,8 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 Client (jarvis-desktop hoặc Telegram)
 → api/routes_*.py nhận request
 → core/planning.py orchestrate
-→ core/llm.py generate (+ tool calling nếu cần)
-→ tools/tool_router.py execute_tool nếu LLM gọi tool
+→ turns/llm_turn.py qua cổng core/llm.py
+→ tools/tool_router.py execute_tool khi phản hồi đòi tool
 → db/client.py đọc/ghi Supabase qua PostgREST
 → core/session.py cập nhật session state (nếu đang clarify dở)
 → Trả response về client
@@ -70,6 +71,7 @@ Cloudflare Cron Trigger (giờ cấu hình sẵn)
 ## §6 Logging
 
 - Mỗi lần điều phối ghi một dòng JSON qua hàm được truyền vào, mặc định in một dòng, không thêm thư viện log.
+- Mỗi lần gọi mô hình đã kết thúc ghi một dòng JSON tám khóa qua cùng hàm log được truyền vào `execute_tool`. Không thêm thư viện log.
 - Chưa chốt: loguru chưa chắc chạy được trên Pyodide (chưa có trong pyproject.toml); kiểm khi làm tính năng đầu tiên cần log. Các quy ước code khác: xem constitution, mục Quy ước mã nguồn.
 
 ## §7 Điểm khác biệt quan trọng so với jarvis-desktop (lưu ý khi code)

@@ -30,7 +30,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F09 | Planning tool — revise_plan | Xem lại và đề xuất điều chỉnh plan |
 | F10 | Proactive check-in (remote push) | Cron job server-side nhắc việc sáng/tối, luôn remote push, không phụ thuộc client có mở app hay không |
 | F11 | Telegram Bot interface (MVP client) | Text hoặc voice message (Telegram tự transcribe), nhận scheduled check-in qua Telegram Bot API |
-| F12 | Model-agnostic LLM layer | Interface chuẩn OpenAI-compatible, đổi model chỉ bằng đổi API key/endpoint |
+| F12 | Model-agnostic LLM layer | Cổng trung lập và adapter Anthropic |
 | F13 | Streaming response + barge-in support | Hỗ trợ streaming response cho client voice (Mức 1 real-time: STT VAD → streaming → TTS từng câu → barge-in) |
 | F14 | HTTP API cho jarvis-desktop client | Endpoint để jarvis-desktop gọi sang khi cần lập kế hoạch, qua tool mới trong tool_router |
 | F15 | One-way sync to Google Tasks (display only) | Đồng bộ một chiều database → Google Tasks để xem cho tiện, không phải core kiến trúc, không phải MVP |
@@ -49,7 +49,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 
 ## §5 Non-functional requirements
 
-- Cost: MVP dùng Claude Haiku 5.5 (D-004). Ước tính cũ ~2.2 USD/tháng ở mức 15 lượt/ngày được tính theo giá Haiku 4.5, cần tính lại theo giá Haiku 5.5.
+- Cost: MVP dùng Claude Haiku 5.5 (D-004). Ở mức 15 lượt/ngày khoảng 0,1 đến 0,4 USD/tháng, tính từ token đo ở smoke test 2026-10-26 (lượt không tool khoảng 1.500 token, lượt có một lần tool khoảng 5.200 token) theo giá 0,10 USD vào và 0,50 USD ra mỗi triệu token.
 - Các yêu cầu còn lại (thông báo chủ động, chạy 24/7, độ trễ khi desktop gọi sang, giữ ngữ cảnh session, đổi model) nằm trong .specify/memory/constitution.md và docs/DECISIONS.md.
 
 ## §6 Kiến trúc tổng thể (tham chiếu)

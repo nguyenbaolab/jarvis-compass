@@ -1,0 +1,14 @@
+src/core/llm.py
+src/core/system_prompt.py
+src/turns/__init__.py
+src/turns/llm_turn.py
+src/clients/anthropic_model.py
+src/config/settings.py
+tests/test_llm_turn.py
+tests/test_anthropic_model.py
+docs/ARCHITECTURE.md
+docs/DECISIONS.md
+docs/PRODUCT.md
+specs/008-llm-tool-turn/**
+AGENTS.md
+.specify/memory/constitution.md

@@ -43,5 +43,4 @@ def _get_str(key: str, default: str) -> str:
     return os.getenv(key, default)
 
 
-ANTHROPIC_API_KEY: str = _get_str("ANTHROPIC_API_KEY", "")
 TELEGRAM_BOT_TOKEN: str = _get_str("TELEGRAM_BOT_TOKEN", "")

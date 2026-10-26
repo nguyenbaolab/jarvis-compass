@@ -69,6 +69,8 @@
 
 **Cập nhật 2026-10-18:** model MVP đổi từ Claude Haiku 4.5 sang Claude Haiku 5.5 (claude-haiku-5-5) vì đã có bản mới. Lý do chọn dòng Haiku cho MVP giữ nguyên.
 
+**Cập nhật 2026-10-26:** lớp LLM là cổng trung lập trong `src/core/llm.py` cộng adapter theo nhà cung cấp (hiện là Anthropic, `src/clients/anthropic_model.py`), thay cho câu interface chuẩn OpenAI-compatible.
+
 ---
 
 ## D-005 — Latency budget khi jarvis-desktop gọi sang jarvis-compass
@@ -237,3 +239,17 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 **Quyết định:** `execute_tool` là lối vào duy nhất cho tool call từ LLM. Dòng log bảy khóa của FR-009 trong spec 007 là hợp đồng cho eval. Đổi khóa thì tăng `DEFINITIONS_VERSION` hoặc ghi quyết định mới. `detail` của lỗi unexpected chỉ là tên lớp exception. Hàm log ném Exception thì bị nuốt và kết quả vẫn trả về, nên eval có thể thiếu dòng log khi kênh log hỏng; catalog hỏng đi đường unexpected.
 
 **Phương án đã bỏ:** ghi thông điệp exception vào `detail` rồi tìm cách che secret. Router không biết giá trị secret.
+
+---
+
+## D-015 — Vòng lượt mô hình ở src/turns; dòng log tám khóa là hợp đồng eval
+
+**Date:** 2026-10-26
+
+**Status:** Accepted
+
+**Bối cảnh:** Cổng mô hình ở `src/core/llm.py` không được import `tools`, trong khi lượt phải gọi `execute_tool`. Bộ eval cần một dòng log cho mỗi lần gọi mô hình, tách khỏi bảy khóa D-014.
+
+**Quyết định:** Vòng lặp của một lượt nằm ở `src/turns`. Dòng log tám khóa của lần gọi mô hình là hợp đồng cho eval. Đổi khóa của dòng log mô hình thì ghi một quyết định mới.
+
+**Phương án đã bỏ:** đặt vòng lặp trong `src/core/llm.py`. Luật import không cho core import tools.

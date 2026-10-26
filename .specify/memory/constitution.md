@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: (none) → 1.0.0
-- Modified principles: N/A (first ratification; template placeholders replaced)
-- Added sections: Core Principles (8 luật), Ràng buộc kỹ thuật, Quy ước mã nguồn, Governance
-- Removed sections: template placeholders only
+- Version change: 1.0.0 → 1.0.1
+- Modified principles: IV. Gọi LLM qua lớp trung gian
+- Added sections: none
+- Removed sections: none
 - Follow-up TODOs:
-  - none (docs/DECISIONS.md, docs/PRODUCT.md, docs/ARCHITECTURE.md đã tạo)
+  - none
 -->
 
 # jarvis-compass Constitution
@@ -22,7 +22,7 @@ Không lưu session hay hội thoại trong bộ nhớ Python giữa các reques
 Mọi truy cập DB chỉ qua `src/db/client.py` và chỉ bằng PostgREST (`postgrest-py`); cấm driver TCP như asyncpg hay psycopg (D-010).
 
 ### IV. Gọi LLM qua lớp trung gian
-Mọi lời gọi LLM chỉ qua `src/core/llm.py`; model, endpoint và API key lấy từ config, không hardcode provider (D-004).
+Mọi lời gọi LLM đi qua cổng trung lập trong `src/core/llm.py`. SDK của nhà cung cấp chỉ được import trong adapter nằm ngoài `src/core`; model và endpoint đặt trong adapter (D-004, D-015). API key do người gọi truyền vào từ cấu hình runtime; code của lượt và adapter không đọc biến môi trường.
 
 ### V. Thông báo chủ động bằng remote push
 Mọi thông báo chủ động phải đi bằng remote push từ server (Telegram Bot API, sau này FCM); cấm lên lịch phía client (D-007).
@@ -54,4 +54,4 @@ Thay đổi nào làm một file docs sai thì phải sửa file đó trong cùn
 
 Sửa một luật thì cập nhật quyết định tương ứng trong `docs/DECISIONS.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-18
+**Version**: 1.0.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-26
