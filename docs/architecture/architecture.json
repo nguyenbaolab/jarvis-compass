@@ -7,7 +7,7 @@
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/nguyenbaolab/jarvis-compass.git",
-      "revision": "ce5b7646a5aa9befebfc46a238409e715e3d5f7f"
+      "revision": "11d68cc8cfd747c2d01772ade1694e6e0d18e6f8"
     }
   },
   "components": [
@@ -86,11 +86,27 @@
     {
       "id": "tool-router",
       "type": "backend",
-      "label": "planned · tool_router",
+      "label": "tool_router · execute_tool",
       "sublabel": "src/tools/tool_router.py",
-      "pos": [970, 400],
+      "pos": [1280, 540],
       "size": [200, 60],
-      "sources": [{ "path": "src/tools/tool_router.py", "line": 1, "label": "stub docstring, chưa có code" }]
+      "sources": [
+        { "path": "src/tools/tool_router.py", "line": 251, "end_line": 263, "label": "execute_tool: lối vào tool call" },
+        { "path": "src/tools/tool_router.py", "line": 112, "end_line": 119, "label": "_DISPATCH: tên tool → hàm plan_tools" },
+        { "path": "src/tools/tool_router.py", "line": 140, "end_line": 168, "label": "_invalid_input: kiểm theo TOOL_DEFINITIONS" }
+      ]
+    },
+    {
+      "id": "tool-definitions",
+      "type": "backend",
+      "label": "tool_definitions · catalog",
+      "sublabel": "src/tools/tool_definitions.py",
+      "pos": [1280, 680],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/tools/tool_definitions.py", "line": 3, "label": "DEFINITIONS_VERSION" },
+        { "path": "src/tools/tool_definitions.py", "line": 5, "end_line": 78, "label": "TOOL_DEFINITIONS (sáu tool)" }
+      ]
     },
     {
       "id": "checkin",
@@ -190,7 +206,7 @@
       "sublabel": "GET /health",
       "pos": [40, 800],
       "size": [200, 60],
-      "sources": [{ "path": "src/app.py", "line": 29, "end_line": 32, "label": "route /health" }]
+      "sources": [{ "path": "src/app.py", "line": 30, "end_line": 33, "label": "route /health" }]
     },
     {
       "id": "worker-entry",
@@ -211,14 +227,14 @@
       "sublabel": "src/app.py",
       "pos": [660, 800],
       "size": [200, 60],
-      "sources": [{ "path": "src/app.py", "line": 26, "end_line": 32, "label": "app, health" }]
+      "sources": [{ "path": "src/app.py", "line": 27, "end_line": 33, "label": "app, health" }]
     }
   ],
   "boundaries": [
     {
       "kind": "region",
       "label": "PLANNED — file stub, chưa có logic (src/)",
-      "wraps": ["routes-planning", "routes-telegram", "clarify", "llm", "tool-router", "checkin", "tg-client"]
+      "wraps": ["routes-planning", "routes-telegram", "clarify", "llm", "checkin", "tg-client"]
     }
   ],
   "connections": [
@@ -228,8 +244,9 @@
     { "id": "webhook-to-clarify", "from": "routes-telegram", "to": "clarify", "label": "tin nhắn", "variant": "dashed", "fromSide": "right", "toSide": "bottom" },
     { "id": "clarify-to-llm", "from": "clarify", "to": "llm", "label": "gọi LLM", "variant": "dashed" },
     { "id": "llm-to-claude", "from": "llm", "to": "claude", "label": "gọi Claude", "variant": "dashed" },
-    { "id": "llm-to-router", "from": "llm", "to": "tool-router", "label": "tool call", "variant": "dashed" },
-    { "id": "router-to-tools", "from": "tool-router", "to": "plan-tools", "label": "execute_tool", "variant": "dashed" },
+    { "id": "llm-to-router", "from": "llm", "to": "tool-router", "label": "tool call", "variant": "dashed", "fromSide": "right", "toSide": "top" },
+    { "id": "router-to-tools", "from": "tool-router", "to": "plan-tools", "label": "execute_tool", "fromSide": "left", "toSide": "right" },
+    { "id": "router-to-definitions", "from": "tool-router", "to": "tool-definitions", "label": "đọc schema + version" },
     { "id": "checkin-to-tg", "from": "checkin", "to": "tg-client", "label": "gửi nhắc", "variant": "dashed" },
     { "id": "tg-to-tgapi", "from": "tg-client", "to": "tgapi", "label": "Bot API", "variant": "dashed", "fromSide": "left", "toSide": "bottom" },
     { "id": "checkin-to-core", "from": "checkin", "to": "core", "label": "dùng Plan", "variant": "dashed" },
@@ -246,10 +263,10 @@
       "dot": "cyan",
       "title": "Đã có code — hai cụm chưa nối nhau",
       "items": [
-        "Cụm 1: chỉ có route GET /health (src/app.py:29-32).",
-        "Cụm 2: plan_tools → core ← SupabasePlanStore → db/client → Supabase.",
-        "app.py chỉ import các module; không route nào gọi plan_tools hay SupabasePlanStore.",
-        "plan_tools nhận store: PlanStore qua tham số; src/ chưa có nơi nào dựng SupabasePlanStore."
+        "Cụm 1: chỉ có route GET /health (src/app.py:30-33).",
+        "Cụm 2: tool_router → plan_tools → core ← SupabasePlanStore → db/client → Supabase; tool_router đọc tool_definitions.",
+        "app.py chỉ import các module, nay có thêm db.plan_store (src/app.py:19); không route nào gọi execute_tool, plan_tools hay SupabasePlanStore.",
+        "execute_tool và plan_tools nhận store: PlanStore qua tham số; src/ chưa có nơi nào dựng SupabasePlanStore."
       ]
     },
     {
@@ -271,10 +288,21 @@
       ]
     },
     {
+      "dot": "rose",
+      "title": "Tool router (D-014, spec 007)",
+      "items": [
+        "execute_tool(name, tool_input, *, store, log) là lối vào tool call từ LLM (src/tools/tool_router.py:251-263); chưa có caller trong src/.",
+        "_run (225-248): tên lạ → unknown_tool; đầu vào không phải object → invalid_input; _invalid_input (140-168) kiểm theo input_schema của TOOL_DEFINITIONS; rồi _invoke tra _DISPATCH (112-119) gọi sáu hàm của plan_tools.",
+        "ToolError và PlanDomainError → domain; Exception khác → unexpected, detail chỉ là tên lớp exception.",
+        "_write_log (195-222): mỗi lần gọi ghi đúng một dòng JSON bảy khóa qua hàm log truyền vào, mặc định print; hàm log ném Exception thì nuốt, kết quả vẫn trả. Đổi khóa thì tăng DEFINITIONS_VERSION hoặc ghi quyết định mới.",
+        "src/tools/tool_definitions.py: TOOL_DEFINITIONS (sáu tool: description + input_schema, dòng 5-78) và DEFINITIONS_VERSION = 1 (dòng 3); chỉ tool_router import."
+      ]
+    },
+    {
       "dot": "amber",
       "title": "Planned — suy ra từ docstring và docs",
       "items": [
-        "Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), llm (F12), tool_router, checkin (F10), clients/telegram (F11).",
+        "Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), llm (F12), checkin (F10), clients/telegram (F11).",
         "Nét đứt = planned. Các cạnh này lấy từ docs/ARCHITECTURE.md §3-§4 và D-011 (scheduler dùng lại Plan), không từ code.",
         "D-004: lớp LLM model-agnostic. D-007: check-in qua remote push, Telegram ở giai đoạn 1.",
         "pyproject.toml có anthropic nhưng src/ không import; wrangler.jsonc chưa khai báo Cron Trigger.",
