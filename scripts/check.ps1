@@ -1,7 +1,7 @@
 # Read-only repository checks. Windows PowerShell 5.1. ASCII only.
 # Does not create, edit, or delete files, and does not mutate git state.
 # Parameters: -AllowList (required), -Base (default main).
-# Exit 0 when all four checks pass, 1 when any check fails, 2 on usage errors.
+# Exit 0 when all eight checks pass, 1 when any check fails, 2 on usage errors.
 
 [CmdletBinding()]
 param(
@@ -139,6 +139,43 @@ function Get-GrepSummary {
     })
 }
 
+function Invoke-GrepCheck {
+    param(
+        [string] $Name,
+        [string[]] $Patterns,
+        [string[]] $PathSpecs
+    )
+    # Header, then git grep lines from Get-GrepSummary, same text as the old blocks.
+    Write-Host ("--- {0} ---" -f $Name)
+    $results = @()
+    foreach ($pattern in @($Patterns)) {
+        $gitArgs = @("grep", "-n", "--untracked", "-E", $pattern, "--") + @($PathSpecs)
+        $grep = Invoke-GitRead -GitArguments $gitArgs
+        $results += $grep
+    }
+    $summary = Get-GrepSummary -Results $results
+    if ($summary.Bad) {
+        $checkResult = "fail"
+        $checkDetail = "command failed"
+    } elseif ($summary.SawMatchCode) {
+        $checkResult = "fail"
+        if ($summary.MatchCount -eq 1) {
+            $checkDetail = "1 match"
+        } elseif ($summary.MatchCount -eq 0) {
+            $checkDetail = "matches found"
+        } else {
+            $checkDetail = ("{0} matches" -f $summary.MatchCount)
+        }
+    } else {
+        $checkResult = "pass"
+        $checkDetail = "no matches"
+    }
+    return (New-Object PSObject -Property @{
+        Result = $checkResult
+        Detail = $checkDetail
+    })
+}
+
 $rootRaw = $null
 $rootCode = 128
 try {
@@ -241,7 +278,7 @@ foreach ($line in $rawLines) {
 Write-Host "--- Test ---"
 $pytestCode = 1
 try {
-    & uv run pytest
+    & uv run pytest --fail-on-skip
     if ($null -eq $LASTEXITCODE) {
         $pytestCode = 1
     } else {
@@ -254,10 +291,15 @@ try {
 }
 if ($pytestCode -eq 0) {
     $testResult = "pass"
+    $testDetail = "pytest exit 0"
+} elseif ($pytestCode -eq 6) {
+    $testResult = "fail"
+    $testDetail = "pytest exit 6 (tests skipped)"
+    Write-Host "some tests were skipped; if a local service is not configured, see the Supabase local lines in AGENTS.md."
 } else {
     $testResult = "fail"
+    $testDetail = "pytest exit $pytestCode"
 }
-$testDetail = "pytest exit $pytestCode"
 
 Write-Host "--- Changed files ---"
 $committed = Invoke-GitRead -GitArguments @("diff", "--name-only", "${Base}...HEAD")
@@ -344,56 +386,39 @@ if (-not $listingOk) {
     }
 }
 
-Write-Host "--- Core imports ---"
 $corePattern = '^\s*(from|import)\s+(fastapi|pydantic|tools|db)\b'
 $coreRelativePattern = '^\s*from\s+\.+(tools|db)\b'
-$coreDirect = Invoke-GitRead -GitArguments @("grep", "-n", "--untracked", "-E", $corePattern, "--", "src/core")
-$coreRelative = Invoke-GitRead -GitArguments @("grep", "-n", "--untracked", "-E", $coreRelativePattern, "--", "src/core")
-$coreSummary = Get-GrepSummary -Results @($coreDirect, $coreRelative)
-if ($coreSummary.Bad) {
-    $coreResult = "fail"
-    $coreDetail = "command failed"
-} elseif ($coreSummary.SawMatchCode) {
-    $coreResult = "fail"
-    if ($coreSummary.MatchCount -eq 1) {
-        $coreDetail = "1 match"
-    } elseif ($coreSummary.MatchCount -eq 0) {
-        $coreDetail = "matches found"
-    } else {
-        $coreDetail = ("{0} matches" -f $coreSummary.MatchCount)
-    }
-} else {
-    $coreResult = "pass"
-    $coreDetail = "no matches"
-}
+$core = Invoke-GrepCheck -Name "Core imports" -Patterns @($corePattern, $coreRelativePattern) -PathSpecs @("src/core")
 
-Write-Host "--- Workers imports ---"
 $workersPattern = '^\s*(from|import)\s+workers\b'
-$workers = Invoke-GitRead -GitArguments @("grep", "-n", "--untracked", "-E", $workersPattern, "--", "src", ":!src/entry.py")
-$workersSummary = Get-GrepSummary -Results @($workers)
-if ($workersSummary.Bad) {
-    $workersResult = "fail"
-    $workersDetail = "command failed"
-} elseif ($workersSummary.SawMatchCode) {
-    $workersResult = "fail"
-    if ($workersSummary.MatchCount -eq 1) {
-        $workersDetail = "1 match"
-    } elseif ($workersSummary.MatchCount -eq 0) {
-        $workersDetail = "matches found"
-    } else {
-        $workersDetail = ("{0} matches" -f $workersSummary.MatchCount)
-    }
-} else {
-    $workersResult = "pass"
-    $workersDetail = "no matches"
-}
+$workers = Invoke-GrepCheck -Name "Workers imports" -Patterns @($workersPattern) -PathSpecs @("src", ":!src/entry.py")
+
+$turnsPattern = '^\s*(from|import)\s+(clients|db|config|anthropic)\b'
+$turnsRelativePattern = '^\s*from\s+\.+(clients|db|config|anthropic)\b'
+$turns = Invoke-GrepCheck -Name "Turns imports" -Patterns @($turnsPattern, $turnsRelativePattern) -PathSpecs @("src/turns")
+
+$toolsPattern = '^\s*(from|import)\s+db\b'
+$toolsRelativePattern = '^\s*from\s+\.+db\b'
+$tools = Invoke-GrepCheck -Name "Tools imports" -Patterns @($toolsPattern, $toolsRelativePattern) -PathSpecs @("src/tools")
+
+$sdkPattern = '^\s*(from|import)\s+anthropic\b'
+$sdkRelativePattern = '^\s*from\s+\.+anthropic\b'
+$sdk = Invoke-GrepCheck -Name "SDK imports" -Patterns @($sdkPattern, $sdkRelativePattern) -PathSpecs @("src", ":!src/clients/anthropic_model.py")
+
+$envCallPattern = '\bos\.(getenv|environ)\b'
+$envImportPattern = '^\s*from\s+os\s+import\s+.*\b(getenv|environ)\b'
+$envReads = Invoke-GrepCheck -Name "Env reads" -Patterns @($envCallPattern, $envImportPattern) -PathSpecs @("src/turns", "src/clients/anthropic_model.py")
 
 Write-Host ""
 Write-Host "check | pass/fail | detail"
 Write-Host ("Test | {0} | {1}" -f $testResult, $testDetail)
 Write-Host ("Changed files | {0} | {1}" -f $changedResult, $changedDetail)
-Write-Host ("Core imports | {0} | {1}" -f $coreResult, $coreDetail)
-Write-Host ("Workers imports | {0} | {1}" -f $workersResult, $workersDetail)
+Write-Host ("Core imports | {0} | {1}" -f $core.Result, $core.Detail)
+Write-Host ("Workers imports | {0} | {1}" -f $workers.Result, $workers.Detail)
+Write-Host ("Turns imports | {0} | {1}" -f $turns.Result, $turns.Detail)
+Write-Host ("Tools imports | {0} | {1}" -f $tools.Result, $tools.Detail)
+Write-Host ("SDK imports | {0} | {1}" -f $sdk.Result, $sdk.Detail)
+Write-Host ("Env reads | {0} | {1}" -f $envReads.Result, $envReads.Detail)
 
 $anyFail = $false
 if ($testResult -ne "pass") {
@@ -402,10 +427,22 @@ if ($testResult -ne "pass") {
 if ($changedResult -ne "pass") {
     $anyFail = $true
 }
-if ($coreResult -ne "pass") {
+if ($core.Result -ne "pass") {
     $anyFail = $true
 }
-if ($workersResult -ne "pass") {
+if ($workers.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($turns.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($tools.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($sdk.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($envReads.Result -ne "pass") {
     $anyFail = $true
 }
 if ($anyFail) {
