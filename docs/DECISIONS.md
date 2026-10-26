@@ -185,6 +185,8 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 
 **Supersedes:** Bản D-010 trước đó (chưa có kết quả smoke test thực tế).
 
+**Cập nhật 2026-10-26:** nguyên tắc III chỉ áp cho code trong `src/`. Lý do cấm driver TCP là Pyodide, nên ràng buộc thuộc về code chạy trên Worker; helper trong `tests/` chạy trên máy và gọi PostgREST trực tiếp tới kho local (chốt ở bước analyze của F03).
+
 ---
 
 ## D-011 — Model miền và cổng lưu trữ đặt ở src/core; tool chỉ là lớp mỏng
@@ -253,3 +255,18 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 **Quyết định:** Vòng lặp của một lượt nằm ở `src/turns`. Dòng log tám khóa của lần gọi mô hình là hợp đồng cho eval. Đổi khóa của dòng log mô hình thì ghi một quyết định mới.
 
 **Phương án đã bỏ:** đặt vòng lặp trong `src/core/llm.py`. Luật import không cho core import tools.
+
+## D-016 — Diagram Archify là ảnh chụp, chỉ cập nhật khi hình dạng kiến trúc đổi
+
+**Date:** 2026-10-26
+**Status:** Accepted
+
+**Bối cảnh:** Diagram trong `docs/architecture/` do skill Archify sinh, kiểm nguồn trên một commit đã ghim. Luật "docs sửa cùng thay đổi" khiến mọi vòng tính năng đều phải chạy lại Archify, và bước kiểm B9 báo lệch mỗi khi code đổi. Lần cập nhật sau vòng 8 tốn khoảng 12 phút và 95 đến 100 nghìn token, gấp khoảng 4 lần vòng 7, mà chỉ chép lại code.
+
+**Quyết định:** Diagram là ảnh chụp tại commit đã ghim, không thuộc luật "docs sửa cùng thay đổi". Chỉ cập nhật khi hình dạng kiến trúc đổi: thêm gói hoặc ranh giới mới trong `src/`, nối hai cụm code chưa nối, thêm composition root. Vòng chỉ thêm tool hay sửa logic trong gói có sẵn thì không cập nhật. Khi cập nhật: commit code trước, rồi commit diagram riêng. `docs/ARCHITECTURE.md` vẫn theo luật cũ.
+
+**Lý do:**
+- Giá trị chính của Archify là lần chạy đầu và các lần ranh giới đổi; lần chép lại code không cho thêm thông tin.
+- B9 không phải báo lệch giả mỗi vòng.
+
+**Phương án đã bỏ:** cập nhật mỗi vòng (tốn thời gian và token, không thêm thông tin); chỉ cập nhật khi viết case study portfolio (diagram cũ quá lâu, mất tác dụng khi duyệt kiến trúc).

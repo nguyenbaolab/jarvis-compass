@@ -1,7 +1,8 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.0.1
-- Modified principles: IV. Gọi LLM qua lớp trung gian
+- Version change: 1.0.1 → 1.1.0
+- Modified principles: III. Truy cập database qua PostgREST (phạm vi `src/`, helper test)
+- Modified sections: Governance (ngoại lệ cho diagram trong docs/architecture/)
 - Added sections: none
 - Removed sections: none
 - Follow-up TODOs:
@@ -19,7 +20,7 @@ Mọi nội dung người dùng thấy đều là JARVIS; không được tạo 
 Không lưu session hay hội thoại trong bộ nhớ Python giữa các request; mọi trạng thái phải lưu ở Supabase (D-010).
 
 ### III. Truy cập database qua PostgREST
-Mọi truy cập DB chỉ qua `src/db/client.py` và chỉ bằng PostgREST (`postgrest-py`); cấm driver TCP như asyncpg hay psycopg (D-010).
+Trong `src/`, mọi truy cập DB chỉ qua `src/db/client.py` và chỉ bằng PostgREST (`postgrest-py`); cấm driver TCP như asyncpg hay psycopg (D-010). Helper trong `tests/` được gọi PostgREST trực tiếp tới kho local để dựng và dọn dữ liệu test.
 
 ### IV. Gọi LLM qua lớp trung gian
 Mọi lời gọi LLM đi qua cổng trung lập trong `src/core/llm.py`. SDK của nhà cung cấp chỉ được import trong adapter nằm ngoài `src/core`; model và endpoint đặt trong adapter (D-004, D-015). API key do người gọi truyền vào từ cấu hình runtime; code của lượt và adapter không đọc biến môi trường.
@@ -50,8 +51,8 @@ Constitution đứng trên mọi plan và spec.
 
 Mỗi thông tin chỉ nằm ở một nơi: luật ở constitution này; lý do ở `docs/DECISIONS.md`; sản phẩm là gì ở `docs/PRODUCT.md`; code tổ chức thế nào ở `docs/ARCHITECTURE.md`; từng tính năng ở `specs/`. Không chép thông tin từ nơi này sang nơi khác, chỉ trỏ tới.
 
-Thay đổi nào làm một file docs sai thì phải sửa file đó trong cùng thay đổi.
+Thay đổi nào làm một file docs sai thì phải sửa file đó trong cùng thay đổi. Ngoại lệ: diagram trong `docs/architecture/` là ảnh chụp tại commit đã ghim, chỉ cập nhật khi hình dạng kiến trúc đổi (D-016).
 
 Sửa một luật thì cập nhật quyết định tương ứng trong `docs/DECISIONS.md`.
 
-**Version**: 1.0.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-26
+**Version**: 1.1.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-26
