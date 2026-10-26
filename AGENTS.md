@@ -37,6 +37,7 @@ Ngay sau `/speckit-tasks`: tạo `specs/<thư mục>/allowed-files.txt`, mỗi d
 
 - Làm trên branch riêng; không tự commit hay push, người dùng tự commit.
 - Thay đổi nào làm một file docs sai thì sửa file đó trong cùng thay đổi.
+- Diagram trong `docs/architecture/` không sửa cùng thay đổi code; khi nào cập nhật xem D-016.
 - Không đọc và không ghi file `.env` thật và `.dev.vars`; chỉ dùng `.env.example`.
 - Không sửa `.specify/templates/` và `.cursor/skills/` trừ khi được yêu cầu.
 
