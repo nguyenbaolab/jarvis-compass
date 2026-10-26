@@ -4,6 +4,7 @@ import json
 import time
 from collections.abc import Awaitable, Callable
 
+from core.log_line import default_log, duration_ms, write_json_line
 from core.plans import PlanDomainError, PlanStore
 from tools.base import ToolError, ToolResult
 from tools.plan_tools import (
@@ -37,12 +38,6 @@ def _now() -> float:
     """Mốc monotonic của lần gọi. Tách khỏi đồng hồ mà asyncio cũng đọc."""
 
     return time.monotonic()
-
-
-def _default_log(line: str) -> None:
-    """In một dòng khi người gọi không đưa hàm ghi."""
-
-    print(line, flush=True)
 
 
 def _failure(
@@ -203,23 +198,17 @@ def _write_log(
 ) -> None:
     """Một dòng JSON bảy khóa. Hàm ghi ném Exception thì nuốt, vẫn giữ kết quả."""
 
-    elapsed = _now() - started
-    duration_ms = int(elapsed * 1000) if elapsed > 0 else 0
     payload = {
         "tool": _log_tool(name),
         "input": _log_input(tool_input),
         "ok": result.success,
         "error_type": error_type,
-        "duration_ms": duration_ms,
+        "duration_ms": duration_ms(started, _now()),
         "definitions_version": DEFINITIONS_VERSION,
         "detail": detail,
     }
-    line = json.dumps({key: payload[key] for key in _LOG_KEYS}, ensure_ascii=False)
-    writer = _default_log if log is None else log
-    try:
-        writer(line)
-    except Exception:
-        return
+    writer = default_log if log is None else log
+    write_json_line(writer, {key: payload[key] for key in _LOG_KEYS})
 
 
 async def _run(

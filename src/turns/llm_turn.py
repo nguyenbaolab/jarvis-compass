@@ -1,6 +1,5 @@
 """Một lượt: gọi cổng, chạy tool, rồi trả một chuỗi."""
 
-import json
 import time
 from collections.abc import Callable, Sequence
 
@@ -13,6 +12,7 @@ from core.llm import (
     ToolRequest,
     ToolResultMessage,
 )
+from core.log_line import default_log, duration_ms, write_json_line
 from core.plans import PlanStore
 from core.system_prompt import PROMPT_VERSION, SYSTEM_PROMPT
 from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
@@ -38,37 +38,12 @@ def _now() -> float:
     return time.monotonic()
 
 
-def _default_log(line: str) -> None:
-    """In đúng một dòng khi người gọi không đưa hàm log."""
-
-    print(line, flush=True)
-
-
-def _duration_ms(started: float, ended: float) -> int:
-    """Đổi hiệu hai mốc ra mili giây. Hiệu không dương thì bằng 0."""
-
-    elapsed = ended - started
-    if elapsed <= 0:
-        return 0
-    return int(elapsed * 1000)
-
-
 def _error_type(error: Exception) -> str:
     """Tên lớp để ghi log. ModelError dùng class_name, không dùng thông điệp."""
 
     if isinstance(error, ModelError):
         return error.class_name
     return type(error).__name__
-
-
-def _write_log(log: Callable[[str], None], payload: dict[str, object]) -> None:
-    """Ghi một dòng JSON. Exception của dumps hoặc hàm log bị nuốt. CancelledError đi tiếp."""
-
-    try:
-        line = json.dumps(payload, ensure_ascii=False)
-        log(line)
-    except Exception:
-        return
 
 
 def _model_log(
@@ -83,7 +58,7 @@ def _model_log(
 ) -> None:
     """Một dòng tám khóa, đúng thứ tự, cho một lần complete đã kết thúc."""
 
-    _write_log(
+    write_json_line(
         log,
         {
             "model": model,
@@ -158,7 +133,7 @@ async def run_turn(
 
     if api_key is None or api_key == "":
         raise MissingKeyError()
-    writer = _default_log if log is None else log
+    writer = default_log if log is None else log
     started = _now()
     messages = tuple(history) + (TextMessage(role="user", text=user_message),)
     done: list[tuple[tuple[ToolRequest, ...], tuple[ToolResultMessage, ...]]] = []
@@ -182,7 +157,7 @@ async def run_turn(
                 stop_reason=None,
                 input_tokens=None,
                 output_tokens=None,
-                duration_ms=_duration_ms(call_started, _now()),
+                duration_ms=duration_ms(call_started, _now()),
                 error_type=_error_type(error),
             )
             return _MODEL_ERROR
@@ -192,7 +167,7 @@ async def run_turn(
             stop_reason=response.stop_reason,
             input_tokens=response.input_tokens,
             output_tokens=response.output_tokens,
-            duration_ms=_duration_ms(call_started, _now()),
+            duration_ms=duration_ms(call_started, _now()),
             error_type=None,
         )
         outcome = _finish(response, len(done))
