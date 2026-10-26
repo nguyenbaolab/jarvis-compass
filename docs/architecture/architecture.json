@@ -7,7 +7,7 @@
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/nguyenbaolab/jarvis-compass.git",
-      "revision": "11d68cc8cfd747c2d01772ade1694e6e0d18e6f8"
+      "revision": "852c6e0a2a4400409121e5a1990e2bd0f3e081f7"
     }
   },
   "components": [
@@ -35,13 +35,26 @@
     {
       "id": "claude",
       "type": "external",
-      "label": "planned · Claude API",
-      "sublabel": "anthropic SDK (F12)",
+      "label": "Claude API",
+      "sublabel": "api.anthropic.com (F12)",
       "pos": [970, 40],
       "size": [200, 60],
       "sources": [
-        { "path": "src/core/llm.py", "line": 1, "label": "docstring: Claude API client wrapper" },
+        { "path": "src/clients/anthropic_model.py", "line": 30, "end_line": 43, "label": "AsyncAnthropic + messages.create" },
         { "path": "pyproject.toml", "line": 5, "end_line": 9, "label": "anthropic có trong dependencies" }
+      ]
+    },
+    {
+      "id": "anthropic-model",
+      "type": "backend",
+      "label": "AnthropicModel · adapter",
+      "sublabel": "src/clients/anthropic_model.py",
+      "pos": [1280, 40],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/clients/anthropic_model.py", "line": 3, "label": "import AsyncAnthropic" },
+        { "path": "src/clients/anthropic_model.py", "line": 11, "end_line": 46, "label": "AnthropicModel.complete" },
+        { "path": "src/clients/anthropic_model.py", "line": 100, "end_line": 115, "label": "_response: dịch phản hồi SDK" }
       ]
     },
     {
@@ -75,13 +88,42 @@
       ]
     },
     {
-      "id": "llm",
+      "id": "system-prompt",
       "type": "backend",
-      "label": "planned · LLM layer (F12)",
-      "sublabel": "src/core/llm.py",
+      "label": "core/system_prompt",
+      "sublabel": "src/core/system_prompt.py",
       "pos": [970, 215],
       "size": [200, 60],
-      "sources": [{ "path": "src/core/llm.py", "line": 1, "label": "stub docstring, chưa có code" }]
+      "sources": [
+        { "path": "src/core/system_prompt.py", "line": 3, "label": "PROMPT_VERSION" },
+        { "path": "src/core/system_prompt.py", "line": 5, "end_line": 16, "label": "SYSTEM_PROMPT" }
+      ]
+    },
+    {
+      "id": "llm-port",
+      "type": "backend",
+      "label": "core/llm · ModelClient",
+      "sublabel": "src/core/llm.py",
+      "pos": [1280, 215],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/core/llm.py", "line": 69, "end_line": 81, "label": "ModelClient.complete (Protocol)" },
+        { "path": "src/core/llm.py", "line": 39, "end_line": 58, "label": "ModelRequest, ModelResponse" },
+        { "path": "src/core/llm.py", "line": 61, "end_line": 66, "label": "ModelError(class_name)" }
+      ]
+    },
+    {
+      "id": "llm-turn",
+      "type": "backend",
+      "label": "llm_turn · run_turn",
+      "sublabel": "src/turns/llm_turn.py",
+      "pos": [1280, 380],
+      "size": [200, 60],
+      "sources": [
+        { "path": "src/turns/llm_turn.py", "line": 148, "end_line": 209, "label": "run_turn: vòng một lượt" },
+        { "path": "src/turns/llm_turn.py", "line": 107, "end_line": 133, "label": "_run_tools: gọi execute_tool tuần tự" },
+        { "path": "src/turns/llm_turn.py", "line": 136, "end_line": 145, "label": "_finish: end_turn, trần 3 vòng, lỗi" }
+      ]
     },
     {
       "id": "tool-router",
@@ -234,7 +276,7 @@
     {
       "kind": "region",
       "label": "PLANNED — file stub, chưa có logic (src/)",
-      "wraps": ["routes-planning", "routes-telegram", "clarify", "llm", "checkin", "tg-client"]
+      "wraps": ["routes-planning", "routes-telegram", "clarify", "checkin", "tg-client"]
     }
   ],
   "connections": [
@@ -242,9 +284,13 @@
     { "id": "tgapi-to-webhook", "from": "tgapi", "to": "routes-telegram", "label": "webhook", "variant": "dashed" },
     { "id": "routes-to-clarify", "from": "routes-planning", "to": "clarify", "label": "yêu cầu", "variant": "dashed", "fromSide": "right", "toSide": "top" },
     { "id": "webhook-to-clarify", "from": "routes-telegram", "to": "clarify", "label": "tin nhắn", "variant": "dashed", "fromSide": "right", "toSide": "bottom" },
-    { "id": "clarify-to-llm", "from": "clarify", "to": "llm", "label": "gọi LLM", "variant": "dashed" },
-    { "id": "llm-to-claude", "from": "llm", "to": "claude", "label": "gọi Claude", "variant": "dashed" },
-    { "id": "llm-to-router", "from": "llm", "to": "tool-router", "label": "tool call", "variant": "dashed", "fromSide": "right", "toSide": "top" },
+    { "id": "clarify-to-turn", "from": "clarify", "to": "llm-turn", "label": "một lượt", "variant": "dashed", "fromSide": "right", "toSide": "left", "via": [[930, 245], [930, 410]] },
+    { "id": "turn-to-port", "from": "llm-turn", "to": "llm-port", "label": "dùng cổng", "fromSide": "top", "toSide": "bottom" },
+    { "id": "turn-to-prompt", "from": "llm-turn", "to": "system-prompt", "label": "SYSTEM_PROMPT + version", "fromSide": "top", "toSide": "bottom" },
+    { "id": "turn-to-router", "from": "llm-turn", "to": "tool-router", "label": "gọi execute_tool", "fromSide": "bottom", "toSide": "top" },
+    { "id": "turn-to-definitions", "from": "llm-turn", "to": "tool-definitions", "label": "catalog + version", "fromSide": "right", "toSide": "right", "via": [[1530, 410], [1530, 710]] },
+    { "id": "anthropic-to-port", "from": "anthropic-model", "to": "llm-port", "label": "cài ModelClient", "fromSide": "bottom", "toSide": "top" },
+    { "id": "anthropic-to-claude", "from": "anthropic-model", "to": "claude", "label": "HTTPS", "fromSide": "left", "toSide": "right" },
     { "id": "router-to-tools", "from": "tool-router", "to": "plan-tools", "label": "execute_tool", "fromSide": "left", "toSide": "right" },
     { "id": "router-to-definitions", "from": "tool-router", "to": "tool-definitions", "label": "đọc schema + version" },
     { "id": "checkin-to-tg", "from": "checkin", "to": "tg-client", "label": "gửi nhắc", "variant": "dashed" },
@@ -264,17 +310,18 @@
       "title": "Đã có code — hai cụm chưa nối nhau",
       "items": [
         "Cụm 1: chỉ có route GET /health (src/app.py:30-33).",
-        "Cụm 2: tool_router → plan_tools → core ← SupabasePlanStore → db/client → Supabase; tool_router đọc tool_definitions.",
-        "app.py chỉ import các module, nay có thêm db.plan_store (src/app.py:19); không route nào gọi execute_tool, plan_tools hay SupabasePlanStore.",
-        "execute_tool và plan_tools nhận store: PlanStore qua tham số; src/ chưa có nơi nào dựng SupabasePlanStore."
+        "Cụm 2: run_turn → execute_tool → plan_tools → core ← SupabasePlanStore → db/client → Supabase; run_turn và tool_router cùng đọc tool_definitions; AnthropicModel cài cổng core/llm và gọi Claude API.",
+        "app.py chỉ import các module, nay có thêm db.plan_store (src/app.py:19); không import turns, core.system_prompt hay clients.anthropic_model, và không route nào gọi run_turn, execute_tool, plan_tools hay SupabasePlanStore.",
+        "src/ chưa có composition root: không nơi nào dựng SupabasePlanStore hay AnthropicModel, cũng không nơi nào truyền store, api_key và client vào run_turn."
       ]
     },
     {
       "dot": "emerald",
-      "title": "Phân lớp (D-011, D-012)",
+      "title": "Phân lớp (D-011, D-012, D-015)",
       "items": [
         "D-011: tools import core; core chỉ dùng thư viện chuẩn, không import tools hay db; PlanStore cài ở src/db/.",
-        "scripts/check.ps1:347-349 kiểm luật này bằng git grep trên src/core.",
+        "D-015: vòng lượt nằm ở src/turns vì core không được import tools; llm_turn import core.llm, core.plans, core.system_prompt, tools.tool_definitions và tools.tool_router (src/turns/llm_turn.py:7-19).",
+        "scripts/check.ps1:347-349 kiểm luật core bằng git grep trên src/core.",
         "D-012: bốn phương thức PlanStore và tool có gọi store là async def."
       ]
     },
@@ -288,25 +335,49 @@
       ]
     },
     {
+      "dot": "orange",
+      "title": "Lượt mô hình (D-015, spec 008)",
+      "items": [
+        "run_turn(user_message, history, *, store, api_key, client, log=None) -> str (src/turns/llm_turn.py:148-156); chưa có caller trong src/.",
+        "api_key do người gọi đưa; None hoặc rỗng thì ném MissingKeyError (159-160). ANTHROPIC_API_KEY chỉ còn là chữ trong thông điệp lỗi (dòng 25), không file nào trong src/ đọc biến này.",
+        "Ngân sách 20 giây (_BUDGET_SECONDS, dòng 21), tối đa 3 vòng tool (_MAX_ROUNDS, dòng 22); mỗi complete nhận timeout bằng phần ngân sách còn lại (101-104, 177).",
+        "_finish (136-145): end_turn → trả text; tool_use mà đã đủ 3 vòng → câu _CAP; tool_use có yêu cầu tool → chạy tiếp; còn lại → _MODEL_ERROR.",
+        "_run_tools (107-133): gọi execute_tool tuần tự (120-125); hết ngân sách thì trả câu lỗi, không bắt đầu tool kế.",
+        "complete ném Exception thì ghi một dòng log rồi trả _MODEL_ERROR (176-188). Mỗi lần complete xong ghi một dòng JSON tám khóa qua hàm log (74-98); hàm log hỏng thì bị nuốt (64-71)."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Cổng mô hình và adapter (D-004, F12)",
+      "items": [
+        "src/core/llm.py chỉ import thư viện chuẩn (dòng 3-4): TextMessage, ToolRequest, ToolResultMessage, ModelRequest, ModelResponse, ModelError và Protocol ModelClient.complete(request, *, api_key, timeout) (69-81).",
+        "src/core/system_prompt.py: SYSTEM_PROMPT (5-16) và PROMPT_VERSION = 1 (dòng 3); hằng chuỗi, không import gì.",
+        "AnthropicModel (src/clients/anthropic_model.py:11-46) có model và complete cùng hình dạng với ModelClient; không khai kế thừa và không import ModelClient (dòng 5).",
+        "Mỗi complete mở một AsyncAnthropic (max_retries=0, base_url https://api.anthropic.com, dòng 30-35) và gọi messages.create một lần với claude-haiku-5-5, max_tokens 2048, thinking tắt (dòng 7-8, 36-43).",
+        "Mọi Exception của SDK đổi thành ModelError(tên lớp), không giữ thông điệp (dòng 44-45). Khối tool_use chỉ thành ToolRequest khi stop_reason là tool_use (dòng 122, 132).",
+        "anthropic_model.py:3 là chỗ duy nhất trong src/ import anthropic."
+      ]
+    },
+    {
       "dot": "rose",
       "title": "Tool router (D-014, spec 007)",
       "items": [
-        "execute_tool(name, tool_input, *, store, log) là lối vào tool call từ LLM (src/tools/tool_router.py:251-263); chưa có caller trong src/.",
+        "execute_tool(name, tool_input, *, store, log) là lối vào tool call từ LLM (src/tools/tool_router.py:251-263); caller duy nhất trong src/ là _run_tools của llm_turn (src/turns/llm_turn.py:120).",
         "_run (225-248): tên lạ → unknown_tool; đầu vào không phải object → invalid_input; _invalid_input (140-168) kiểm theo input_schema của TOOL_DEFINITIONS; rồi _invoke tra _DISPATCH (112-119) gọi sáu hàm của plan_tools.",
         "ToolError và PlanDomainError → domain; Exception khác → unexpected, detail chỉ là tên lớp exception.",
         "_write_log (195-222): mỗi lần gọi ghi đúng một dòng JSON bảy khóa qua hàm log truyền vào, mặc định print; hàm log ném Exception thì nuốt, kết quả vẫn trả. Đổi khóa thì tăng DEFINITIONS_VERSION hoặc ghi quyết định mới.",
-        "src/tools/tool_definitions.py: TOOL_DEFINITIONS (sáu tool: description + input_schema, dòng 5-78) và DEFINITIONS_VERSION = 1 (dòng 3); chỉ tool_router import."
+        "src/tools/tool_definitions.py: TOOL_DEFINITIONS (sáu tool: description + input_schema, dòng 5-78) và DEFINITIONS_VERSION = 1 (dòng 3); tool_router (tool_router.py:17) và llm_turn (llm_turn.py:18) import."
       ]
     },
     {
       "dot": "amber",
       "title": "Planned — suy ra từ docstring và docs",
       "items": [
-        "Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), llm (F12), checkin (F10), clients/telegram (F11).",
-        "Nét đứt = planned. Các cạnh này lấy từ docs/ARCHITECTURE.md §3-§4 và D-011 (scheduler dùng lại Plan), không từ code.",
-        "D-004: lớp LLM model-agnostic. D-007: check-in qua remote push, Telegram ở giai đoạn 1.",
-        "pyproject.toml có anthropic nhưng src/ không import; wrangler.jsonc chưa khai báo Cron Trigger.",
-        "settings.py:46-47 khai báo ANTHROPIC_API_KEY và TELEGRAM_BOT_TOKEN; chưa file nào trong src/ đọc."
+        "Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), checkin (F10), clients/telegram (F11).",
+        "Nét đứt = planned. Các cạnh này lấy từ docs/ARCHITECTURE.md §3-§4 (gồm cạnh clarify → llm_turn) và D-011 (scheduler dùng lại Plan), không từ code.",
+        "D-004: lớp LLM là cổng trung lập src/core/llm.py cộng adapter theo nhà cung cấp (cập nhật 2026-10-26). D-007: check-in qua remote push, Telegram ở giai đoạn 1.",
+        "wrangler.jsonc chưa khai báo Cron Trigger.",
+        "settings.py:46 khai báo TELEGRAM_BOT_TOKEN; chưa file nào trong src/ đọc."
       ]
     },
     {
@@ -314,6 +385,7 @@
       "title": "Ngoài src/",
       "items": [
         "tests/fakes/memory_plan_store.py: MemoryPlanStore, bản PlanStore chỉ dùng cho test.",
+        "tests/test_llm_turn.py và tests/test_anthropic_model.py: test của lượt mô hình và adapter.",
         "db/models.py (PlanRow, SubtaskRow), tools/base.py và tools/schemas.py gộp vào node cha ở phần sources."
       ]
     }
