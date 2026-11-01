@@ -39,6 +39,7 @@ uv run python -m evals.runner
 - Trước `db push --linked` luôn chạy `db push --linked --dry-run` và kiểm danh sách migration.
 - Kiểm (test không được skip, file thay đổi, luật import): `.\scripts\check.ps1 -AllowList specs/<thư mục>/allowed-files.txt` (mã 0 là đạt, 1 là có mục không đạt, 2 là lỗi cách dùng)
 - Phiên kiểm B9 chỉ đọc bằng Claude Code: `claude --settings scripts\claude-b9-settings.json --permission-mode dontAsk`
+  Chỉ đọc nghĩa là không sửa mã nguồn, không kín tuyệt đối: `dontAsk` từ chối mọi lệnh ngoài danh sách allow, nhưng lệnh trong danh sách vẫn nhận cờ, nên cờ ghi hoặc xóa file phải nằm trong deny; deny `Read(...)` không chặn lệnh shell; pytest và check.ps1 ghi `.pytest_cache` và xóa dòng test trong Supabase local.
 - Dev (WSL Ubuntu: `wsl -d Ubuntu`; chạy trước `export UV_PROJECT_ENVIRONMENT=$HOME/.venvs/jarvis-compass` để không đè .venv của Windows): `uv run pywrangler dev`
 - Deploy (WSL Ubuntu, cùng biến trên): `uv run pywrangler deploy`. Lần deploy đầu có thể báo lỗi 10007 ở bước bật workers.dev; chạy lại là qua.
 
@@ -49,6 +50,7 @@ uv run python -m evals.runner
 - Diagram trong `docs/architecture/` không sửa cùng thay đổi code; khi nào cập nhật xem D-016.
 - Không đọc và không ghi file `.env` thật và `.dev.vars`; chỉ dùng `.env.example`.
 - Không sửa `.specify/templates/` và `.cursor/skills/` trừ khi được yêu cầu.
+- Quét repo: hồ sơ ở `docs/reviews/`. Khi báo xong, nếu bảng check.ps1 có hàng `Repo review | due`, hoặc thay đổi thuộc F11, chuẩn bị deploy để dùng hằng ngày, hay chuẩn bị viết case study, thêm một dòng cuối câu trả lời: [NHẮC QUÉT REPO] <lý do một câu>. Chỉ nhắc, không tự quét.
 
 ## Khi nào dừng và chuyển cho người
 Gặp một trong các trường hợp dưới đây thì dừng, không tự xử lý. Dòng đầu tiên của câu trả lời phải đúng là: [DỪNG - CẦN CLAUDE CHAT] <lý do một câu>. Sau đó tóm tắt tình hình kèm output thật của lệnh.

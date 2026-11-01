@@ -73,7 +73,7 @@ Cloudflare Cron Trigger (giờ cấu hình sẵn)
 
 - Mỗi lần điều phối ghi một dòng JSON qua hàm được truyền vào, mặc định in một dòng, không thêm thư viện log.
 - Mỗi lần gọi mô hình đã kết thúc ghi một dòng JSON tám khóa qua cùng hàm log được truyền vào `execute_tool`. Không thêm thư viện log.
-- Chưa chốt: loguru chưa chắc chạy được trên Pyodide (chưa có trong pyproject.toml); kiểm khi làm tính năng đầu tiên cần log. Các quy ước code khác: xem constitution, mục Quy ước mã nguồn.
+- Không dùng thư viện log: mỗi dòng JSON đi qua hàm được truyền vào (spec 007, 008), loguru không thêm. Các quy ước code khác: xem constitution, mục Quy ước mã nguồn.
 
 ## §7 Điểm khác biệt quan trọng so với jarvis-desktop (lưu ý khi code)
 

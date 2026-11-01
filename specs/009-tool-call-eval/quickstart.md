@@ -1,6 +1,6 @@
 # Quickstart: Bộ đánh giá gọi tool
 
-Chưa có code eval. Các lệnh dưới đây là lệnh sau khi implement. Lệnh API thật chưa chạy thử.
+Viết trước khi implement. Code eval đã merge ở 057e8a9 và lệnh tay đã chạy 2026-11-01 (AGENTS.md). Các câu "chưa có", "chưa chạy thử" bên dưới là biên bản lúc lập plan.
 
 ## Test thường
 

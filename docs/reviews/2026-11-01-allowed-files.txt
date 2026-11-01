@@ -1,0 +1,10 @@
+src/core/plans.py
+tests/test_eval_score.py
+scripts/check.ps1
+scripts/claude-b9-settings.json
+AGENTS.md
+docs/ARCHITECTURE.md
+specs/001-create-list-plans/spec.md
+specs/003-update-subtask/spec.md
+specs/009-tool-call-eval/quickstart.md
+docs/reviews/**

@@ -204,12 +204,13 @@ def test_prefix_fails_on_ordinal_words() -> None:
         "Bước 1 viết",
         "Giai đoạn 2: ôn",
     ]
-    bad = _score(
-        "nhờ lập kế hoạch",
-        "Đã lập.",
-        [_model_line(), _tool("create_plan", {"goal": "Học", "subtasks": titles})],
-    )
-    assert bad["prefix"] == "fail"
+    for title in titles:
+        bad = _score(
+            "nhờ lập kế hoạch",
+            "Đã lập.",
+            [_model_line(), _tool("create_plan", {"goal": "Học", "subtasks": [title]})],
+        )
+        assert bad["prefix"] == "fail", title
     good = _score(
         "nhờ lập kế hoạch",
         "Đã lập.",
@@ -253,6 +254,8 @@ def test_markdown_allows_numbered_and_dash() -> None:
 
     reply = "1. Chạy 2km\n- Nộp báo cáo"
     assert _score("chỉ kể việc", reply, [_model_line()])["markdown"] == "pass"
+    plus = "+ Nộp báo cáo"
+    assert _score("chỉ kể việc", plus, [_model_line()])["markdown"] == "pass"
 
 
 def test_markdown_rejects_star() -> None:
