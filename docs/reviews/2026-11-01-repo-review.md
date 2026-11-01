@@ -42,11 +42,11 @@ Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhá
 | L3-03 | ghi nhận | AGENTS.md:41; scripts/check.ps1:2 | "Chỉ đọc" không nói giới hạn của dontAsk; check.ps1 nói không tạo file | đã sửa ở chore/review-fixes-2026-11-01 |
 | L3-04 | nên sửa | specs/001, specs/003, specs/009/quickstart.md | Spec cũ nói ngược code, không có dòng trỏ ngược; mọi spec để Status: Draft | một phần: dòng đánh dấu ở chore/review-fixes-2026-11-01; quy ước Status còn mở |
 | L3-05 | ghi nhận | docs/ARCHITECTURE.md:76 | Câu "loguru chưa chốt" trong khi log đã chốt không thư viện | đã sửa ở chore/review-fixes-2026-11-01 |
-| L3-06 | ghi nhận | docs/DECISIONS.md D-003; docs/PRODUCT.md §5 | Hai con số chi phí; PRODUCT đúng theo giá Haiku 5.5 | mở (cần Starter) |
+| L3-06 | ghi nhận | docs/DECISIONS.md D-003; docs/PRODUCT.md §5 | Hai con số chi phí; PRODUCT đúng theo giá Haiku 5.5 | đã sửa ở docs/decisions-2026-11-01 |
 | L3-07 | ghi nhận | scripts/check.ps1 | Nguyên tắc III không có hàng kiểm; Tools, db, clients thiếu luật import | mở (dọn check.ps1) |
-| L3-08 | ghi nhận | constitution, Quy ước mã nguồn | Luật đọc config không ghi phạm vi; tests/ đọc env không có ngoại lệ chính thức | mở (cần Starter) |
+| L3-08 | ghi nhận | constitution, Quy ước mã nguồn | Luật đọc config không ghi phạm vi; tests/ đọc env không có ngoại lệ chính thức | đã sửa ở docs/decisions-2026-11-01 |
 | L3-09 | ghi nhận | docs/PRODUCT.md F05 | "Active plans" trong khi kế hoạch không có trạng thái | mở (F10) |
-| L3-10 | ghi nhận | docs/DECISIONS.md D-016 | evals/runner.py là composition root ngoài src/; D-016 không nói có tính không | mở (cần Starter) |
+| L3-10 | ghi nhận | docs/DECISIONS.md D-016 | evals/runner.py là composition root ngoài src/; D-016 không nói có tính không | đã sửa ở docs/decisions-2026-11-01 |
 
 ## Đã xét, không có vấn đề (ở mốc d32166e)
 

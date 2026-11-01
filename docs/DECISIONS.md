@@ -52,6 +52,8 @@
 
 **Revisit khi:** Có test case thực tế để so sánh chất lượng Kimi song song, không quyết định vội theo benchmark chung chung.
 
+**Cập nhật 2026-11-01:** con số ~2-7 USD/tháng tính theo Haiku 4.5. Con số hiện hành ở `docs/PRODUCT.md` §5.
+
 ---
 
 ## D-004 — Model-agnostic LLM layer, MVP dùng Claude Haiku 5.5
@@ -265,6 +267,8 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 
 **Quyết định:** Diagram là ảnh chụp tại commit đã ghim, không thuộc luật "docs sửa cùng thay đổi". Chỉ cập nhật khi hình dạng kiến trúc đổi: thêm gói hoặc ranh giới mới trong `src/`, nối hai cụm code chưa nối, thêm composition root. Vòng chỉ thêm tool hay sửa logic trong gói có sẵn thì không cập nhật. Khi cập nhật: commit code trước, rồi commit diagram riêng. `docs/ARCHITECTURE.md` vẫn theo luật cũ.
 
+Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không làm diagram phải cập nhật.
+
 **Lý do:**
 - Giá trị chính của Archify là lần chạy đầu và các lần ranh giới đổi; lần chép lại code không cho thêm thông tin.
 - B9 không phải báo lệch giả mỗi vòng.
@@ -282,3 +286,24 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 **Quyết định:** Ngoại lệ nằm trong constitution, mục Quy ước mã nguồn của version 1.2.0. Chỉ ghi trong AGENTS.md là không đủ.
 
 **Phương án đã bỏ:** thêm khóa vào `src/config/settings.py`. Để runner đọc môi trường mà không sửa constitution.
+
+**Cập nhật 2026-11-01:** constitution 1.2.1 ghi rõ luật config áp cho `src/`, và ngoại lệ cho hai biến `JARVIS_TEST_*` của `tests/`.
+
+## D-018 — Cloudflare Workers Paid từ bản dùng thật (F11)
+
+**Date:** 2026-10-25 (ghi vào file 2026-11-01)
+
+**Status:** Accepted
+
+**Bối cảnh:** Dashboard ngày 2026-10-24, gói Free, lúc làm spike: CPU P50 29,5 ms và P90 93 ms mỗi request, vượt mức 10 ms của gói Free ở mọi route; chưa request nào bị cắt vì CPU (Exceeded CPU Time Limits là 0). Bộ nhớ đỉnh chạm 128 MiB mỗi isolate.
+
+**Quyết định:** Giữ gói Workers Free trong lúc spike và chạy local. Chuyển sang Workers Paid (5 USD/tháng) khi bắt đầu F11.
+
+**Lý do:**
+- Bản dùng thật không nên dựa vào một giới hạn mà mọi request đang vượt gấp 3 đến 10 lần.
+- Request webhook bị cắt thì Telegram gửi lại, dễ tạo kế hoạch trùng. Lần check-in theo cron bị cắt thì mất mà không ai biết.
+- Ở mức dùng hiện tại, gói Paid không tốn thêm phí theo mức dùng ngoài 5 USD.
+
+**Trade-off:** Gói Paid không nâng trần bộ nhớ 128 MiB mỗi isolate. Rủi ro bộ nhớ phải đo riêng ở F11.
+
+**Phương án đã bỏ:** bật Paid ngay (chưa cần khi chỉ chạy local); ở Free tới khi thấy lỗi 1102 (lỗi cắt request khó gỡ, nhất là khi đang chạy eval).

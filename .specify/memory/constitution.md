@@ -1,12 +1,11 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 1.2.0
+- Version change: 1.2.0 → 1.2.1
 - Modified principles: none
 - Modified sections: Quy ước mã nguồn
-- Added sections: thêm một câu ngoại lệ vào mục Quy ước mã nguồn
+- Added sections: thêm hai câu ghi phạm vi luật config là src/ và ngoại lệ cho hai biến JARVIS_TEST_* của tests/
 - Removed sections: none
-- Follow-up TODOs:
-  - none
+- Follow-up TODOs: none
 -->
 
 # jarvis-compass Constitution
@@ -43,7 +42,7 @@ Stack bắt buộc: Python 3.13+, Cloudflare Python Workers (Pyodide), FastAPI q
 
 ## Quy ước mã nguồn
 
-Type hints bắt buộc cho mọi function public; Pydantic cho request, response và schema DB; config chỉ đọc qua `src/config/settings.py`; tool dùng mẫu `ToolResult` và `ToolError`; comment tiếng Việt. Ngoại lệ: file `evals/runner.py` được đọc biến `JARVIS_EVAL_ANTHROPIC_KEY` từ môi trường tiến trình của lệnh chạy tay, rồi truyền giá trị đó vào lượt. Không file nào khác trong `evals/` được đọc biến môi trường. `src/` không đọc biến này.
+Type hints bắt buộc cho mọi function public; Pydantic cho request, response và schema DB; config chỉ đọc qua `src/config/settings.py`; tool dùng mẫu `ToolResult` và `ToolError`; comment tiếng Việt. Ngoại lệ: file `evals/runner.py` được đọc biến `JARVIS_EVAL_ANTHROPIC_KEY` từ môi trường tiến trình của lệnh chạy tay, rồi truyền giá trị đó vào lượt. Không file nào khác trong `evals/` được đọc biến môi trường. `src/` không đọc biến này. Luật config chỉ đọc qua `src/config/settings.py` áp cho `src/`. `tests/` được đọc hai biến `JARVIS_TEST_SUPABASE_URL` và `JARVIS_TEST_SUPABASE_KEY` từ môi trường.
 
 ## Governance
 
@@ -55,4 +54,4 @@ Thay đổi nào làm một file docs sai thì phải sửa file đó trong cùn
 
 Sửa một luật thì cập nhật quyết định tương ứng trong `docs/DECISIONS.md`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-11-01
+**Version**: 1.2.1 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-11-01
