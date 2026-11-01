@@ -1,7 +1,7 @@
 # Read-only repository checks. Windows PowerShell 5.1. ASCII only.
-# Does not create, edit, or delete files, and does not mutate git state.
+# Does not edit tracked files or mutate git state. pytest may write caches and delete its own rows in local Supabase.
 # Parameters: -AllowList (required), -Base (default main).
-# Exit 0 when all ten checks pass, 1 when any check fails, 2 on usage errors.
+# Exit 0 when all ten checks pass, 1 when any check fails, 2 on usage errors. The Repo review row is information only.
 
 [CmdletBinding()]
 param(
@@ -336,8 +336,8 @@ if ($pytestCode -eq 0) {
 }
 
 Write-Host "--- Changed files ---"
-$committed = Invoke-GitRead -GitArguments @("diff", "--name-only", "${Base}...HEAD")
-$unstaged = Invoke-GitRead -GitArguments @("diff", "--name-only", "HEAD")
+$committed = Invoke-GitRead -GitArguments @("diff", "--name-only", "--no-renames", "${Base}...HEAD")
+$unstaged = Invoke-GitRead -GitArguments @("diff", "--name-only", "--no-renames", "HEAD")
 $untracked = Invoke-GitRead -GitArguments @("ls-files", "--others", "--exclude-standard")
 
 $listingOk = $committed.Ok -and $unstaged.Ok -and $untracked.Ok
@@ -448,7 +448,44 @@ $evalTests = Invoke-GrepCheck -Name "Eval tests imports" -Patterns @('^\s*(from|
 
 $evalEnv = Invoke-GrepCheck -Name "Eval env reads" -Patterns @($envCallPattern, $envImportPattern) -PathSpecs @("evals", ":!evals/runner.py")
 
+$reviewResult = "info"
+$reviewDetail = "no review record in docs/reviews"
+$reviewDue = $false
+$reviewFiles = @()
+if (Test-Path -LiteralPath "docs/reviews") {
+    $reviewFiles = @(Get-ChildItem -LiteralPath "docs/reviews" -Filter "*-repo-review.md" -File)
+}
+if ($reviewFiles.Count -gt 0) {
+    $latestReview = $reviewFiles | Sort-Object -Property Name -Descending | Select-Object -First 1
+    $reviewText = @(Get-Content -LiteralPath $latestReview.FullName -Encoding UTF8)
+    $reviewBase = $null
+    foreach ($reviewLine in $reviewText) {
+        if ($reviewLine -match '^review-base:\s*([0-9a-f]{7,40})\s*$') {
+            $reviewBase = $Matches[1]
+            break
+        }
+    }
+    if ($null -eq $reviewBase) {
+        $reviewDetail = "review record has no review-base line"
+    } else {
+        $reviewDiff = Invoke-GitRead -GitArguments @("diff", "--name-only", "--no-renames", $reviewBase, "--", "src")
+        if ((-not $reviewDiff.Ok) -or ($reviewDiff.Code -ne 0)) {
+            $reviewDetail = "git diff failed"
+        } else {
+            $reviewCount = $reviewDiff.Lines.Count
+            $reviewDetail = ("{0} src files changed since {1} (threshold 15)" -f $reviewCount, $reviewBase)
+            if ($reviewCount -ge 15) {
+                $reviewResult = "due"
+                $reviewDue = $true
+            }
+        }
+    }
+}
+
 Write-Host ""
+if ($reviewDue) {
+    Write-Host "Repo review due: see the review lines in AGENTS.md."
+}
 Write-Host "check | pass/fail | detail"
 Write-Host ("Test | {0} | {1}" -f $testResult, $testDetail)
 Write-Host ("Changed files | {0} | {1}" -f $changedResult, $changedDetail)
@@ -460,6 +497,7 @@ Write-Host ("SDK imports | {0} | {1}" -f $sdk.Result, $sdk.Detail)
 Write-Host ("Env reads | {0} | {1}" -f $envReads.Result, $envReads.Detail)
 Write-Host ("Eval tests imports | {0} | {1}" -f $evalTests.Result, $evalTests.Detail)
 Write-Host ("Eval env reads | {0} | {1}" -f $evalEnv.Result, $evalEnv.Detail)
+Write-Host ("Repo review | {0} | {1}" -f $reviewResult, $reviewDetail)
 
 $anyFail = $false
 if ($testResult -ne "pass") {

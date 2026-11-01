@@ -44,7 +44,7 @@ class Plan:
 
 
 class PlanStore(Protocol):
-    """Cổng lưu kế hoạch. Lát cắt này không có bản cài đặt trong src/."""
+    """Cổng lưu kế hoạch. Bản cài đặt thật là SupabasePlanStore ở src/db/plan_store.py."""
 
     async def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
         """Gán id và created_order, giữ nguyên goal và thứ tự việc con."""
