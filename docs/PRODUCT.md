@@ -21,7 +21,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 |----|-----|-----------|
 | F01 | Plan creation via clarifying dialogue | Nhận yêu cầu lập kế hoạch, chủ động hỏi lại (scope, deadline, constraints) trước khi chốt plan, không tự đoán khi thiếu thông tin |
 | F02 | Multi-turn clarify session tracking | Track trạng thái hội thoại dang dở qua session_id, nối tiếp câu trả lời clarify qua nhiều lượt nói/nhắn |
-| F03 | Plan storage (own database) | Lưu plans/subtasks trong database riêng — single source of truth, không sync Google Tasks/Keep |
+| F03 | Plan storage (own database) | Lưu plans/subtasks trong database riêng — single source of truth, không sync Google Tasks/Keep; lưu thời điểm tạo và thời điểm đổi trạng thái của từng việc con |
 | F04 | Planning tool — create_plan | Tạo plan mới với goal + subtasks, gọi bởi LLM ở planning service |
 | F05 | Planning tool — get_plans | List active plans / tìm theo keyword |
 | F06 | Planning tool — get_plan_detail | Xem chi tiết một plan |
@@ -49,7 +49,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 
 ## §5 Non-functional requirements
 
-- Cost: MVP dùng Claude Haiku 5.5 (D-004). Ở mức 15 lượt/ngày khoảng 0,1 đến 0,4 USD/tháng, tính từ token đo ở smoke test 2026-10-26 (lượt không tool khoảng 1.500 token, lượt có một lần tool khoảng 5.200 token) theo giá 0,10 USD vào và 0,50 USD ra mỗi triệu token.
+- Cost: MVP dùng Claude Haiku 5.5 (D-004). Ở mức 15 lượt/ngày khoảng 0,1 đến 0,4 USD/tháng, tính từ token đo ở smoke test 2026-10-26 (lượt không tool khoảng 1.500 token, lượt có một lần tool khoảng 5.200 token) theo giá 0,10 USD vào và 0,50 USD ra mỗi triệu token. Cộng 5 USD/tháng gói Workers Paid từ F11 (D-018).
 - Các yêu cầu còn lại (thông báo chủ động, chạy 24/7, độ trễ khi desktop gọi sang, giữ ngữ cảnh session, đổi model) nằm trong .specify/memory/constitution.md và docs/DECISIONS.md.
 
 ## §6 Kiến trúc tổng thể (tham chiếu)
@@ -65,3 +65,12 @@ Xem docs/ARCHITECTURE.md §0.
 ## §8 Pending — chưa chốt
 
 - Tên tool cụ thể trong jarvis-desktop tool_router (`manage_plan` hoặc tên khác) — cần viết prompt implement riêng cho jarvis-desktop sau khi jarvis-compass có hình hài cơ bản
+
+## §9 Hành vi đã chốt
+
+- Người dùng chỉ kể việc mà không nhờ lập kế hoạch: bot không tạo kế hoạch; bot tóm lại và hỏi có muốn lập kế hoạch không.
+- Người dùng báo đã xong một việc: khớp đúng một việc trong kho thì cập nhật luôn; khớp không việc nào hoặc nhiều việc thì hỏi lại; không bao giờ đòi bằng chứng.
+- Mỗi việc con có điểm kết thúc đo được; không có việc kiểu thói quen "suốt tháng". Kiểu việc thói quen để dành cho tính năng thích ứng tải.
+- Tiêu đề việc con không có tiền tố thứ tự ("Ngày 1:", "Tuần 1:"); thứ tự là vị trí trong danh sách.
+- Tiêu đề người dùng tự đưa được giữ nguyên chữ; luật điểm kết thúc đo được chỉ áp cho tiêu đề bot tự đặt.
+- Câu trả lời là chữ trơn, không Markdown (Telegram gửi không parse mode); được đánh số "1." và gạch "- ".

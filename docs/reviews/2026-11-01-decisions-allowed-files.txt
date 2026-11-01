@@ -1,0 +1,4 @@
+docs/DECISIONS.md
+docs/PRODUCT.md
+.specify/memory/constitution.md
+docs/reviews/**
