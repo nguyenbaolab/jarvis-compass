@@ -1,0 +1,7 @@
+src/core/plans.py
+src/tools/plan_tools.py
+src/tools/tool_definitions.py
+tests/test_get_plans.py
+tests/test_add_subtask.py
+tests/test_tool_router.py
+specs/010-get-plans-subtask-keyword/**

@@ -129,7 +129,7 @@ def test_padded_plan_id_hits_the_same_plan() -> None:
     assert added["subtasks"][0] == created["subtasks"][0]
 
 
-def test_keyword_matches_goal_not_new_title() -> None:
+def test_keyword_matches_goal_and_new_title() -> None:
     store = MemoryPlanStore()
     created = pending_or_done_plan(asyncio.run(create_plan("Học tiếng Nhật", store=store)))
     added = pending_or_done_plan(asyncio.run(add_subtask(created["id"], "Mua giáo trình", store=store)))
@@ -137,7 +137,7 @@ def test_keyword_matches_goal_not_new_title() -> None:
     assert [item["title"] for item in added["subtasks"]] == ["Mua giáo trình"]
     title_only = asyncio.run(get_plans("giáo trình", store=store))
     assert title_only.success is True
-    assert json.loads(title_only.output) == {"plans": []}
+    assert [plan["id"] for plan in json.loads(title_only.output)["plans"]] == [created["id"]]
     by_goal = json.loads(asyncio.run(get_plans("Nhật", store=store)).output)
     assert by_goal["plans"][0]["id"] == created["id"]
 
