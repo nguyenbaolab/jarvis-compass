@@ -6,6 +6,8 @@
 
 **Status**: Draft
 
+**Bị thay một phần**: [spec 010](../010-get-plans-subtask-keyword/spec.md) cho từ khóa khớp cả tiêu đề việc con. Tình huống từ khóa "giáo trình" chỉ nằm trong việc con và mọi câu nói chỉ xét mục tiêu không còn hiệu lực.
+
 **Input**: User description: "Tính năng tạo và liệt kê kế hoạch (F04 create_plan, F05 get_plans trong docs/PRODUCT.md), chỉ phần logic của tool. create_plan nhận một goal bắt buộc và danh sách subtask, lưu lại và trả về plan vừa tạo. get_plans liệt kê các plan đang hoạt động, tùy chọn lọc theo keyword trong goal. Tạo xong rồi gọi get_plans phải thấy đúng plan đó cùng subtask của nó. Ngoài phạm vi: LLM gọi tool, route HTTP, Telegram, sửa hoặc xóa plan và subtask (F07 đến F09), kết nối database thật. Database dự kiến chưa được tạo; kiểm chứng phải chạy được khi chưa có database thật."
 
 ## User Scenarios & Testing *(mandatory)*

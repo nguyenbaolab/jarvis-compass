@@ -11,9 +11,34 @@
       "PowerShell(git log *)", "PowerShell(git --no-pager log *)", "PowerShell(git grep *)",
       "PowerShell(git ls-files *)", "PowerShell(git show *)", "PowerShell(git --no-pager show *)",
       "PowerShell(uv run pytest *)",
-      "PowerShell(.\\scripts\\check.ps1 *)",
-      "PowerShell(Get-Content *)"
+      "PowerShell(.\\scripts\\check.ps1 *)"
     ],
-    "deny": ["Edit", "Write", "NotebookEdit"]
+    "deny": [
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "Read(./.dev.vars)",
+      "Read(./.env)",
+      "Bash(git *--output*)",
+      "Bash(git *--open-files-in-pager*)",
+      "Bash(git grep *-O*)",
+      "PowerShell(git *--output*)",
+      "PowerShell(git *--open-files-in-pager*)",
+      "PowerShell(git grep *-O*)",
+      "Bash(uv run pytest *--basetemp*)",
+      "Bash(uv run pytest *--junit*)",
+      "Bash(uv run pytest *--log-file*)",
+      "Bash(uv run pytest *--debug*)",
+      "Bash(uv run pytest *--override-ini*)",
+      "Bash(uv run pytest * -o*)",
+      "Bash(uv run pytest * -p*)",
+      "PowerShell(uv run pytest *--basetemp*)",
+      "PowerShell(uv run pytest *--junit*)",
+      "PowerShell(uv run pytest *--log-file*)",
+      "PowerShell(uv run pytest *--debug*)",
+      "PowerShell(uv run pytest *--override-ini*)",
+      "PowerShell(uv run pytest * -o*)",
+      "PowerShell(uv run pytest * -p*)"
+    ]
   }
 }
