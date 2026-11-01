@@ -24,6 +24,15 @@ Ngay sau `/speckit-tasks`: tạo `specs/<thư mục>/allowed-files.txt`, mỗi d
 
 - Cài dependency: `uv sync`
 - Test: `uv run pytest`. Thêm `--fail-on-skip` thì test bị skip làm pytest trả mã 6 (check.ps1 luôn bật cờ này)
+- Eval tool-call, từ gốc repo, đã chạy 2026-11-01:
+
+```text
+$env:PYTHONPATH = "src"
+$env:JARVIS_EVAL_ANTHROPIC_KEY = "<không ghi vào repo>"
+uv run python -m evals.runner
+```
+
+  Runner không in tiến độ trong lúc chạy, cả bộ mất khoảng 10 phút; đừng gõ phím vào cửa sổ đó.
 - Supabase local, ghim `npx --yes supabase@2.122.0`: `init`, `start`, `db reset`, `status`. `status -o json` của bản 2.122.0 in `API_URL` và `SERVICE_ROLE_KEY`. Pytest đọc `JARVIS_TEST_SUPABASE_URL` và `JARVIS_TEST_SUPABASE_KEY` trong tiến trình, không đọc `SUPABASE_URL` hay `SUPABASE_KEY`. Host phải là `127.0.0.1` hoặc `localhost`, nếu không test thất bại trước khi gọi mạng. `db reset` dựng lại lược đồ. Test tự xóa dòng trong `tests/`, không trong `src/`.
 - Đặt biến cho pytest trong PowerShell bằng `$s = npx --yes supabase@2.122.0 status -o json | ConvertFrom-Json`, rồi `$env:JARVIS_TEST_SUPABASE_URL = $s.API_URL` và `$env:JARVIS_TEST_SUPABASE_KEY = $s.SERVICE_ROLE_KEY`; phiên Claude Code B9 phải mở từ cùng cửa sổ đó.
 - Lệnh Supabase nhắm project cloud luôn ghi `--linked` (`db push --linked`, `migration list --linked`). Từ bản major tới, `db push` không cờ sẽ trỏ DB local.

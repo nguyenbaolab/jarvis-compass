@@ -1,0 +1,64 @@
+{
+  "cases_version": 1,
+  "cases": [
+    {"id": "P01", "group": "nhờ lập kế hoạch", "user_message": "Lập kế hoạch giúp mình ôn thi giải tích trong 3 ngày.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P02", "group": "nhờ lập kế hoạch", "user_message": "Lập kế hoạch giúp mình chạy được 5km trong một tháng.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P03", "group": "nhờ lập kế hoạch", "user_message": "Mình muốn học xong 100 từ vựng tiếng Phần Lan trong 2 tuần, lên kế hoạch giúp mình nhé.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P04", "group": "nhờ lập kế hoạch", "user_message": "Tạo kế hoạch dọn nhà trước khi chuyển đi vào thứ Bảy.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P05", "group": "nhờ lập kế hoạch", "user_message": "Giúp mình lên kế hoạch viết xong báo cáo thực tập trong 5 ngày.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P06", "group": "nhờ lập kế hoạch", "user_message": "Làm kế hoạch đọc hết cuốn sách 300 trang trong tuần này giúp mình.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P07", "group": "nhờ lập kế hoạch", "user_message": "Mình cần chuẩn bị cho buổi phỏng vấn xin việc thứ Tư tới, lập kế hoạch đi.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P08", "group": "nhờ lập kế hoạch", "user_message": "Lập kế hoạch học Python cơ bản trong 4 tuần.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P09", "group": "nhờ lập kế hoạch", "user_message": "Lên kế hoạch tập gym 3 buổi mỗi tuần trong tháng này.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+    {"id": "P10", "group": "nhờ lập kế hoạch", "user_message": "Giúp mình chia nhỏ việc chuẩn bị bài thuyết trình nhóm vào thứ Hai thành từng bước.", "dataset": "", "expectation": {"kind": "one_create_plan"}},
+
+    {"id": "K01", "group": "chỉ kể việc", "user_message": "Tuần này mình phải nộp báo cáo thứ Sáu và học xong chương 3.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K02", "group": "chỉ kể việc", "user_message": "Mai mình có hai tiết học buổi sáng, chiều phải đi làm thêm.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K03", "group": "chỉ kể việc", "user_message": "Tháng sau mình thi cuối kỳ ba môn.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K04", "group": "chỉ kể việc", "user_message": "Hôm nay mình cần mua đồ ăn, giặt quần áo và gọi điện cho bố.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K05", "group": "chỉ kể việc", "user_message": "Cuối tuần này mình định đi leo núi với bạn.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K06", "group": "chỉ kể việc", "user_message": "Dạo này mình phải ôn tiếng Phần Lan và làm bài tập lớn môn thống kê.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K07", "group": "chỉ kể việc", "user_message": "Thứ Ba mình có buổi phỏng vấn, thứ Năm phải nộp đơn xin học bổng.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "K08", "group": "chỉ kể việc", "user_message": "Mình đang viết luận văn, còn hai chương chưa xong.", "dataset": "", "expectation": {"kind": "no_tool"}},
+
+    {"id": "L01", "group": "hỏi danh sách", "user_message": "Mình đang có những kế hoạch nào?", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_plans"}},
+    {"id": "L02", "group": "hỏi danh sách", "user_message": "Liệt kê các kế hoạch của mình.", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_plans"}},
+    {"id": "L03", "group": "hỏi danh sách", "user_message": "Cho mình xem danh sách kế hoạch.", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_plans"}},
+    {"id": "L04", "group": "hỏi danh sách", "user_message": "Có kế hoạch nào liên quan đến tiếng Nhật không?", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_plans"}},
+    {"id": "L05", "group": "hỏi danh sách", "user_message": "Mình có kế hoạch nào chưa?", "dataset": "", "expectation": {"kind": "read_plans"}},
+
+    {"id": "D01", "group": "xem chi tiết", "user_message": "Kế hoạch chạy 5km của mình gồm những việc gì?", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_detail"}},
+    {"id": "D02", "group": "xem chi tiết", "user_message": "Cho mình xem chi tiết kế hoạch ôn thi giải tích.", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_detail"}},
+    {"id": "D03", "group": "xem chi tiết", "user_message": "Kế hoạch học tiếng Nhật còn những việc nào chưa xong?", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_detail"}},
+    {"id": "D04", "group": "xem chi tiết", "user_message": "Việc \"Làm hết bài tập chương 2\" có ghi chú gì không?", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_detail"}},
+    {"id": "D05", "group": "xem chi tiết", "user_message": "Mình đã làm xong bao nhiêu việc trong kế hoạch chạy 5km rồi?", "dataset": "ba_ke_hoach", "expectation": {"kind": "read_detail"}},
+
+    {"id": "U01", "group": "cập nhật trạng thái việc con", "user_message": "Mình chạy được 3km không nghỉ rồi, đánh dấu xong giúp mình.", "dataset": "ba_ke_hoach", "expectation": {"kind": "update_status", "goal": "Chạy được 5km trong một tháng", "title": "Chạy 3km không nghỉ", "status": "done"}},
+    {"id": "U02", "group": "cập nhật trạng thái việc con", "user_message": "Đánh dấu việc \"Học hiragana\" là đã xong.", "dataset": "ba_ke_hoach", "expectation": {"kind": "update_status", "goal": "Học tiếng Nhật cơ bản", "title": "Học hiragana", "status": "done"}},
+    {"id": "U03", "group": "cập nhật trạng thái việc con", "user_message": "Bỏ qua việc \"Làm một đề thi thử\" nhé, mình không kịp làm.", "dataset": "ba_ke_hoach", "expectation": {"kind": "update_status", "goal": "Ôn thi giải tích", "title": "Làm một đề thi thử", "status": "skipped"}},
+    {"id": "U04", "group": "cập nhật trạng thái việc con", "user_message": "Việc \"Học 50 từ vựng đầu tiên\" mình muốn làm lại, chuyển về chưa xong giúp mình.", "dataset": "ba_ke_hoach", "expectation": {"kind": "update_status", "goal": "Học tiếng Nhật cơ bản", "title": "Học 50 từ vựng đầu tiên", "status": "pending"}},
+    {"id": "U05", "group": "cập nhật trạng thái việc con", "user_message": "Đánh dấu việc \"Làm hết bài tập chương 2\" là đã xong.", "dataset": "ba_ke_hoach", "expectation": {"kind": "update_status", "goal": "Ôn thi giải tích", "title": "Làm hết bài tập chương 2", "status": "done"}},
+    {"id": "U06", "group": "cập nhật trạng thái việc con", "user_message": "Đánh dấu lại việc \"Chạy 2km không nghỉ\" là chưa xong, hôm qua mình chạy chưa tới.", "dataset": "ba_ke_hoach", "expectation": {"kind": "update_status", "goal": "Chạy được 5km trong một tháng", "title": "Chạy 2km không nghỉ", "status": "pending"}},
+
+    {"id": "A01", "group": "thêm việc con", "user_message": "Thêm việc \"Làm bài tập cuối chương\" vào kế hoạch ôn thi giải tích.", "dataset": "ba_ke_hoach", "expectation": {"kind": "add_subtask", "goal": "Ôn thi giải tích", "title": "Làm bài tập cuối chương"}},
+    {"id": "A02", "group": "thêm việc con", "user_message": "Thêm \"Học 20 chữ kanji đầu tiên\" vào kế hoạch học tiếng Nhật.", "dataset": "ba_ke_hoach", "expectation": {"kind": "add_subtask", "goal": "Học tiếng Nhật cơ bản", "title": "Học 20 chữ kanji đầu tiên"}},
+    {"id": "A03", "group": "thêm việc con", "user_message": "Kế hoạch chạy 5km thêm giúp mình việc \"Mua giày chạy bộ\".", "dataset": "ba_ke_hoach", "expectation": {"kind": "add_subtask", "goal": "Chạy được 5km trong một tháng", "title": "Mua giày chạy bộ"}},
+    {"id": "A04", "group": "thêm việc con", "user_message": "Thêm việc \"Ôn lại công thức đạo hàm\" vào kế hoạch giải tích.", "dataset": "ba_ke_hoach", "expectation": {"kind": "add_subtask", "goal": "Ôn thi giải tích", "title": "Ôn lại công thức đạo hàm"}},
+    {"id": "A05", "group": "thêm việc con", "user_message": "Thêm vào kế hoạch học tiếng Nhật việc \"Xem một tập phim có phụ đề tiếng Nhật\".", "dataset": "ba_ke_hoach", "expectation": {"kind": "add_subtask", "goal": "Học tiếng Nhật cơ bản", "title": "Xem một tập phim có phụ đề tiếng Nhật"}},
+
+    {"id": "N01", "group": "ghi chú", "user_message": "Ghi chú cho việc \"Học katakana\" là \"Học bằng app Duolingo\".", "dataset": "ba_ke_hoach", "expectation": {"kind": "set_note", "goal": "Học tiếng Nhật cơ bản", "title": "Học katakana", "note": "Học bằng app Duolingo"}},
+    {"id": "N02", "group": "ghi chú", "user_message": "Thêm ghi chú \"Chạy ở công viên gần nhà\" cho việc \"Chạy 4km không nghỉ\".", "dataset": "ba_ke_hoach", "expectation": {"kind": "set_note", "goal": "Chạy được 5km trong một tháng", "title": "Chạy 4km không nghỉ", "note": "Chạy ở công viên gần nhà"}},
+    {"id": "N03", "group": "ghi chú", "user_message": "Xóa ghi chú của việc \"Làm hết bài tập chương 2\".", "dataset": "ba_ke_hoach", "expectation": {"kind": "set_note", "goal": "Ôn thi giải tích", "title": "Làm hết bài tập chương 2", "note": ""}},
+    {"id": "N04", "group": "ghi chú", "user_message": "Ghi chú việc \"Làm một đề thi thử\" là \"Lấy đề năm 2025 trên Moodle\".", "dataset": "ba_ke_hoach", "expectation": {"kind": "set_note", "goal": "Ôn thi giải tích", "title": "Làm một đề thi thử", "note": "Lấy đề năm 2025 trên Moodle"}},
+
+    {"id": "G01", "group": "chào hỏi", "user_message": "Chào bạn.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "G02", "group": "chào hỏi", "user_message": "Hello JARVIS, hôm nay thế nào?", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "G03", "group": "chào hỏi", "user_message": "Cảm ơn nhé!", "dataset": "", "expectation": {"kind": "no_tool"}},
+
+    {"id": "M01", "group": "câu mơ hồ", "user_message": "Giúp mình với.", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "M02", "group": "câu mơ hồ", "user_message": "Mình nên làm gì bây giờ?", "dataset": "", "expectation": {"kind": "no_tool"}},
+
+    {"id": "O01", "group": "câu ngoài phạm vi", "user_message": "Thời tiết Helsinki ngày mai thế nào?", "dataset": "", "expectation": {"kind": "no_tool"}},
+    {"id": "O02", "group": "câu ngoài phạm vi", "user_message": "Viết giúp mình một bài thơ ngắn về mùa thu.", "dataset": "", "expectation": {"kind": "no_tool"}}
+  ]
+}

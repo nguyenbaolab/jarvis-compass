@@ -1,0 +1,30 @@
+{
+  "name": "ba_ke_hoach",
+  "plans": [
+    {
+      "goal": "Chạy được 5km trong một tháng",
+      "subtasks": [
+        {"title": "Chạy 2km không nghỉ", "status": "done", "note": null},
+        {"title": "Chạy 3km không nghỉ", "status": "pending", "note": null},
+        {"title": "Chạy 4km không nghỉ", "status": "pending", "note": null},
+        {"title": "Chạy 5km không nghỉ", "status": "pending", "note": null}
+      ]
+    },
+    {
+      "goal": "Ôn thi giải tích",
+      "subtasks": [
+        {"title": "Làm hết bài tập chương 1", "status": "done", "note": null},
+        {"title": "Làm hết bài tập chương 2", "status": "pending", "note": "Đợi giáo trình"},
+        {"title": "Làm một đề thi thử", "status": "pending", "note": null}
+      ]
+    },
+    {
+      "goal": "Học tiếng Nhật cơ bản",
+      "subtasks": [
+        {"title": "Học hiragana", "status": "pending", "note": null},
+        {"title": "Học katakana", "status": "pending", "note": null},
+        {"title": "Học 50 từ vựng đầu tiên", "status": "skipped", "note": null}
+      ]
+    }
+  ]
+}

@@ -30,7 +30,7 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 
 ## §2 Module map
 
-> **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy toàn bộ package nằm trong `src/`, không phải root. Chỉ src/entry.py được import workers (runtime Cloudflare); app FastAPI nằm ở src/app.py để test được trên Python thường.
+> **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package của Worker ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy mọi package của Worker nằm trong `src/`. `evals/` nằm ở root, ngoài bundle Worker, và `src/` không import nó. Chỉ src/entry.py được import workers (runtime Cloudflare); app FastAPI nằm ở src/app.py để test được trên Python thường.
 
 - `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), webhook Telegram Bot API (F11)
 - `src/core/` — Logic lõi: clarify/orchestration (F01, F02). `llm.py` là cổng trung lập, chỉ thư viện chuẩn. `system_prompt.py` là hằng prompt và `PROMPT_VERSION`. Model miền dùng chung (`Plan`, `Subtask`, `PlanStore`, chuẩn hóa NFC) ở `src/core/plans.py`
@@ -40,6 +40,7 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 - `src/clients/` — Kênh client ngoài: Telegram Bot API (trả lời / check-in). Adapter Anthropic nằm cạnh Telegram và dịch cổng sang SDK.
 - `src/scheduler/` — Proactive check-in cron (F10)
 - `src/config/` — `settings.py` đọc `SUPABASE_URL` và `SUPABASE_KEY` từ nguồn người gọi truyền vào, dict hoặc env của Worker, không bằng `os.getenv`
+- `evals/` — Bộ đánh giá tool-call, chạy bằng lệnh tay ngoài bundle Worker. `src/` không import package này.
 - `tests/` — Unit tests
 
 ## §3 Request flow (HTTP từ client)

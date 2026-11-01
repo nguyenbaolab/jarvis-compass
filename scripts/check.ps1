@@ -1,7 +1,7 @@
 # Read-only repository checks. Windows PowerShell 5.1. ASCII only.
 # Does not create, edit, or delete files, and does not mutate git state.
 # Parameters: -AllowList (required), -Base (default main).
-# Exit 0 when all eight checks pass, 1 when any check fails, 2 on usage errors.
+# Exit 0 when all ten checks pass, 1 when any check fails, 2 on usage errors.
 
 [CmdletBinding()]
 param(
@@ -139,11 +139,21 @@ function Get-GrepSummary {
     })
 }
 
+function Get-GrepSource {
+    param([string] $GrepLine)
+    $match = [regex]::Match($GrepLine, '^(.*?):(\d+):(.*)$')
+    if ($match.Success) {
+        return $match.Groups[3].Value
+    }
+    return $GrepLine
+}
+
 function Invoke-GrepCheck {
     param(
         [string] $Name,
         [string[]] $Patterns,
-        [string[]] $PathSpecs
+        [string[]] $PathSpecs,
+        [string] $Allow = ""
     )
     # Header, then git grep lines from Get-GrepSummary, same text as the old blocks.
     Write-Host ("--- {0} ---" -f $Name)
@@ -152,6 +162,26 @@ function Invoke-GrepCheck {
         $gitArgs = @("grep", "-n", "--untracked", "-E", $pattern, "--") + @($PathSpecs)
         $grep = Invoke-GitRead -GitArguments $gitArgs
         $results += $grep
+    }
+    if ($Allow -ne "") {
+        foreach ($result in @($results)) {
+            if ($result.Code -ne 0) {
+                continue
+            }
+            $kept = New-Object System.Collections.Generic.List[string]
+            foreach ($line in @($result.Lines)) {
+                $source = Get-GrepSource -GrepLine $line
+                if ($source -notmatch $Allow) {
+                    [void]$kept.Add($line)
+                }
+            }
+            if ($kept.Count -eq 0) {
+                $result.Code = 1
+                $result.Lines = New-Object System.Collections.Generic.List[string]
+            } else {
+                $result.Lines = $kept
+            }
+        }
     }
     $summary = Get-GrepSummary -Results $results
     if ($summary.Bad) {
@@ -174,6 +204,10 @@ function Invoke-GrepCheck {
         Result = $checkResult
         Detail = $checkDetail
     })
+}
+
+if ($MyInvocation.InvocationName -eq '.') {
+    return
 }
 
 $rootRaw = $null
@@ -403,11 +437,16 @@ $tools = Invoke-GrepCheck -Name "Tools imports" -Patterns @($toolsPattern, $tool
 
 $sdkPattern = '^\s*(from|import)\s+anthropic\b'
 $sdkRelativePattern = '^\s*from\s+\.+anthropic\b'
-$sdk = Invoke-GrepCheck -Name "SDK imports" -Patterns @($sdkPattern, $sdkRelativePattern) -PathSpecs @("src", ":!src/clients/anthropic_model.py")
+$sdk = Invoke-GrepCheck -Name "SDK imports" -Patterns @($sdkPattern, $sdkRelativePattern) -PathSpecs @("src", ":!src/clients/anthropic_model.py", "evals")
 
 $envCallPattern = '\bos\.(getenv|environ)\b'
 $envImportPattern = '^\s*from\s+os\s+import\s+.*\b(getenv|environ)\b'
 $envReads = Invoke-GrepCheck -Name "Env reads" -Patterns @($envCallPattern, $envImportPattern) -PathSpecs @("src/turns", "src/clients/anthropic_model.py")
+
+$evalTestsAllow = '^\s*(from|import)\s+tests\.fakes\.memory_plan_store(\s|$)'
+$evalTests = Invoke-GrepCheck -Name "Eval tests imports" -Patterns @('^\s*(from|import)\s+tests\b') -PathSpecs @("evals") -Allow $evalTestsAllow
+
+$evalEnv = Invoke-GrepCheck -Name "Eval env reads" -Patterns @($envCallPattern, $envImportPattern) -PathSpecs @("evals", ":!evals/runner.py")
 
 Write-Host ""
 Write-Host "check | pass/fail | detail"
@@ -419,6 +458,8 @@ Write-Host ("Turns imports | {0} | {1}" -f $turns.Result, $turns.Detail)
 Write-Host ("Tools imports | {0} | {1}" -f $tools.Result, $tools.Detail)
 Write-Host ("SDK imports | {0} | {1}" -f $sdk.Result, $sdk.Detail)
 Write-Host ("Env reads | {0} | {1}" -f $envReads.Result, $envReads.Detail)
+Write-Host ("Eval tests imports | {0} | {1}" -f $evalTests.Result, $evalTests.Detail)
+Write-Host ("Eval env reads | {0} | {1}" -f $evalEnv.Result, $evalEnv.Detail)
 
 $anyFail = $false
 if ($testResult -ne "pass") {
@@ -443,6 +484,12 @@ if ($sdk.Result -ne "pass") {
     $anyFail = $true
 }
 if ($envReads.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($evalTests.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($evalEnv.Result -ne "pass") {
     $anyFail = $true
 }
 if ($anyFail) {

@@ -270,3 +270,15 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 - B9 không phải báo lệch giả mỗi vòng.
 
 **Phương án đã bỏ:** cập nhật mỗi vòng (tốn thời gian và token, không thêm thông tin); chỉ cập nhật khi viết case study portfolio (diagram cũ quá lâu, mất tác dụng khi duyệt kiến trúc).
+
+## D-017 — Runner eval đọc một biến môi trường
+
+**Date:** 2026-11-01
+
+**Status:** Accepted
+
+**Bối cảnh:** Quy ước mã nguồn nói config chỉ đọc qua `src/config/settings.py` và không ghi phạm vi. Lệnh eval chạy tay cần khóa. Nguyên tắc IV cấm lượt và adapter đọc môi trường. Ràng buộc đã duyệt: không sửa `src/`, và chỉ `evals/runner.py` đọc `JARVIS_EVAL_ANTHROPIC_KEY`.
+
+**Quyết định:** Ngoại lệ nằm trong constitution, mục Quy ước mã nguồn của version 1.2.0. Chỉ ghi trong AGENTS.md là không đủ.
+
+**Phương án đã bỏ:** thêm khóa vào `src/config/settings.py`. Để runner đọc môi trường mà không sửa constitution.

@@ -1,9 +1,9 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.1 → 1.1.0
-- Modified principles: III. Truy cập database qua PostgREST (phạm vi `src/`, helper test)
-- Modified sections: Governance (ngoại lệ cho diagram trong docs/architecture/)
-- Added sections: none
+- Version change: 1.1.0 → 1.2.0
+- Modified principles: none
+- Modified sections: Quy ước mã nguồn
+- Added sections: thêm một câu ngoại lệ vào mục Quy ước mã nguồn
 - Removed sections: none
 - Follow-up TODOs:
   - none
@@ -43,7 +43,7 @@ Stack bắt buộc: Python 3.13+, Cloudflare Python Workers (Pyodide), FastAPI q
 
 ## Quy ước mã nguồn
 
-Type hints bắt buộc cho mọi function public; Pydantic cho request, response và schema DB; config chỉ đọc qua `src/config/settings.py`; tool dùng mẫu `ToolResult` và `ToolError`; comment tiếng Việt.
+Type hints bắt buộc cho mọi function public; Pydantic cho request, response và schema DB; config chỉ đọc qua `src/config/settings.py`; tool dùng mẫu `ToolResult` và `ToolError`; comment tiếng Việt. Ngoại lệ: file `evals/runner.py` được đọc biến `JARVIS_EVAL_ANTHROPIC_KEY` từ môi trường tiến trình của lệnh chạy tay, rồi truyền giá trị đó vào lượt. Không file nào khác trong `evals/` được đọc biến môi trường. `src/` không đọc biến này.
 
 ## Governance
 
@@ -55,4 +55,4 @@ Thay đổi nào làm một file docs sai thì phải sửa file đó trong cùn
 
 Sửa một luật thì cập nhật quyết định tương ứng trong `docs/DECISIONS.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-10-26
+**Version**: 1.2.0 | **Ratified**: 2026-10-18 | **Last Amended**: 2026-11-01
