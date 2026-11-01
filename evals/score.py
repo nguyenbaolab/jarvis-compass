@@ -9,6 +9,9 @@ from tools.tool_definitions import TOOL_DEFINITIONS
 
 from evals.log_lines import parse_log_rows
 
+# Tăng khi đổi luật chấm trong file này hoặc cách phân loại lần trong evals/turn.py.
+SCORER_VERSION = 1
+
 _NO_TOOL = frozenset({"chỉ kể việc", "chào hỏi", "câu mơ hồ", "câu ngoài phạm vi"})
 _WRITE_TOOL = {
     "cập nhật trạng thái việc con": "update_subtask",

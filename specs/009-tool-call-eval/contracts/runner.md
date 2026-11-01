@@ -17,9 +17,9 @@ Việc file này không làm: tự viết luật chấm, tự parse JSON bộ c�
 
 Thứ tự trong hàm nhận mapping và client:
 
-1. Đọc `JARVIS_EVAL_ANTHROPIC_KEY` từ mapping. Không có khóa, khóa `""`, hoặc khóa mà `strip()` ra chuỗi rỗng: in đúng một dòng `Thiếu JARVIS_EVAL_ANTHROPIC_KEY.` ra stderr, mã thoát `2`, không gọi client, không chạy lượt, không ghi file.
+1. Đọc `JARVIS_EVAL_ANTHROPIC_KEY` từ mapping. Không có khóa, khóa `""`, hoặc khóa mà `strip()` ra chuỗi rỗng: in đúng một dòng `Thiếu JARVIS_EVAL_ANTHROPIC_KEY.` ra stderr, mã thoát `2`, không gọi client, không chạy lượt, không ghi file. Khóa hợp lệ được strip() rồi mới dùng cho lượt và cho việc giấu khóa (bổ sung 2026-11-01).
 2. Đọc bộ câu. Sai định dạng: in lỗi, mã thoát `2`, không ghi file kết quả.
-3. Mỗi câu ba lần. Mỗi lần một `MemoryPlanStore` mới và lịch sử rỗng. Client là client được truyền vào.
+3. Mỗi câu ba lần. Mỗi lần một `MemoryPlanStore` mới và lịch sử rỗng. Client là client được truyền vào. Đủ ba lần của một câu thì in một dòng ra stderr: [<số câu xong>/<tổng>] <id> <mã lần 1> <mã lần 2> <mã lần 3>; dòng này không chứa câu trả lời hay dòng log (bổ sung 2026-11-01).
 4. Hết bộ: giấu khóa, ghi đúng một file mới, in báo cáo ra stdout, mã thoát `0`. Tỉ lệ thấp vẫn là mã `0`.
 5. `KeyboardInterrupt` hoặc `asyncio.CancelledError` giữa bộ: không chạy lần tiếp, không ghi file, mã thoát `130`.
 
@@ -44,3 +44,5 @@ Ba ca trong `tests/test_eval_runner.py`:
 | `asyncio.CancelledError` giữa bộ | Dừng, không ghi file, mã `130` |
 | Chạy đủ một bộ nhỏ với client giả | Ghi đúng một file trong `tmp_path` |
 | Danh sách file của `evals/results/` trước và sau các ca | Hai danh sách trùng nhau |
+| Khóa có khoảng trắng hai đầu | Lượt nhận khóa đã strip, ghi đúng một file |
+| Bộ một câu | stderr có đúng một dòng tiến độ |

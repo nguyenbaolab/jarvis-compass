@@ -1,6 +1,6 @@
 """Chạy một câu ba lần và phân loại lần chạy theo dòng log."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from core.llm import ModelClient
@@ -13,7 +13,20 @@ from evals.score import StoreExpectation, law_results
 from evals.store import build_store
 from evals.summary import ERROR_KINDS
 
-__all__ = ["ERROR_KINDS", "Outcome", "run_cases", "run_once", "_kind_of"]
+# Số lần mỗi câu, FR-012 spec 009.
+RUNS_PER_CASE = 3
+# Phải bằng _MAX_ROUNDS ở src/turns/llm_turn.py; test cap ở tests/test_eval_run.py đỏ nếu lệch.
+TOOL_ROUND_CAP = 3
+
+__all__ = [
+    "ERROR_KINDS",
+    "RUNS_PER_CASE",
+    "TOOL_ROUND_CAP",
+    "Outcome",
+    "run_cases",
+    "run_once",
+    "_kind_of",
+]
 
 
 @dataclass(frozen=True)
@@ -59,7 +72,7 @@ def _kind_of(lines: Sequence[str]) -> str:
     if last.get("error_type") is not None:
         return "model_error"
     rounds = _rounds_before(rows, len(rows) - 1)
-    if last.get("stop_reason") == "tool_use" and rounds == 3:
+    if last.get("stop_reason") == "tool_use" and rounds == TOOL_ROUND_CAP:
         return "cap"
     if last.get("stop_reason") == "end_turn":
         return "scored"
@@ -128,14 +141,19 @@ async def run_cases(
     api_key: str | None,
     *,
     datasets: dict[str, Dataset],
+    on_case_done: Callable[[int, int, str, tuple[str, ...]], None] | None = None,
 ) -> list[list[Outcome]]:
-    """Mỗi câu ba lần. Một lỗi chạy không chặn câu sau."""
+    """Mỗi câu RUNS_PER_CASE lần. Một lỗi chạy không chặn câu sau.
+
+    Đủ lần của một câu thì gọi on_case_done nếu khác None. Câu bị ngắt giữa chừng không gọi.
+    """
 
     batches: list[list[Outcome]] = []
-    for case in cases:
+    total = len(cases)
+    for index, case in enumerate(cases, start=1):
         dataset = datasets.get(case.dataset) if case.dataset else None
         runs: list[Outcome] = []
-        for _ in range(3):
+        for _ in range(RUNS_PER_CASE):
             store = await build_store(dataset)
             runs.append(
                 await run_once(
@@ -147,4 +165,6 @@ async def run_cases(
                 )
             )
         batches.append(runs)
+        if on_case_done is not None:
+            on_case_done(index, total, case.id, tuple(item.kind for item in runs))
     return batches

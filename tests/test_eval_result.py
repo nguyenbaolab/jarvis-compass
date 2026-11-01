@@ -8,6 +8,7 @@ import pytest
 
 from evals.redact import redact
 from evals.result import write_result
+from evals.score import SCORER_VERSION
 from evals.summary import LAW_NAMES, RunRecord, summarize
 
 _KINDS = frozenset(
@@ -528,3 +529,21 @@ def test_redact_nested_tool_and_model_lines() -> None:
     assert "đã giấu khóa" in eight_body["model"]
     assert "đã giấu khóa" in seven_body["input"]["outer"]["inner"]
     assert "đã giấu khóa" in seven_body["detail"]
+
+
+def test_result_file_records_scorer_version(tmp_path: Path) -> None:
+    """File ghi ra có scorer_version bằng SCORER_VERSION."""
+
+    record = RunRecord(
+        case_id="a",
+        group="chỉ kể việc",
+        index=1,
+        kind="scored",
+        reply="Mình nghe.",
+        lines=(_eight(),),
+        rounds=0,
+        laws=_laws(),
+    )
+    path = write_result(tmp_path, _DAY, (record,), cases_version=1, api_key="")
+    body = json.loads(path.read_text(encoding="utf-8"))
+    assert body["scorer_version"] == SCORER_VERSION

@@ -23,9 +23,11 @@ class FakeClient:
     def __init__(self, error: BaseException | None = None) -> None:
         self.error = error
         self.calls = 0
+        self.api_keys: list[str] = []
 
     async def complete(self, request: object, *, api_key: str, timeout: float) -> ModelResponse:
-        del request, api_key, timeout
+        del request, timeout
+        self.api_keys.append(api_key)
         self.calls += 1
         if self.error is not None:
             raise self.error
@@ -177,4 +179,45 @@ def test_runner_stdout_reports_fr013(tmp_path: Path, capsys: pytest.CaptureFixtu
     assert "cap_stops=" in text
     assert "rule tool " in text
     assert "group chỉ kể việc " in text
+    _assert_no_socket()
+
+
+def test_runner_strips_surrounding_whitespace_from_key(tmp_path: Path) -> None:
+    """Khóa có khoảng trắng hai đầu thì mọi lần client nhận khóa đã strip và ghi đúng một file."""
+
+    cases, datasets = _cases(tmp_path / "in")
+    client = FakeClient()
+    code = run_suite(
+        {"JARVIS_EVAL_ANTHROPIC_KEY": "  sk-test-key \n"},
+        client,
+        tmp_path,
+        _DAY,
+        cases,
+        datasets,
+    )
+    files = [path for path in tmp_path.iterdir() if path.is_file()]
+    assert code == 0
+    assert len(files) == 1
+    assert client.calls > 0
+    assert client.api_keys == ["sk-test-key"] * client.calls
+    _assert_no_socket()
+
+
+def test_runner_one_case_prints_one_stderr_progress_line(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Bộ một câu thì stderr đúng một dòng tiến độ, bằng mã kind thật, không chứa câu trả lời."""
+
+    cases, datasets = _cases(tmp_path / "in")
+    out = tmp_path / "out"
+    out.mkdir()
+    code = run_suite({"JARVIS_EVAL_ANTHROPIC_KEY": "k"}, FakeClient(), out, _DAY, cases, datasets)
+    captured = capsys.readouterr()
+    assert code == 0
+    written = [path for path in out.iterdir() if path.is_file()]
+    assert len(written) == 1
+    body = json.loads(written[0].read_text(encoding="utf-8"))
+    kinds = " ".join(str(item["kind"]) for item in body["runs"])
+    assert captured.err.splitlines() == [f"[1/1] c1 {kinds}"]
+    assert "Mình nghe." not in captured.err
     _assert_no_socket()
