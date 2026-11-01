@@ -226,7 +226,7 @@ description: "Task list for Bộ đánh giá gọi tool của một lượt"
 
 - [x] T034 [US7] Đưa bộ câu v1 và bộ dữ liệu kho nguyên văn vào `evals/cases/v1.json` và `evals/datasets/` (phụ thuộc T033). Task này chờ người giữ cung cấp chữ. Không bịa câu. Không task nào khác điền câu vào hai đường này. Khi có chữ: `cases_version` là `1`, mỗi câu đúng trường ở [data-model.md](./data-model.md), mỗi tên `dataset` không rỗng có một file `evals/datasets/<tên>.json` với `name` bằng tên file không tính `.json`. Bộ sai định dạng thì dừng và hỏi lại, không sửa chữ người giữ
 
-- [ ] T035 [US7] Lệnh chạy tay (phụ thuộc T034). Chỉ chạy khi T034 đã có nguyên văn và tiến trình đã có `JARVIS_EVAL_ANTHROPIC_KEY`. Không ghi giá trị khóa vào file. Lệnh, từ gốc repo:
+- [x] T035 [US7] Lệnh chạy tay (phụ thuộc T034). Chỉ chạy khi T034 đã có nguyên văn và tiến trình đã có `JARVIS_EVAL_ANTHROPIC_KEY`. Không ghi giá trị khóa vào file. Lệnh, từ gốc repo:
 
 ```text
 $env:PYTHONPATH = "src"
