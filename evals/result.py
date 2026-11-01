@@ -7,7 +7,7 @@ from pathlib import Path
 
 from evals.log_lines import parse_log_rows
 from evals.redact import redact
-from evals.score import _new_titles
+from evals.score import SCORER_VERSION, _new_titles
 from evals.summary import ERROR_KINDS, RunRecord, summarize
 
 
@@ -85,6 +85,7 @@ def write_result(
     path = _path(directory, prompt, definitions, model, day)
     body = {
         "cases_version": cases_version,
+        "scorer_version": SCORER_VERSION,
         "prompt_version": prompt,
         "definitions_version": definitions,
         "model": model,

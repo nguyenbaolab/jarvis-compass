@@ -20,14 +20,17 @@ _MISSING = "Thiếu JARVIS_EVAL_ANTHROPIC_KEY."
 
 
 def check_key(env: Mapping[str, str], client: ModelClient) -> str | None:
-    """Đọc khóa từ mapping. Thiếu, rỗng, hoặc chỉ khoảng trắng thì in stderr và trả None."""
+    """Đọc khóa từ mapping. Thiếu, rỗng, hoặc chỉ khoảng trắng thì in stderr và trả None.
+
+    Khóa trả về đã strip, dùng cho lượt và cho việc giấu khóa.
+    """
 
     del client
     key = env.get(_KEY)
     if key is None or key.strip() == "":
         print(_MISSING, file=sys.stderr)
         return None
-    return key
+    return key.strip()
 
 
 def stop_interrupted(env: Mapping[str, str], client: ModelClient) -> int:
@@ -56,6 +59,12 @@ def _record(case_id: str, group: str, index: int, outcome: Outcome, titles: froz
         laws=outcome.laws,
         dataset_titles=titles,
     )
+
+
+def _print_progress(done: int, total: int, case_id: str, kinds: tuple[str, ...]) -> None:
+    """Một dòng tiến độ ra stderr. Không in câu trả lời hay dòng log."""
+
+    print(f"[{done}/{total}] {case_id} {' '.join(kinds)}", file=sys.stderr, flush=True)
 
 
 def _print_report(runs: list[RunRecord]) -> None:
@@ -96,7 +105,15 @@ def run_suite(
         print(error, file=sys.stderr)
         return 2
     try:
-        batches = asyncio.run(run_cases(suite.cases, client, key, datasets=suite.datasets))
+        batches = asyncio.run(
+            run_cases(
+                suite.cases,
+                client,
+                key,
+                datasets=suite.datasets,
+                on_case_done=_print_progress,
+            )
+        )
     except (KeyboardInterrupt, asyncio.CancelledError):
         return stop_interrupted(env, client)
     runs: list[RunRecord] = []

@@ -8,12 +8,14 @@ Ba nhãn lấy từ dòng tám khóa của lần chạy. Mọi dòng cùng một
 
 Thân file là một object UTF-8, `ensure_ascii=False`:
 
-- `cases_version`, `prompt_version`, `definitions_version`, `model`, `date`
+- `cases_version`, `scorer_version`, `prompt_version`, `definitions_version`, `model`, `date`
 - `input_tokens`, `output_tokens`
 - `by_case`: id, group, tỉ lệ hoặc `null`, `run_errors`, `cap_stops`
 - `by_rule`: tên luật, số đạt, số được xét
 - `by_group`: nhóm, tỉ lệ hoặc `null`, `run_errors`, `cap_stops`
 - `runs`: với từng lần, id câu, chỉ số lần `1` đến `3`, `kind` là một trong `scored`, `cap`, `missing_key`, `no_model_log`, `ended_on_tool_log`, `model_error`, `bad_stop_reason`, câu trả lời, mảng dòng log nguyên chuỗi, số vòng, kết quả bảy luật (`pass`, `fail`, hoặc `not_applicable` cho luật kho), và `manual_titles` là mảng `{title, mark}` với `mark` ban đầu `unmarked`
+
+`scorer_version` là hằng `SCORER_VERSION` trong `evals/score.py`, tăng khi đổi luật chấm hoặc cách phân loại lần. File không có trường này (đường cơ sở 2026-11-01) là bản chấm 1 (bổ sung 2026-11-01).
 
 `cap_stops` không được dùng làm tử số hay mẫu số của tỉ lệ. Lần `kind` là `cap` vẫn là lần được chấm, nên vẫn nằm trong tỉ lệ và trong `by_rule`. `run_errors` đếm năm mã `missing_key`, `no_model_log`, `ended_on_tool_log`, `model_error`, `bad_stop_reason`. `kind` của lần đó là đúng mã ấy, không gộp thành một mã chung.
 

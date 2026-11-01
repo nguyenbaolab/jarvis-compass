@@ -12,7 +12,7 @@ from core.llm import ModelError, ModelRequest, ModelResponse, ToolRequest
 from evals.model import Case, Dataset, Expectation, Group, PlanSeed, SubtaskSeed
 from evals.store import build_store
 from evals.summary import summarize
-from evals.turn import ERROR_KINDS, run_cases, run_once
+from evals.turn import ERROR_KINDS, RUNS_PER_CASE, TOOL_ROUND_CAP, run_cases, run_once
 from tests.fakes.memory_plan_store import MemoryPlanStore
 
 _T = TypeVar("_T")
@@ -427,4 +427,59 @@ def test_store_isolation_and_empty_history_each_run() -> None:
         assert len(first_request.rounds) == 0
         assert len(first_request.messages) == 1
         assert first_request.messages[0].role == "user"
+    _assert_no_socket()
+
+
+class AlwaysGetPlansClient:
+    """Luôn trả tool_use với một get_plans, không cạn phản hồi."""
+
+    model = "claude-haiku-5-5"
+
+    async def complete(self, request: object, *, api_key: str, timeout: float) -> ModelResponse:
+        del request, api_key, timeout
+        return _reply("tool_use", (ToolRequest(id="g", name="get_plans", tool_input={}),))
+
+
+def test_run_cases_on_case_done_reports_finished_cases_in_order() -> None:
+    """Hai câu đủ lần thì on_case_done được gọi đúng hai lần, theo thứ tự, mỗi tuple dài RUNS_PER_CASE."""
+
+    seen: list[tuple[int, int, str, tuple[str, ...]]] = []
+
+    def record(done: int, total: int, case_id: str, kinds: tuple[str, ...]) -> None:
+        seen.append((done, total, case_id, kinds))
+
+    first = Case(
+        id="id1",
+        group=Group.CHI_KE_VIEC,
+        user_message="a",
+        dataset="",
+        expectation=Expectation(kind="no_tool"),
+    )
+    second = Case(
+        id="id2",
+        group=Group.CHI_KE_VIEC,
+        user_message="b",
+        dataset="",
+        expectation=Expectation(kind="no_tool"),
+    )
+    steps: list[object] = [_reply("end_turn") for _ in range(RUNS_PER_CASE * 2)]
+    batches = run_offline(
+        run_cases((first, second), FakeClient(steps), "k", datasets={}, on_case_done=record)
+    )
+    assert len(seen) == 2
+    assert seen[0][:3] == (1, 2, "id1")
+    assert seen[1][:3] == (2, 2, "id2")
+    assert seen[0][3] == tuple(run.kind for run in batches[0])
+    assert seen[1][3] == tuple(run.kind for run in batches[1])
+    assert len(seen[0][3]) == RUNS_PER_CASE
+    assert len(seen[1][3]) == RUNS_PER_CASE
+    _assert_no_socket()
+
+
+def test_run_once_always_get_plans_is_cap_at_tool_round_cap() -> None:
+    """Client luôn trả tool_use get_plans thì kind là cap và rounds bằng TOOL_ROUND_CAP."""
+
+    outcome = run_offline(run_once(_case(), MemoryPlanStore(), AlwaysGetPlansClient(), "k"))
+    assert outcome.kind == "cap"
+    assert outcome.rounds == TOOL_ROUND_CAP
     _assert_no_socket()

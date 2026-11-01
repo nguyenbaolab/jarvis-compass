@@ -25,7 +25,7 @@ Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhá
 | L1-07 | ghi nhận | src/core/plans.py:47 | Docstring PlanStore nói không có bản cài đặt trong src/ | đã sửa ở chore/review-fixes-2026-11-01 |
 | L1-08 | suy đoán | pylock.toml | pylock khóa pydantic khác uv.lock; Worker có thể chạy bản khác test | mở |
 | L2-01 | nên sửa | evals/turn.py:98-121; evals/runner.py:98-101 | Exception ngoài năm mã làm hỏng cả bộ, không ghi file | mở (bộ câu v2) |
-| L2-02 | nên sửa | evals/result.py:86-130 | File kết quả không ghi phiên bản bộ chấm hay commit | mở (việc nhỏ runner) |
+| L2-02 | nên sửa | evals/result.py:86-130 | File kết quả không ghi phiên bản bộ chấm hay commit | đã sửa ở chore/eval-runner-polish |
 | L2-03 | nên sửa | tests/test_eval_score.py:196-216 | Sáu tiêu đề trong một lần chấm, chỉ nhánh đầu được kiểm; thiếu ca Markdown `+ ` | đã sửa ở chore/review-fixes-2026-11-01 |
 | L2-04 | nên sửa | scripts/check.ps1:339-340 | git diff --name-only dò đổi tên, nguồn của file bị chuyển lọt kiểm | đã sửa ở chore/review-fixes-2026-11-01 |
 | L2-05 | nên sửa | scripts/claude-b9-settings.json | git --output và git grep -O ghi file, chạy lệnh dưới dontAsk | đã sửa ở chore/review-fixes-2026-11-01 |
