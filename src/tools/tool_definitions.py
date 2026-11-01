@@ -1,6 +1,6 @@
 """Catalog sáu tool kế hoạch. Phiên bản là số nguyên, không phải chuỗi."""
 
-DEFINITIONS_VERSION: int = 1
+DEFINITIONS_VERSION: int = 2
 
 TOOL_DEFINITIONS: dict[str, dict[str, object]] = {
     "create_plan": {
@@ -16,7 +16,7 @@ TOOL_DEFINITIONS: dict[str, dict[str, object]] = {
         },
     },
     "get_plans": {
-        "description": "Liệt kê kế hoạch đang có, mới hơn đứng trước, có thể lọc theo từ khóa trong mục tiêu.",
+        "description": "Liệt kê kế hoạch đang có, mới hơn đứng trước, có thể lọc theo từ khóa trong mục tiêu hoặc tiêu đề việc con.",
         "input_schema": {
             "type": "object",
             "properties": {

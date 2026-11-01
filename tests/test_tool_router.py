@@ -83,7 +83,7 @@ def _run(name: object, tool_input: object, store: MemoryPlanStore):
     assert isinstance(lines[0], str)
     logged = json.loads(lines[0])
     assert list(logged) == _LOG_KEYS
-    assert logged["definitions_version"] == 1
+    assert logged["definitions_version"] == 2
     assert isinstance(logged["definitions_version"], int)
     assert isinstance(logged["duration_ms"], int)
     assert logged["duration_ms"] >= 0
@@ -94,7 +94,7 @@ def _run(name: object, tool_input: object, store: MemoryPlanStore):
 
 
 def test_catalog_matches_contract() -> None:
-    assert DEFINITIONS_VERSION == 1
+    assert DEFINITIONS_VERSION == 2
     assert isinstance(DEFINITIONS_VERSION, int)
     assert list(TOOL_DEFINITIONS) == [
         "create_plan",
@@ -106,7 +106,7 @@ def test_catalog_matches_contract() -> None:
     ]
     descriptions = {
         "create_plan": "Tạo một kế hoạch mới từ mục tiêu và danh sách việc con.",
-        "get_plans": "Liệt kê kế hoạch đang có, mới hơn đứng trước, có thể lọc theo từ khóa trong mục tiêu.",
+        "get_plans": "Liệt kê kế hoạch đang có, mới hơn đứng trước, có thể lọc theo từ khóa trong mục tiêu hoặc tiêu đề việc con.",
         "get_plan_detail": "Mở một kế hoạch theo danh tính.",
         "update_subtask": "Đặt trạng thái một việc con thành pending, done hoặc skipped.",
         "add_subtask": "Thêm một việc con vào cuối một kế hoạch.",

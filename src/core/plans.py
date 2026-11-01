@@ -208,21 +208,24 @@ def replace_subtask_note(plan: Plan, subtask_id: str, note: str | None) -> Plan:
     return _replace_one_subtask(plan, subtask_id, change)
 
 
-def filter_by_goal_keyword(
+def filter_by_keyword(
     plans: tuple[Plan, ...],
     keyword: str | None,
 ) -> tuple[Plan, ...]:
-    """Giữ kế hoạch có từ khóa trong goal. None hoặc rỗng sau NFC rồi strip là không lọc."""
+    """Giữ kế hoạch có từ khóa trong goal hoặc tiêu đề việc con. None hoặc rỗng sau NFC rồi strip là không lọc."""
+
+    def fold(value: str) -> str:
+        return unicodedata.normalize("NFC", value).casefold()
 
     if keyword is None:
         return plans
     normalized = unicodedata.normalize("NFC", keyword).strip()
     if normalized == "":
         return plans
-    needle = normalized.casefold()
+    needle = fold(normalized)
     kept: list[Plan] = []
     for plan in plans:
-        haystack = unicodedata.normalize("NFC", plan.goal).casefold()
-        if needle in haystack:
+        matches_title = any(needle in fold(item.title) for item in plan.subtasks)
+        if needle in fold(plan.goal) or matches_title:
             kept.append(plan)
     return tuple(kept)

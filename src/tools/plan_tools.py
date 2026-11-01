@@ -8,7 +8,7 @@ from core.plans import (
     PlanDomainError,
     PlanStore,
     append_subtask,
-    filter_by_goal_keyword,
+    filter_by_keyword,
     new_subtask,
     normalize_new_plan,
     normalize_plan_id,
@@ -117,9 +117,9 @@ async def get_plans(
     *,
     store: PlanStore,
 ) -> ToolResult:
-    """Liệt kê kế hoạch mới hơn đứng trước, rồi lọc theo từ khóa trong goal."""
+    """Liệt kê kế hoạch mới hơn đứng trước, rồi lọc theo từ khóa trong goal hoặc tiêu đề việc con."""
 
-    plans = filter_by_goal_keyword(await store.list_newest_first(), keyword)
+    plans = filter_by_keyword(await store.list_newest_first(), keyword)
     return ToolResult(success=True, output=_plans_json(plans))
 
 
