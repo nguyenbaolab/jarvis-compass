@@ -1,0 +1,4 @@
+src/core/system_prompt.py
+tests/test_llm_turn.py
+specs/011-prompt-version-2/**
+docs/PRODUCT.md

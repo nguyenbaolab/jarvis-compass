@@ -552,14 +552,29 @@ def test_duration_ms_uses_clock_around_complete(monkeypatch: pytest.MonkeyPatch)
     assert json.loads(logs[0])["duration_ms"] == 1500
 
 
-def test_system_prompt_has_four_laws() -> None:
-    assert PROMPT_VERSION == 1
+def test_system_prompt_has_six_laws() -> None:
+    assert PROMPT_VERSION == 2
+    assert "get_plan_detail" not in SYSTEM_PROMPT
+    assert "Friday" not in SYSTEM_PROMPT
+    assert SYSTEM_PROMPT.count("trợ lý lập kế hoạch") == 1
     assert "Bạn là JARVIS. Không dùng tên nhân vật nào khác." in SYSTEM_PROMPT
     assert "Trả lời bằng tiếng Việt." in SYSTEM_PROMPT
     assert "Tuần này mình phải nộp báo cáo thứ Sáu và học xong chương 3" in SYSTEM_PROMPT
-    assert "không gọi tool" in SYSTEM_PROMPT
     assert 'Không tự xưng "trợ lý lập kế hoạch".' in SYSTEM_PROMPT
-    assert "điểm kết thúc đo được" in SYSTEM_PROMPT
-    assert "Bước 1" in SYSTEM_PROMPT
-    assert "Friday" not in SYSTEM_PROMPT
+    assert "Luật này không áp khi người dùng báo một việc đã xong hoặc bỏ" in SYSTEM_PROMPT
+    assert "Không in đậm bằng **." in SYSTEM_PROMPT
+    assert 'một dòng chữ trơn như "Ngày 1"' in SYSTEM_PROMPT
+    assert "Tiêu đề việc con do bạn tự đặt không có tiền tố thứ tự" in SYSTEM_PROMPT
+    assert 'không có tiền tố thứ tự như "Ngày 1:", "Tuần 1:", "Bước 1", "1."' in SYSTEM_PROMPT
+    assert "Tiêu đề việc con do bạn tự đặt phải có điểm kết thúc đo được." in SYSTEM_PROMPT
+    assert "Không tự đặt việc kiểu thói quen suốt một khoảng thời gian." in SYSTEM_PROMPT
+    assert "Tiêu đề do người dùng tự đưa được giữ nguyên từng chữ." in SYSTEM_PROMPT
+    assert "Không hiện mã kế hoạch hay mã việc con." in SYSTEM_PROMPT
+    assert "Cần mã thì tự tìm bằng get_plans với tên việc." in SYSTEM_PROMPT
+    assert "Không dùng pending, done, skipped trong câu trả lời." in SYSTEM_PROMPT
+    assert "không phải chưa làm, xong, hay bỏ qua" in SYSTEM_PROMPT
+    assert "gọi get_plans với tên việc họ nói" in SYSTEM_PROMPT
+    assert "Khớp đúng một việc thì cập nhật ngay, không hỏi xác nhận." in SYSTEM_PROMPT
+    assert "Không khớp hoặc khớp nhiều việc thì hỏi lại." in SYSTEM_PROMPT
+    assert "Không đòi bằng chứng." in SYSTEM_PROMPT
 
