@@ -206,6 +206,8 @@ Môi trường: WSL Ubuntu (uv 0.12.13, Node 22.23.2, wrangler 4.131.1, workers-
 
 **Phương án đã bỏ:** đặt Plan và PlanStore trong src/tools/. Gọn hơn cho F04 và F05, nhưng scheduler sẽ phải import từ tools.
 
+**Cập nhật 2026-11-04:** `plan_tools` vẫn chỉ gọi core và đổi kết quả hoặc lỗi miền thành `ToolResult` và `ToolError`. Từ 012 nó cũng áp hạn chờ cho lời gọi kho và đổi xung đột phiên bản thành câu từ chối (D-021). Chiều phụ thuộc không đổi.
+
 ## D-012 — Cổng PlanStore và tool có lưu trữ là bất đồng bộ
 
 **Date:** 2026-10-25
@@ -339,3 +341,24 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Lý do:** Vấn đề cốt lõi của sản phẩm là engagement hàng ngày (PRODUCT §1); nhắc việc chủ động đánh thẳng vào đó. Lịch cần thêm F17 trước khi có dữ liệu ngày.
 
 **Phương án đã bỏ:** làm F17 và lịch trước F10.
+
+## D-021 — Độ bền ghi: hạn chờ đặt ở tool, version khóa lạc quan, bản ghép khi lượt bất thường
+
+**Date:** 2026-11-04
+**Status:** Accepted
+
+**Bối cảnh:** Review repo 2026-11-01 (L1-01 đến L1-03) thấy ba lỗi khi ghi. Lời gọi PostgREST không có hạn chờ nên một lượt có thể vượt ngân sách 20 giây (D-015). Hai lượt cùng sửa một kế hoạch thì lần ghi sau xóa thay đổi của lần trước: D-013 làm mỗi `replace` nguyên tử nhưng không so với bản đã đọc. Lượt kết thúc bất thường sau khi đã ghi thì trả câu lỗi chung dù thay đổi đã lưu.
+
+**Quyết định:**
+1. Hạn chờ: mỗi lời gọi kho trong `src/tools/plan_tools.py` chạy dưới `asyncio.wait_for` với phần còn lại của ngân sách lượt. `run_turn` đưa hàm `remaining` cho `execute_tool`, tool gọi nó ngay trước mỗi lời gọi kho. Lần ghi quá hạn trả "Chưa chắc thay đổi đã được lưu." và không thử lại; lần đọc quá hạn trả câu lỗi chung. `src/db/client.py` có trần HTTP 20 giây mỗi pha, chỉ để giải phóng kết nối, không phải hạn của lượt. Mọi nơi gọi `execute_tool` (route F11, scheduler F10) phải truyền `remaining`; bỏ qua nghĩa là không có hạn.
+2. Khóa lạc quan: cột `plans.version`, `Plan.version` bắt buộc. `replace_plan(plan_id, goal, subtasks, expected_version)` là một `UPDATE ... WHERE id AND version = expected_version`. Không khớp thì lỗi `plan_missing` hoặc `plan_version_conflict`. Xung đột thành câu "Thay đổi chưa được áp dụng. Bạn thử lại giúp mình."; tool không tự thử lại.
+3. Bản ghép: lượt không kết thúc bình thường mà có lần ghi thành công, bị bỏ hoặc bị từ chối thì chuỗi trả là bản ghép (các dòng đã lưu, rồi câu chưa chắc, rồi câu từ chối). Ba câu cố định và sáu mẫu dòng chỉ nằm ở `src/tools/saved_reply.py`.
+
+**Lý do:**
+- Hạn chờ nằm ở tool vì chỉ lượt biết phần ngân sách còn lại, và cổng `PlanStore` không có chỗ nhận số đó. Timeout của httpx tính theo từng pha (connect, read, write, pool), không phải tổng, nên không bảo đảm được 20 giây.
+- Version nằm trong một câu UPDATE: khóa hàng giữ tới hết giao dịch nên so và ghi là một bước nguyên tử. Hai lần ghi chạy chồng thì lần sau bị từ chối.
+- Từ chối thay vì tự thử lại: mô hình đã quyết định từ bản đã đọc, ghi lại từ bản mới có thể trái ý người dùng.
+
+**Trade-off:** Lần ghi quá hạn có thể vẫn chạy xong ở PostgREST sau khi client bỏ. Câu "chưa chắc" đúng, nhưng nếu mô hình thử lại trong cùng lượt thì có thể tạo trùng (spec chấp nhận; chống trùng khi Telegram gửi lại webhook thuộc F11). Hạn chờ trên Worker (Pyodide) chưa kiểm chứng, phải chạy `pywrangler dev` trước khi dùng thật. Migration bỏ chữ ký cũ của `replace_plan`, nên giữa `db push` và deploy Worker các tool ghi trên kế hoạch có sẵn sẽ lỗi.
+
+**Phương án đã bỏ:** giữ khóa từ lúc đọc tới lúc ghi (đọc và ghi là hai lời gọi HTTP riêng); gộp hai bản trong kho (cần luật gộp từng trường); truyền một số giây tính sẵn hoặc một mốc tuyệt đối (số cũ đi, test bịt `_now` không khống chế được); gắn ngân sách vào httpx hoặc coi timeout httpx là chỗ bảo đảm (không phải tổng thời gian); để mặc định 120 giây; ghép chuỗi trong core hoặc để mỗi file một bản sao câu cố định.

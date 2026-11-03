@@ -32,6 +32,7 @@ def _row(subtasks: list[dict] | None = None) -> dict:
         "id": _PLAN_ID,
         "goal": "Học tiếng Nhật",
         "created_order": 2,
+        "version": 0,
         "subtasks": subtasks,
     }
 
@@ -60,6 +61,19 @@ def test_missing_subtasks_is_mapping_error() -> None:
 def test_empty_subtasks() -> None:
     plan = plan_from_row(_row(subtasks=[]))
     assert plan.subtasks == ()
+
+
+def test_row_without_version_is_mapping_error() -> None:
+    row = _row()
+    del row["version"]
+    with pytest.raises(KeyError, match="version"):
+        plan_from_row(row)
+
+
+def test_row_version_seven_becomes_plan_version() -> None:
+    row = _row()
+    row["version"] = 7
+    assert plan_from_row(row).version == 7
 
 
 def test_strange_status_rejects_the_plan() -> None:

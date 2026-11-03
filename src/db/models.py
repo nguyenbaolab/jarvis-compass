@@ -16,9 +16,10 @@ class SubtaskRow(BaseModel):
 
 
 class PlanRow(BaseModel):
-    """Một dòng kế hoạch kèm việc con. Không có mốc thời gian của riêng kế hoạch."""
+    """Một dòng kế hoạch kèm việc con. version là số lần ghi, không phải mốc thời gian."""
 
     id: str
     goal: str
     created_order: int
+    version: int
     subtasks: list[SubtaskRow]

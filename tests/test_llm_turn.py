@@ -2,12 +2,15 @@
 
 import asyncio
 import json
+import time
 
 import pytest
 
 from core.llm import ModelError, ModelResponse, TextMessage, ToolRequest
+from core.plans import Plan, PlanConflictError, Subtask, SubtaskStatus
 from core.system_prompt import PROMPT_VERSION, SYSTEM_PROMPT
 from tests.helpers import MemoryPlanStore
+from tools.saved_reply import REJECTED_SENTENCE
 from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 from turns.llm_turn import run_turn
 
@@ -113,6 +116,7 @@ def test_text_reply_does_not_call_store(monkeypatch: pytest.MonkeyPatch) -> None
         *,
         store: object,
         log: object = None,
+        remaining: object = None,
     ) -> object:
         calls.append(name)
         return type("Result", (), {"success": True, "output": ""})()
@@ -377,6 +381,7 @@ def test_budget_stops_second_tool(monkeypatch: pytest.MonkeyPatch) -> None:
         *,
         store: object,
         log: object = None,
+        remaining: object = None,
     ) -> object:
         ran.append(name)
         return type("Result", (), {"success": True, "output": "ok"})()
@@ -435,6 +440,7 @@ def test_same_log_object_is_passed_to_execute_tool(
         *,
         store: object,
         log: object = None,
+        remaining: object = None,
     ) -> object:
         received.append(log)
         assert log is not None
@@ -577,4 +583,518 @@ def test_system_prompt_has_six_laws() -> None:
     assert "Khớp đúng một việc thì cập nhật ngay, không hỏi xác nhận." in SYSTEM_PROMPT
     assert "Không khớp hoặc khớp nhiều việc thì hỏi lại." in SYSTEM_PROMPT
     assert "Không đòi bằng chứng." in SYSTEM_PROMPT
+
+
+def test_hung_store_returns_turn_inside_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    marks = iter((0.0, 0.0, 0.0, 0.0, 0.0, 19.95, 19.96, 19.97, 19.98, 19.99, 19.99))
+
+    def _clock() -> float:
+        try:
+            return next(marks)
+        except StopIteration:
+            return 19.99
+
+    monkeypatch.setattr("turns.llm_turn._now", _clock)
+
+    class _HangAdd(MemoryPlanStore):
+        async def add(self, goal: str, subtasks: tuple) -> object:
+            await asyncio.Event().wait()
+            raise AssertionError("không trả")
+
+    client = FakeClient(
+        [
+            _reply("", "tool_use", (_tool("t1", "create_plan", {"goal": "Học tiếng Nhật"}),)),
+            _reply("xong", "end_turn"),
+        ]
+    )
+
+    async def _case() -> str:
+        return await run_turn(
+            "lập kế hoạch",
+            [],
+            store=_HangAdd(),
+            api_key="caller-key",
+            client=client,
+            log=lambda _line: None,
+        )
+
+    result = asyncio.run(asyncio.wait_for(_case(), timeout=2))
+    assert result == "xong"
+
+
+class _StepClient:
+    """Cổng giả nhận phản hồi hoặc hàm đọc request."""
+
+    def __init__(self, steps: list[object]) -> None:
+        self.model = "client-model"
+        self.calls: list[tuple[object, str, float]] = []
+        self._steps = list(steps)
+
+    async def complete(self, request: object, *, api_key: str, timeout: float) -> ModelResponse:
+        self.calls.append((request, api_key, timeout))
+        item = self._steps.pop(0)
+        if callable(item):
+            item = item(request)
+        if isinstance(item, BaseException):
+            raise item
+        assert isinstance(item, ModelResponse)
+        return item
+
+
+def _create(goal: str, titles: list[str] | None = None) -> ModelResponse:
+    tool_input: dict[str, object] = {"goal": goal}
+    if titles is not None:
+        tool_input["subtasks"] = titles
+    return _reply("", "tool_use", (_tool("t-create", "create_plan", tool_input),))
+
+
+def _turn(steps: list[object], store: MemoryPlanStore | None = None) -> str:
+    client = _StepClient(steps)
+    return asyncio.run(
+        run_turn(
+            "lập",
+            [],
+            store=MemoryPlanStore() if store is None else store,
+            api_key="caller-key",
+            client=client,
+            log=lambda _line: None,
+        )
+    )
+
+
+def test_saved_lines_replace_abnormal_endings(monkeypatch: pytest.MonkeyPatch) -> None:
+    one = "1. Đã lưu kế hoạch Học tiếng Nhật với việc Học hiragana."
+    two = "1. Đã lưu kế hoạch Học tiếng Nhật với việc Học hiragana, Mua vở."
+    none = "1. Đã lưu kế hoạch Học tiếng Nhật."
+    assert _turn([_create("Học tiếng Nhật", ["Học hiragana"]), _reply("", "end_turn")]) == one
+    assert _turn([_create("Học tiếng Nhật", ["Học hiragana", "Mua vở"]), _reply("", "end_turn")]) == two
+    assert _turn([_create("Học tiếng Nhật"), _reply("", "end_turn")]) == none
+
+    def _add(request: object) -> ModelResponse:
+        output = request.rounds[0][1][0].output
+        plan_id = json.loads(output)["id"]
+        return _reply("", "tool_use", (_tool("t-add", "add_subtask", {"plan_id": plan_id, "title": "Mua vở"}),))
+
+    # Hai lần ghi: tạo không việc, rồi thêm việc. Dòng 1 là lần tạo.
+    both = "1. Đã lưu kế hoạch Học tiếng Nhật.\n2. Đã lưu việc Mua vở vào kế hoạch Học tiếng Nhật."
+    assert _turn([_create("Học tiếng Nhật"), _add, _reply("", "end_turn")]) == both
+
+    def _status(request: object) -> ModelResponse:
+        body = json.loads(request.rounds[0][1][0].output)
+        return _reply(
+            "",
+            "tool_use",
+            (
+                _tool(
+                    "t-status",
+                    "update_subtask",
+                    {
+                        "plan_id": body["id"],
+                        "subtask_id": body["subtasks"][0]["id"],
+                        "status": "done",
+                    },
+                ),
+            ),
+        )
+
+    status_line = "2. Đã lưu việc Học hiragana trong kế hoạch Học tiếng Nhật là xong."
+    status_result = _turn([_create("Học tiếng Nhật", ["Học hiragana"]), _status, _reply("", "end_turn")])
+    assert status_line in status_result
+    assert "done" not in status_result
+    assert "pending" not in status_result
+
+    def _note(request: object) -> ModelResponse:
+        body = json.loads(request.rounds[-1][1][0].output)
+        return _reply(
+            "",
+            "tool_use",
+            (
+                _tool(
+                    "t-note",
+                    "set_subtask_note",
+                    {
+                        "plan_id": body["id"],
+                        "subtask_id": body["subtasks"][0]["id"],
+                        "note": "Đợi giáo trình",
+                    },
+                ),
+            ),
+        )
+
+    def _clear(request: object) -> ModelResponse:
+        body = json.loads(request.rounds[0][1][0].output)
+        return _reply(
+            "",
+            "tool_use",
+            (
+                _tool(
+                    "t-clear",
+                    "set_subtask_note",
+                    {"plan_id": body["id"], "subtask_id": body["subtasks"][0]["id"], "note": ""},
+                ),
+            ),
+        )
+
+    noted = _turn([_create("Học tiếng Nhật", ["Học hiragana"]), _note, _reply("", "end_turn")])
+    assert "2. Đã lưu ghi chú Đợi giáo trình cho việc Học hiragana trong kế hoạch Học tiếng Nhật." in noted
+    cleared = _turn([_create("Học tiếng Nhật", ["Học hiragana"]), _clear, _reply("", "end_turn")])
+    assert "2. Đã bỏ ghi chú của việc Học hiragana trong kế hoạch Học tiếng Nhật." in cleared
+
+    endings = (
+        _reply("", "max_tokens"),
+        RuntimeError("model down"),
+        _reply("", "refusal"),
+        _reply("   ", "end_turn"),
+    )
+    for ending in endings:
+        assert _turn([_create("Học tiếng Nhật"), ending]) == none
+    budget = iter((0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 21.0))
+    monkeypatch.setattr("turns.llm_turn._now", lambda: next(budget))
+    assert _turn([_create("Học tiếng Nhật"), _reply("không tới", "end_turn")]) == none
+    monkeypatch.setattr("turns.llm_turn._now", time.monotonic)
+    assert _turn(
+        [
+            _create("Một"),
+            _create("Hai"),
+            _create("Ba"),
+            _reply("", "tool_use", (_tool("t4", "get_plans", {}),)),
+        ]
+    ) == "1. Đã lưu kế hoạch Một.\n2. Đã lưu kế hoạch Hai.\n3. Đã lưu kế hoạch Ba."
+
+
+def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    ticks = {"n": 0}
+
+    def _clock() -> float:
+        ticks["n"] += 1
+        if ticks["n"] < 6:
+            return 0.0
+        return 19.9 + (ticks["n"] - 6) * 0.001
+
+    monkeypatch.setattr("turns.llm_turn._now", _clock)
+
+    class _HangAdd(MemoryPlanStore):
+        async def add(self, goal: str, subtasks: tuple) -> object:
+            await asyncio.Event().wait()
+            raise AssertionError("không trả")
+
+    only_uncertain = asyncio.run(
+        asyncio.wait_for(
+            run_turn(
+                "lập",
+                [],
+                store=_HangAdd(),
+                api_key="caller-key",
+                client=_StepClient([_create("Học tiếng Nhật"), RuntimeError("model down")]),
+                log=lambda _line: None,
+            ),
+            timeout=2,
+        )
+    )
+    assert only_uncertain == "Chưa chắc thay đổi đã được lưu."
+
+    class _Conflict(MemoryPlanStore):
+        async def replace(self, plan: object) -> None:
+            raise PlanConflictError()
+
+    seeded = _Conflict()
+    seeded._plans.append(
+        Plan(
+            id="11111111-1111-4111-8111-111111111111",
+            goal="Học tiếng Nhật",
+            subtasks=(
+                Subtask(
+                    id="22222222-2222-4222-8222-222222222222",
+                    title="Học hiragana",
+                    status=SubtaskStatus.PENDING,
+                    note=None,
+                ),
+            ),
+            created_order=1,
+            version=0,
+        )
+    )
+    only_rejected = _turn(
+        [
+            _reply(
+                "",
+                "tool_use",
+                (_tool("t", "add_subtask", {"plan_id": seeded._plans[0].id, "title": "Mua vở"}),),
+            ),
+            RuntimeError("model down"),
+        ],
+        seeded,
+    )
+    assert only_rejected == "Thay đổi chưa được áp dụng. Bạn thử lại giúp mình."
+
+    for blank in ("", "   "):
+        ticks["n"] = 0
+        abandoned_blank = asyncio.run(
+            asyncio.wait_for(
+                run_turn(
+                    "lập",
+                    [],
+                    store=_HangAdd(),
+                    api_key="caller-key",
+                    client=_StepClient([_create("Học tiếng Nhật"), _reply(blank, "end_turn")]),
+                    log=lambda _line: None,
+                ),
+                timeout=2,
+            )
+        )
+        assert abandoned_blank == "Chưa chắc thay đổi đã được lưu."
+        ticks["n"] = 0
+        rejected_store = _Conflict()
+        rejected_store._plans.append(
+            Plan(
+                id="11111111-1111-4111-8111-111111111111",
+                goal="Học tiếng Nhật",
+                subtasks=(
+                    Subtask(
+                        id="22222222-2222-4222-8222-222222222222",
+                        title="Học hiragana",
+                        status=SubtaskStatus.PENDING,
+                        note=None,
+                    ),
+                ),
+                created_order=1,
+                version=0,
+            )
+        )
+        rejected_blank = _turn(
+            [
+                _reply(
+                    "",
+                    "tool_use",
+                    (
+                        _tool(
+                            "t",
+                            "add_subtask",
+                            {"plan_id": rejected_store._plans[0].id, "title": "Mua vở"},
+                        ),
+                    ),
+                ),
+                _reply(blank, "end_turn"),
+            ],
+            rejected_store,
+        )
+        assert rejected_blank == "Thay đổi chưa được áp dụng. Bạn thử lại giúp mình."
+
+    class _HangReplace(MemoryPlanStore):
+        async def replace(self, plan: object) -> None:
+            await asyncio.Event().wait()
+
+    def _add(request: object) -> ModelResponse:
+        plan_id = json.loads(request.rounds[0][1][0].output)["id"]
+        return _reply("", "tool_use", (_tool("t-add", "add_subtask", {"plan_id": plan_id, "title": "Mua vở"}),))
+
+    ticks["n"] = 0
+    saved_then_uncertain = asyncio.run(
+        asyncio.wait_for(
+            run_turn(
+                "lập",
+                [],
+                store=_HangReplace(),
+                api_key="caller-key",
+                client=_StepClient([_create("Học tiếng Nhật"), _add, RuntimeError("model down")]),
+                log=lambda _line: None,
+            ),
+            timeout=2,
+        )
+    )
+    assert saved_then_uncertain == (
+        "1. Đã lưu kế hoạch Học tiếng Nhật.\nChưa chắc thay đổi đã được lưu."
+    )
+    ticks["n"] = 0
+    saved_abandoned_blank = asyncio.run(
+        asyncio.wait_for(
+            run_turn(
+                "lập",
+                [],
+                store=_HangReplace(),
+                api_key="caller-key",
+                client=_StepClient([_create("Học tiếng Nhật"), _add, _reply("", "end_turn")]),
+                log=lambda _line: None,
+            ),
+            timeout=2,
+        )
+    )
+    assert saved_abandoned_blank == (
+        "1. Đã lưu kế hoạch Học tiếng Nhật.\nChưa chắc thay đổi đã được lưu."
+    )
+
+    class _ConflictReplace(MemoryPlanStore):
+        async def replace(self, plan: object) -> None:
+            raise PlanConflictError()
+
+    ticks["n"] = 0
+    saved_then_rejected = _turn(
+        [_create("Học tiếng Nhật"), _add, RuntimeError("model down")],
+        _ConflictReplace(),
+    )
+    assert saved_then_rejected == (
+        "1. Đã lưu kế hoạch Học tiếng Nhật.\n"
+        "Thay đổi chưa được áp dụng. Bạn thử lại giúp mình."
+    )
+
+    class _HangThenConflict(MemoryPlanStore):
+        def __init__(self) -> None:
+            super().__init__()
+            self.replaces = 0
+
+        async def replace(self, plan: object) -> None:
+            self.replaces += 1
+            if self.replaces == 1:
+                await asyncio.Event().wait()
+            raise PlanConflictError()
+
+    def _add_again(request: object) -> ModelResponse:
+        plan_id = json.loads(request.rounds[0][1][0].output)["id"]
+        return _reply(
+            "",
+            "tool_use",
+            (_tool("t-add-2", "add_subtask", {"plan_id": plan_id, "title": "Nghe hội thoại"}),),
+        )
+
+    ticks["n"] = 0
+    all_three = asyncio.run(
+        asyncio.wait_for(
+            run_turn(
+                "lập",
+                [],
+                store=_HangThenConflict(),
+                api_key="caller-key",
+                client=_StepClient(
+                    [_create("Học tiếng Nhật"), _add, _add_again, RuntimeError("model down")]
+                ),
+                log=lambda _line: None,
+            ),
+            timeout=2,
+        )
+    )
+    assert all_three == (
+        "1. Đã lưu kế hoạch Học tiếng Nhật.\n"
+        "Chưa chắc thay đổi đã được lưu.\n"
+        "Thay đổi chưa được áp dụng. Bạn thử lại giúp mình."
+    )
+    assert "\n\n" not in all_three
+
+
+def test_model_text_and_tool_message_stay_exact(monkeypatch: pytest.MonkeyPatch) -> None:
+    assert _turn([_create("Học tiếng Nhật"), _reply("Đã xong việc này.", "end_turn")]) == "Đã xong việc này."
+    assert _turn([_reply("", "end_turn")]) == ""
+    assert _turn([_reply("   ", "end_turn")]) == "   "
+    marks = iter((0.0, 21.0))
+    monkeypatch.setattr("turns.llm_turn._now", lambda: next(marks))
+    assert _turn([_reply("không gọi", "end_turn")]) == _MODEL_ERROR
+    monkeypatch.setattr("turns.llm_turn._now", time.monotonic)
+    assert (
+        _turn(
+            [
+                _reply("", "tool_use", (_tool("t1", "get_plans", {}),)),
+                _reply("", "tool_use", (_tool("t2", "get_plans", {}),)),
+                _reply("", "tool_use", (_tool("t3", "get_plans", {}),)),
+                _reply("", "tool_use", (_tool("t4", "get_plans", {}),)),
+            ]
+        )
+        == _CAP
+    )
+
+    ticks = {"n": 0}
+
+    def _clock() -> float:
+        ticks["n"] += 1
+        if ticks["n"] < 6:
+            return 0.0
+        return 19.9 + (ticks["n"] - 6) * 0.001
+
+    monkeypatch.setattr("turns.llm_turn._now", _clock)
+
+    class _HangAdd(MemoryPlanStore):
+        async def add(self, goal: str, subtasks: tuple) -> object:
+            await asyncio.Event().wait()
+            raise AssertionError("không trả")
+
+    client = _StepClient(
+        [
+            _create("Học tiếng Nhật"),
+            _reply("vẫn là chữ của mô hình", "end_turn"),
+        ]
+    )
+    result = asyncio.run(
+        asyncio.wait_for(
+            run_turn(
+                "lập",
+                [],
+                store=_HangAdd(),
+                api_key="caller-key",
+                client=client,
+                log=lambda _line: None,
+            ),
+            timeout=2,
+        )
+    )
+    assert result == "vẫn là chữ của mô hình"
+    message = client.calls[1][0].rounds[0][1][0]
+    assert message.output == "Chưa chắc thay đổi đã được lưu."
+    assert message.__dataclass_fields__.keys() == {"tool_use_id", "output", "is_error"}
+
+
+def test_rejected_sentence_reaches_the_next_model_round() -> None:
+    class _Conflict(MemoryPlanStore):
+        async def replace(self, plan: object) -> None:
+            raise PlanConflictError()
+
+    store = _Conflict()
+    store._plans.append(
+        Plan(
+            id="11111111-1111-4111-8111-111111111111",
+            goal="Học tiếng Nhật",
+            subtasks=(
+                Subtask(
+                    id="22222222-2222-4222-8222-222222222222",
+                    title="Học hiragana",
+                    status=SubtaskStatus.PENDING,
+                    note=None,
+                ),
+            ),
+            created_order=1,
+            version=0,
+        )
+    )
+    client = _StepClient(
+        [
+            _reply(
+                "",
+                "tool_use",
+                (
+                    _tool(
+                        "t",
+                        "add_subtask",
+                        {"plan_id": store._plans[0].id, "title": "Mua vở"},
+                    ),
+                ),
+            ),
+            _reply("Bạn thử lại giúp mình.", "end_turn"),
+        ]
+    )
+    result = asyncio.run(
+        run_turn(
+            "lập",
+            [],
+            store=store,
+            api_key="caller-key",
+            client=client,
+            log=lambda _line: None,
+        )
+    )
+    assert result == "Bạn thử lại giúp mình."
+    message = client.calls[1][0].rounds[0][1][0]
+    assert message.output == REJECTED_SENTENCE
+    assert message.is_error is True
+
+
+def test_cancel_after_saved_write_propagates() -> None:
+    with pytest.raises(asyncio.CancelledError):
+        _turn([_create("Học tiếng Nhật"), asyncio.CancelledError()])
 

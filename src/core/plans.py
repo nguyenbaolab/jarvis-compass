@@ -15,6 +15,10 @@ class PlanDomainError(Exception):
     """Lỗi miền khi đầu vào kế hoạch không hợp lệ."""
 
 
+class PlanConflictError(Exception):
+    """Hai lần ghi chạy chồng. Không kế thừa PlanDomainError và không chứa câu người dùng."""
+
+
 class SubtaskStatus(StrEnum):
     """Trạng thái việc con: pending, done, hoặc skipped."""
 
@@ -41,6 +45,7 @@ class Plan:
     goal: str
     subtasks: tuple[Subtask, ...]
     created_order: int
+    version: int
 
 
 class PlanStore(Protocol):
@@ -143,6 +148,7 @@ def _plan_with_subtasks(plan: Plan, subtasks: tuple[Subtask, ...]) -> Plan:
         goal=plan.goal,
         subtasks=subtasks,
         created_order=plan.created_order,
+        version=plan.version,
     )
 
 

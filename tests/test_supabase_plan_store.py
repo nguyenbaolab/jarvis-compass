@@ -7,7 +7,7 @@ from dataclasses import replace
 
 import pytest
 
-from core.plans import Plan, Subtask, SubtaskStatus
+from core.plans import Plan, PlanConflictError, Subtask, SubtaskStatus
 from config.settings import SettingsError
 from db.plan_store import SupabasePlanStore
 from tests.supabase_plan_db import prepare_local_source, read_subtask_note
@@ -76,6 +76,7 @@ async def _cleared_note_column_is_null() -> None:
             goal=plan.goal,
             subtasks=(cleared,),
             created_order=plan.created_order,
+            version=plan.version,
         )
     )
     opened = await store.get(plan.id)
@@ -103,7 +104,13 @@ async def _dropped_subtask_keeps_created_at_of_the_rest() -> None:
         source["SUPABASE_URL"], source["SUPABASE_KEY"], kept.id
     )
     await store.replace(
-        Plan(id=plan.id, goal=plan.goal, subtasks=(kept,), created_order=plan.created_order)
+        Plan(
+            id=plan.id,
+            goal=plan.goal,
+            subtasks=(kept,),
+            created_order=plan.created_order,
+            version=plan.version,
+        )
     )
     opened = await store.get(plan.id)
     assert opened is not None
@@ -145,7 +152,13 @@ async def _clocks_follow_status_and_stay_out_of_tools() -> None:
 
     renamed = replace(plan.subtasks[0], title="Việc một đã sửa", note="giữ trạng thái")
     await store.replace(
-        Plan(id=plan.id, goal=plan.goal, subtasks=(renamed,), created_order=plan.created_order)
+        Plan(
+            id=plan.id,
+            goal=plan.goal,
+            subtasks=(renamed,),
+            created_order=plan.created_order,
+            version=plan.version,
+        )
     )
     same_created, same_status = await read_subtask_clocks(
         source["SUPABASE_URL"], source["SUPABASE_KEY"], first.id
@@ -154,8 +167,15 @@ async def _clocks_follow_status_and_stay_out_of_tools() -> None:
     assert same_status == status_changed_at
 
     done = replace(renamed, status=SubtaskStatus.DONE)
+    # Mỗi replace thành công tăng version 1.
     await store.replace(
-        Plan(id=plan.id, goal=plan.goal, subtasks=(done,), created_order=plan.created_order)
+        Plan(
+            id=plan.id,
+            goal=plan.goal,
+            subtasks=(done,),
+            created_order=plan.created_order,
+            version=plan.version + 1,
+        )
     )
     kept_created, moved_status = await read_subtask_clocks(
         source["SUPABASE_URL"], source["SUPABASE_KEY"], first.id
@@ -170,6 +190,7 @@ async def _clocks_follow_status_and_stay_out_of_tools() -> None:
             goal=plan.goal,
             subtasks=(done, extra),
             created_order=plan.created_order,
+            version=plan.version + 2,
         )
     )
     old_created, old_status = await read_subtask_clocks(
@@ -202,3 +223,46 @@ async def _clocks_follow_status_and_stay_out_of_tools() -> None:
         assert result.success is True
         assert "created_at" not in result.output
         assert "status_changed_at" not in result.output
+
+
+def test_concurrent_replace_keeps_exactly_one() -> None:
+    """Hai replace cùng version đã đọc: đúng một lần thành công."""
+
+    asyncio.run(_concurrent_replace_keeps_exactly_one())
+
+
+async def _concurrent_replace_keeps_exactly_one() -> None:
+    source = await prepare_local_source()
+    store = SupabasePlanStore(source)
+    original = Subtask(id=str(uuid.uuid4()), title="Gốc", status=SubtaskStatus.PENDING, note=None)
+    plan = await store.add("Cùng lúc", (original,))
+    read = await store.get(plan.id)
+    assert read is not None
+    left = Subtask(id=str(uuid.uuid4()), title="Trái", status=SubtaskStatus.PENDING, note=None)
+    right = Subtask(id=str(uuid.uuid4()), title="Phải", status=SubtaskStatus.PENDING, note=None)
+    first = Plan(
+        id=read.id,
+        goal="Bản trái",
+        subtasks=(left,),
+        created_order=read.created_order,
+        version=read.version,
+    )
+    second = Plan(
+        id=read.id,
+        goal="Bản phải",
+        subtasks=(right,),
+        created_order=read.created_order,
+        version=read.version,
+    )
+    outcomes = await asyncio.gather(store.replace(first), store.replace(second), return_exceptions=True)
+    successes = [item for item in outcomes if item is None]
+    conflicts = [item for item in outcomes if isinstance(item, PlanConflictError)]
+    assert len(successes) == 1
+    assert len(conflicts) == 1
+    opened = await store.get(plan.id)
+    assert opened is not None
+    assert opened.goal in {"Bản trái", "Bản phải"}
+    assert opened.version == read.version + 1
+    assert [item.title for item in opened.subtasks] == (
+        ["Trái"] if opened.goal == "Bản trái" else ["Phải"]
+    )

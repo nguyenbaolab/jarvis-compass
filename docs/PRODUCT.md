@@ -66,11 +66,10 @@ Xem docs/ARCHITECTURE.md §0.
 
 Thứ tự làm tiếp (chốt 2026-11-03), mỗi mục một vòng riêng:
 
-1. Độ bền ghi: các mục L1-01 đến L1-04 trong docs/reviews/2026-11-01-repo-review.md.
-2. F11 Telegram bot: nối composition root, chuyển sang Workers Paid (D-018), đo bộ nhớ gần trần 128 MiB.
-3. F10 nhắc việc chủ động, làm trước lịch (D-020).
-4. F17 ngày dự kiến cho việc con.
-5. F18 Telegram Mini App có lịch (D-019), cần F17.
+1. F11 Telegram bot: nối composition root, chuyển sang Workers Paid (D-018), đo bộ nhớ gần trần 128 MiB; kèm các mục L1-04, L1-12 và L1-13 trong docs/reviews/2026-11-01-repo-review.md.
+2. F10 nhắc việc chủ động, làm trước lịch (D-020).
+3. F17 ngày dự kiến cho việc con.
+4. F18 Telegram Mini App có lịch (D-019), cần F17.
 
 ## §8 Pending — chưa chốt
 

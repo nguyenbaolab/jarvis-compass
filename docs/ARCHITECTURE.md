@@ -1,6 +1,6 @@
 # ARCHITECTURE
 
-> Trạng thái code: src/app.py phục vụ /health và nạp db.plan_store. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. execute_tool điều phối sáu tool khi người gọi đưa kho. Lượt mô hình nằm ở src/turns/llm_turn.py, gọi cổng src/core/llm.py rồi execute_tool. Route và Telegram chưa gọi lượt này. Khóa mô hình do người gọi đưa, không đọc từ settings. SupabasePlanStore vẫn do người gọi dựng, chưa do route gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
+> Trạng thái code: src/app.py phục vụ /health và nạp db.plan_store. Logic F04 đến F08 vẫn ở src/core/plans.py và src/tools/plan_tools.py. execute_tool điều phối sáu tool khi người gọi đưa kho. Mỗi lời gọi kho trong tool có hạn chờ theo phần còn lại của ngân sách lượt (người gọi đưa remaining), kế hoạch có version và ghi bằng khóa lạc quan, và lượt không kết thúc bình thường sau khi đã ghi trả bản ghép những gì đã lưu (src/tools/saved_reply.py). Lượt mô hình nằm ở src/turns/llm_turn.py, gọi cổng src/core/llm.py rồi execute_tool. Route và Telegram chưa gọi lượt này. Khóa mô hình do người gọi đưa, không đọc từ settings. SupabasePlanStore vẫn do người gọi dựng, chưa do route gọi. Các module và luồng còn lại dưới đây là thiết kế mục tiêu; khi một tính năng làm xong, cập nhật mục liên quan trong cùng thay đổi.
 
 ## §0 Bối cảnh hệ thống
 
@@ -33,10 +33,10 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 > **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package của Worker ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy mọi package của Worker nằm trong `src/`. `evals/` nằm ở root, ngoài bundle Worker, và `src/` không import nó. Chỉ src/entry.py được import workers (runtime Cloudflare); app FastAPI nằm ở src/app.py để test được trên Python thường.
 
 - `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), webhook Telegram Bot API (F11)
-- `src/core/` — Logic lõi: clarify/orchestration (F01, F02). `llm.py` là cổng trung lập, chỉ thư viện chuẩn. `system_prompt.py` là hằng prompt và `PROMPT_VERSION`. Model miền dùng chung (`Plan`, `Subtask`, `PlanStore`, chuẩn hóa NFC) ở `src/core/plans.py`
+- `src/core/` — Logic lõi: clarify/orchestration (F01, F02). `llm.py` là cổng trung lập, chỉ thư viện chuẩn. `system_prompt.py` là hằng prompt và `PROMPT_VERSION`. Model miền dùng chung (`Plan` có `version`, `Subtask`, `PlanStore`, `PlanConflictError`, chuẩn hóa NFC) ở `src/core/plans.py`
 - `src/turns/` — Vòng lặp của một lượt, gọi `execute_tool`, không import SDK.
-- `src/tools/` — Planning tools phía server (F04–F09). `tool_definitions.py` là catalog tên, mô tả, schema đầu vào, và phiên bản. `tool_router.py` kiểm đầu vào rồi gọi `plan_tools`. `plan_tools` vẫn là lớp mỏng.
-- `src/db/` — `client.py` là chỗ duy nhất trong `src/` gọi PostgREST. `plan_store.py` là bản cổng. `models.py` là dòng DB. Hai mốc thời gian chỉ ở bảng việc con.
+- `src/tools/` — Planning tools phía server (F04–F09). `tool_definitions.py` là catalog tên, mô tả, schema đầu vào, và phiên bản. `tool_router.py` kiểm đầu vào rồi gọi `plan_tools`. `plan_tools` gọi core, đổi kết quả thành `ToolResult`, áp hạn chờ cho mỗi lời gọi kho bằng `asyncio.wait_for` (chỗ duy nhất trong `src/`) và đổi xung đột phiên bản thành câu từ chối. `saved_reply.py` giữ ba câu cố định, sáu mẫu dòng và hàm ghép bản tóm đã lưu cho lượt không kết thúc bình thường (D-021).
+- `src/db/` — `client.py` là chỗ duy nhất trong `src/` gọi PostgREST. `plan_store.py` là bản cổng. `models.py` là dòng DB. Hai mốc thời gian chỉ ở bảng việc con. Session HTTP có trần 20 giây mỗi pha, chỉ để giải phóng kết nối, không phải hạn của lượt. Cột `plans.version` và hàm `replace_plan(..., expected_version)` khóa lạc quan (D-021).
 - `src/clients/` — Kênh client ngoài: Telegram Bot API (trả lời / check-in). Adapter Anthropic nằm cạnh Telegram và dịch cổng sang SDK.
 - `src/scheduler/` — Proactive check-in cron (F10)
 - `src/config/` — `settings.py` đọc `SUPABASE_URL` và `SUPABASE_KEY` từ nguồn người gọi truyền vào, dict hoặc env của Worker, không bằng `os.getenv`

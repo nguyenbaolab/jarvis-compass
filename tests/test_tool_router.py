@@ -5,9 +5,11 @@ import json
 
 import pytest
 
-from core.plans import Plan, PlanDomainError, Subtask
+from core.plans import Plan, PlanDomainError, Subtask, SubtaskStatus
 from tests.fakes.memory_plan_store import MemoryPlanStore
+from tools.base import WriteEffect
 from tools.plan_tools import create_plan, get_plans
+from tools.saved_reply import REJECTED_SENTENCE
 from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 from tools.tool_router import execute_tool
 
@@ -595,6 +597,160 @@ def test_schema_required_drives_validation(monkeypatch: pytest.MonkeyPatch) -> N
     assert result.output == "Đầu vào thiếu trường keyword."
     assert logged["error_type"] == "invalid_input"
     assert store.calls == []
+
+
+def test_effect_defaults_empty_and_failure_copies_it() -> None:
+    from tools.base import ToolError, ToolResult, WriteEffect
+    from tools.tool_router import _failure
+
+    plain = ToolResult(success=True, output="xong")
+    assert plain.effect is None
+    effect = WriteEffect(kind="uncertain")
+    raised = ToolError("lỗi miền", effect=effect)
+    assert raised.effect == effect
+    copied, error_type, detail = _failure(str(raised), "domain", effect=raised.effect)
+    assert copied.success is False
+    assert copied.output == "lỗi miền"
+    assert copied.effect == effect
+    assert error_type == "domain"
+    assert detail is None
+    store = BoomStore(RuntimeError("secret-key-value"), "list_newest_first")
+    unexpected, _line, logged = _run("get_plans", {}, store)
+    assert unexpected.output == _UNEXPECTED
+    assert unexpected.effect is None
+    assert logged["error_type"] == "unexpected"
+    assert list(logged) == _LOG_KEYS
+    domain, _domain_line, domain_logged = _run(
+        "get_plan_detail",
+        {"plan_id": "khong-co"},
+        GuardStore(),
+    )
+    assert domain.output == _MISSING_PLAN
+    assert domain_logged["error_type"] == "domain"
+    assert set(domain_logged) == set(_LOG_KEYS)
+
+
+_OVERLAP_PLAN = "11111111-1111-4111-8111-111111111111"
+_HIRAGANA = "22222222-2222-4222-8222-222222222222"
+_LISTEN = "33333333-3333-4333-8333-333333333333"
+
+
+class _OrderedOverlapStore(MemoryPlanStore):
+    """A đọc, B đọc bản cũ, A ghi xong và trả về, rồi B mới ghi."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._gets = 0
+        self.a_read = asyncio.Event()
+        self.b_read = asyncio.Event()
+        self.a_returned = asyncio.Event()
+
+    async def get(self, plan_id: str) -> Plan:
+        self._gets += 1
+        turn = self._gets
+        if turn == 1:
+            self.a_read.set()
+            await self.b_read.wait()
+        elif turn == 2:
+            await self.a_read.wait()
+            plan = await super().get(plan_id)
+            self.b_read.set()
+            await self.a_returned.wait()
+            return plan
+        return await super().get(plan_id)
+
+
+def _seed_japanese(store: MemoryPlanStore) -> None:
+    store._plans.append(
+        Plan(
+            id=_OVERLAP_PLAN,
+            goal="Học tiếng Nhật",
+            subtasks=(
+                Subtask(
+                    id=_HIRAGANA,
+                    title="Học hiragana",
+                    status=SubtaskStatus.PENDING,
+                    note=None,
+                ),
+                Subtask(
+                    id=_LISTEN,
+                    title="Nghe hội thoại",
+                    status=SubtaskStatus.PENDING,
+                    note=None,
+                ),
+            ),
+            created_order=1,
+            version=0,
+        )
+    )
+
+
+async def _overlap(
+    store: _OrderedOverlapStore,
+    first: tuple[str, dict[str, object]],
+    second: tuple[str, dict[str, object]],
+):
+    first_name, first_input = first
+    second_name, second_input = second
+    first_task = asyncio.create_task(execute_tool(first_name, first_input, store=store))
+    await asyncio.wait_for(store.a_read.wait(), timeout=2)
+    second_task = asyncio.create_task(execute_tool(second_name, second_input, store=store))
+    first_result = await asyncio.wait_for(first_task, timeout=2)
+    store.a_returned.set()
+    second_result = await asyncio.wait_for(second_task, timeout=2)
+    return first_result, second_result
+
+
+def test_overlapping_add_rejects_later_status_change() -> None:
+    store = _OrderedOverlapStore()
+    _seed_japanese(store)
+    added, updated = asyncio.run(
+        _overlap(
+            store,
+            ("add_subtask", {"plan_id": _OVERLAP_PLAN, "title": "Mua vở"}),
+            (
+                "update_subtask",
+                {"plan_id": _OVERLAP_PLAN, "subtask_id": _HIRAGANA, "status": "done"},
+            ),
+        )
+    )
+    assert added.success is True
+    assert updated.success is False
+    assert updated.output == REJECTED_SENTENCE
+    assert updated.effect == WriteEffect(kind="rejected")
+    saved = asyncio.run(store.get(_OVERLAP_PLAN))
+    titles = [item.title for item in saved.subtasks]
+    hiragana = next(item for item in saved.subtasks if item.title == "Học hiragana")
+    assert "Mua vở" in titles
+    assert hiragana.status == SubtaskStatus.PENDING
+    assert "Nghe hội thoại" in titles
+    assert saved.version == 1
+
+
+def test_overlapping_status_writes_keep_the_first() -> None:
+    store = _OrderedOverlapStore()
+    _seed_japanese(store)
+    done, skipped = asyncio.run(
+        _overlap(
+            store,
+            (
+                "update_subtask",
+                {"plan_id": _OVERLAP_PLAN, "subtask_id": _HIRAGANA, "status": "done"},
+            ),
+            (
+                "update_subtask",
+                {"plan_id": _OVERLAP_PLAN, "subtask_id": _HIRAGANA, "status": "skipped"},
+            ),
+        )
+    )
+    assert done.success is True
+    assert skipped.success is False
+    assert skipped.output == REJECTED_SENTENCE
+    saved = asyncio.run(store.get(_OVERLAP_PLAN))
+    hiragana = next(item for item in saved.subtasks if item.title == "Học hiragana")
+    titles = [item.title for item in saved.subtasks]
+    assert hiragana.status == SubtaskStatus.DONE
+    assert "Nghe hội thoại" in titles
 
 
 def test_broken_catalog_is_unexpected(monkeypatch: pytest.MonkeyPatch) -> None:

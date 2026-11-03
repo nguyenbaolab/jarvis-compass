@@ -2,9 +2,17 @@
 
 import uuid
 
-from core.plans import Plan, PlanDomainError, Subtask, SubtaskStatus
+from core.plans import Plan, PlanConflictError, PlanDomainError, Subtask, SubtaskStatus
 from config.settings import require_supabase
-from db.client import StoredPlanMissing, add_plan, get_plan, list_plans, postgrest_client, replace_plan
+from db.client import (
+    StoredPlanConflict,
+    StoredPlanMissing,
+    add_plan,
+    get_plan,
+    list_plans,
+    postgrest_client,
+    replace_plan,
+)
 from db.models import PlanRow
 
 _BAD_STATUS = "Trạng thái việc con đã lưu không hợp lệ."
@@ -52,6 +60,7 @@ def plan_from_row(data: object) -> Plan:
             "id": _as_text(data["id"]),
             "goal": data["goal"],
             "created_order": int(data["created_order"]),
+            "version": int(data["version"]),
             "subtasks": normalized_subtasks,
         }
     )
@@ -74,6 +83,7 @@ def plan_from_row(data: object) -> Plan:
         goal=row.goal,
         subtasks=tuple(built),
         created_order=row.created_order,
+        version=row.version,
     )
 
 
@@ -124,6 +134,9 @@ class SupabasePlanStore:
                     plan.id,
                     plan.goal,
                     _subtask_payload(plan.subtasks),
+                    plan.version,
                 )
         except StoredPlanMissing:
             raise PlanDomainError(_MISSING_PLAN) from None
+        except StoredPlanConflict:
+            raise PlanConflictError() from None
