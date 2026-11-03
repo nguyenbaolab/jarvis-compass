@@ -16,14 +16,19 @@ Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhá
 
 | ID | Mức | Chỗ | Tóm tắt | Trạng thái |
 |---|---|---|---|---|
-| L1-01 | nên sửa | src/db/client.py:21-25 | Gọi PostgREST không có timeout; lượt có thể treo quá ngân sách 20 giây | mở (spec độ bền ghi) |
-| L1-02 | nên sửa | migration:132-138; src/tools/plan_tools.py | Hai lượt song song mất cập nhật do replace cả kế hoạch, không khóa, không version | mở (spec độ bền ghi) |
-| L1-03 | nên sửa | src/turns/llm_turn.py:93-143 | Hết giờ hoặc chạm trần sau khi tool ghi đã xong vẫn trả câu lỗi | mở (spec độ bền ghi) |
+| L1-01 | nên sửa | src/db/client.py:21-25 | Gọi PostgREST không có timeout; lượt có thể treo quá ngân sách 20 giây | đã sửa ở 012-write-durability (timeout trên Worker chưa kiểm chứng) |
+| L1-02 | nên sửa | migration:132-138; src/tools/plan_tools.py | Hai lượt song song mất cập nhật do replace cả kế hoạch, không khóa, không version | đã sửa ở 012-write-durability |
+| L1-03 | nên sửa | src/turns/llm_turn.py:93-143 | Hết giờ hoặc chạm trần sau khi tool ghi đã xong vẫn trả câu lỗi | đã sửa ở 012-write-durability |
 | L1-04 | ghi nhận | src/turns/llm_turn.py:114-120 | max_tokens, refusal thành câu lỗi; end_turn text rỗng trả chuỗi rỗng | mở (F11) |
 | L1-05 | nên sửa | src/tools/tool_definitions.py:40-77 | set_subtask_note không nói xóa bằng chuỗi rỗng; status không có enum | mở (prompt v2) |
 | L1-06 | ghi nhận | src/db/plan_store.py:61-62 | Trạng thái lạ trong kho thành lỗi domain thay vì unexpected | mở |
 | L1-07 | ghi nhận | src/core/plans.py:47 | Docstring PlanStore nói không có bản cài đặt trong src/ | đã sửa ở chore/review-fixes-2026-11-01 |
 | L1-08 | suy đoán | pylock.toml | pylock khóa pydantic khác uv.lock; Worker có thể chạy bản khác test | mở |
+| L1-09 | ghi nhận | src/tools/plan_tools.py:83 (_await_store); src/tools/tool_router.py:280 | Lỗi mạng không phải quá hạn khi ghi (ví dụ ConnectError) ra câu chung "Không thực hiện được yêu cầu này." với error_type unexpected, không ra câu chưa chắc; lần ghi có thể đã vào kho | mở |
+| L1-10 | ghi nhận | src/turns/llm_turn.py:97 (_abnormal); src/tools/saved_reply.py:60 (compose) | Lần ghi bị từ chối, mô hình thử lại thành công, rồi lượt kết thúc bất thường: bản ghép có cả dòng "Đã lưu…" lẫn câu "Thay đổi chưa được áp dụng…" | mở |
+| L1-11 | ghi nhận | src/tools/tool_router.py:277-279 (_run) | Quá hạn và xung đột phiên bản đều ghi error_type domain, chỉ phân biệt bằng duration_ms; eval không tách được hai loại | mở |
+| L1-12 | nên sửa | src/tools/tool_router.py:291 (execute_tool); src/tools/plan_tools.py:86 (_await_store) | remaining mặc định None nghĩa là không giới hạn, im lặng; route F11 hoặc scheduler F10 quên truyền thì lỗi treo quay lại | mở (F11, D-021) |
+| L1-13 | ghi nhận | src/tools/saved_reply.py:60; src/tools/plan_tools.py:209 (update_subtask), 250 (set_subtask_note) | Tiêu đề hoặc ghi chú có dòng trống tạo dòng trống trong bản ghép; độ dài bản ghép so với trần 4096 ký tự của Telegram chưa kiểm; việc con không đổi gì vẫn nói "Đã lưu" dù không gọi replace | mở (F11) |
 | L2-01 | nên sửa | evals/turn.py:98-121; evals/runner.py:98-101 | Exception ngoài năm mã làm hỏng cả bộ, không ghi file | mở (bộ câu v2) |
 | L2-02 | nên sửa | evals/result.py:86-130 | File kết quả không ghi phiên bản bộ chấm hay commit | đã sửa ở chore/eval-runner-polish |
 | L2-03 | nên sửa | tests/test_eval_score.py:196-216 | Sáu tiêu đề trong một lần chấm, chỉ nhánh đầu được kiểm; thiếu ca Markdown `+ ` | đã sửa ở chore/review-fixes-2026-11-01 |

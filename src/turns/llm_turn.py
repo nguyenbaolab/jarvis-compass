@@ -15,6 +15,7 @@ from core.llm import (
 from core.log_line import default_log, duration_ms, write_json_line
 from core.plans import PlanStore
 from core.system_prompt import PROMPT_VERSION, SYSTEM_PROMPT
+from tools.saved_reply import Abandoned, Rejected, Saved, compose
 from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 from tools.tool_router import execute_tool
 
@@ -79,25 +80,60 @@ def _remaining(started: float) -> float:
     return _BUDGET_SECONDS - (_now() - started)
 
 
+def _record(effects: list[Saved | Abandoned | Rejected], tool_result: object) -> None:
+    """Gom hiệu lực. Tin nhắn gửi mô hình không nhận trường này."""
+
+    effect = getattr(tool_result, "effect", None)
+    if effect is None:
+        return
+    if effect.kind == "saved":
+        effects.append(Saved(effect.text))
+    elif effect.kind == "uncertain":
+        effects.append(Abandoned())
+    elif effect.kind == "rejected":
+        effects.append(Rejected())
+
+
+def _abnormal(effects: list[Saved | Abandoned | Rejected], fallback: str) -> str:
+    """Đã ghi, đã bỏ, hoặc đã từ chối thì ghép. Không thì giữ câu của lối kết."""
+
+    if effects:
+        return compose(effects)
+    return fallback
+
+
+def _normal_text(effects: list[Saved | Abandoned | Rejected], text: str) -> str:
+    """Chữ khác khoảng trắng giữ nguyên. Rỗng hoặc chỉ khoảng trắng khi có lần ghi thành công, bị bỏ, hoặc bị từ chối thì ghép."""
+
+    if text.strip() != "":
+        return text
+    if effects:
+        return compose(effects)
+    return text
+
+
 async def _run_tools(
     requests: tuple[ToolRequest, ...],
     *,
     store: PlanStore,
     log: Callable[[str], None],
     started: float,
+    effects: list[Saved | Abandoned | Rejected],
 ) -> tuple[ToolResultMessage, ...] | str:
     """Chạy mọi tool theo thứ tự. Hết giờ thì trả câu lỗi, không bắt đầu tool kế."""
 
     results: list[ToolResultMessage] = []
     for request in requests:
         if _remaining(started) <= 0:
-            return _MODEL_ERROR
+            return _abnormal(effects, _MODEL_ERROR)
         tool_result = await execute_tool(
             request.name,
             request.tool_input,
             store=store,
             log=log,
+            remaining=lambda: _remaining(started),
         )
+        _record(effects, tool_result)
         results.append(
             ToolResultMessage(
                 tool_use_id=request.id,
@@ -108,16 +144,20 @@ async def _run_tools(
     return tuple(results)
 
 
-def _finish(response: ModelResponse, done: int) -> str | None:
+def _finish(
+    response: ModelResponse,
+    done: int,
+    effects: list[Saved | Abandoned | Rejected],
+) -> str | None:
     """Câu trả về khi không còn chạy tool. None nghĩa là còn một vòng tool."""
 
     if response.stop_reason == "end_turn":
-        return response.text
+        return _normal_text(effects, response.text)
     if response.stop_reason == "tool_use" and done >= _MAX_ROUNDS:
-        return _CAP
+        return _abnormal(effects, _CAP)
     if response.stop_reason == "tool_use" and response.tool_requests:
         return None
-    return _MODEL_ERROR
+    return _abnormal(effects, _MODEL_ERROR)
 
 
 async def run_turn(
@@ -137,10 +177,11 @@ async def run_turn(
     started = _now()
     messages = tuple(history) + (TextMessage(role="user", text=user_message),)
     done: list[tuple[tuple[ToolRequest, ...], tuple[ToolResultMessage, ...]]] = []
+    effects: list[Saved | Abandoned | Rejected] = []
     while True:
         remaining = _remaining(started)
         if remaining <= 0:
-            return _MODEL_ERROR
+            return _abnormal(effects, _MODEL_ERROR)
         request = ModelRequest(
             system=SYSTEM_PROMPT,
             messages=messages,
@@ -160,7 +201,7 @@ async def run_turn(
                 duration_ms=duration_ms(call_started, _now()),
                 error_type=_error_type(error),
             )
-            return _MODEL_ERROR
+            return _abnormal(effects, _MODEL_ERROR)
         _model_log(
             writer,
             model=response.model,
@@ -170,7 +211,7 @@ async def run_turn(
             duration_ms=duration_ms(call_started, _now()),
             error_type=None,
         )
-        outcome = _finish(response, len(done))
+        outcome = _finish(response, len(done), effects)
         if outcome is not None:
             return outcome
         tool_results = await _run_tools(
@@ -178,6 +219,7 @@ async def run_turn(
             store=store,
             log=writer,
             started=started,
+            effects=effects,
         )
         if isinstance(tool_results, str):
             return tool_results

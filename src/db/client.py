@@ -1,5 +1,6 @@
 """Chỗ duy nhất trong src/ tạo AsyncPostgrestClient."""
 
+import httpx
 from postgrest import AsyncPostgrestClient
 from postgrest.constants import DEFAULT_POSTGREST_CLIENT_HEADERS
 from postgrest.exceptions import APIError
@@ -18,15 +19,31 @@ class StoredPlanMissing(Exception):
     """RPC trả mã plan_missing. Không chứa câu SQL."""
 
 
+class StoredPlanConflict(Exception):
+    """RPC trả plan_version_conflict. Không chứa câu người dùng."""
+
+
+# Bằng ngân sách của lượt. Trần từng pha HTTP, không bảo đảm FR-001.
+_HTTP_CEILING_SECONDS = 20.0
+
+
 def postgrest_client(url: str, key: str) -> AsyncPostgrestClient:
     """Dựng client. Người gọi dùng async with."""
 
     base_url = url.rstrip("/") + "/rest/v1"
-    return AsyncPostgrestClient(base_url, headers=_headers(key))
+    headers = _headers(key)
+    session = httpx.AsyncClient(
+        base_url=base_url,
+        headers=headers,
+        timeout=httpx.Timeout(_HTTP_CEILING_SECONDS),
+        follow_redirects=True,
+        http2=True,
+    )
+    return AsyncPostgrestClient(base_url, headers=headers, http_client=session)
 
 
 _PLAN_COLUMNS = (
-    "id,goal,created_order,"
+    "id,goal,created_order,version,"
     "subtasks(id,title,status,note,position,created_at,status_changed_at)"
 )
 
@@ -86,15 +103,23 @@ async def replace_plan(
     plan_id: str,
     goal: str,
     subtasks: list[dict],
+    expected_version: int,
 ) -> None:
     """Một RPC replace_plan. Hàm SQL trả void, nên không đọc giá trị trả về."""
 
     try:
         await client.rpc(
             "replace_plan",
-            {"plan_id": plan_id, "goal": goal, "subtasks": subtasks},
+            {
+                "plan_id": plan_id,
+                "goal": goal,
+                "subtasks": subtasks,
+                "expected_version": expected_version,
+            },
         ).execute()
     except APIError as error:
         if error.message == "plan_missing":
             raise StoredPlanMissing from None
+        if error.message == "plan_version_conflict":
+            raise StoredPlanConflict from None
         raise

@@ -6,7 +6,8 @@ from collections.abc import Awaitable, Callable
 
 from core.log_line import default_log, duration_ms, write_json_line
 from core.plans import PlanDomainError, PlanStore
-from tools.base import ToolError, ToolResult
+from tools.base import Remaining, ToolError, ToolResult, WriteEffect
+from tools.saved_reply import UNAVAILABLE_SENTENCE
 from tools.plan_tools import (
     add_subtask,
     create_plan,
@@ -19,7 +20,7 @@ from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 
 _UNKNOWN = "Không có tool với tên này."
 _NOT_OBJECT = "Đầu vào phải là một object."
-_UNEXPECTED = "Không thực hiện được yêu cầu này."
+_UNEXPECTED = UNAVAILABLE_SENTENCE
 
 _LOG_KEYS = (
     "tool",
@@ -31,7 +32,7 @@ _LOG_KEYS = (
     "detail",
 )
 
-_Handler = Callable[[dict[str, object], PlanStore], Awaitable[ToolResult]]
+_Handler = Callable[[dict[str, object], PlanStore, Remaining], Awaitable[ToolResult]]
 
 
 def _now() -> float:
@@ -44,10 +45,11 @@ def _failure(
     output: str,
     error_type: str,
     detail: str | None = None,
+    effect: WriteEffect | None = None,
 ) -> tuple[ToolResult, str, str | None]:
     """Một kết quả lỗi và nhãn ghi vào dòng nhật ký."""
 
-    return ToolResult(success=False, output=output), error_type, detail
+    return ToolResult(success=False, output=output, effect=effect), error_type, detail
 
 
 def _wrong_type(name: str) -> str:
@@ -62,45 +64,81 @@ def _wrong_item(name: str) -> str:
     return f"Một phần tử của trường {name} sai kiểu."
 
 
-async def _create(tool_input: dict[str, object], store: PlanStore) -> ToolResult:
+async def _create(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
     """create_plan. Bỏ subtasks khi khóa không có."""
 
     if "subtasks" in tool_input:
-        return await create_plan(tool_input["goal"], subtasks=tool_input["subtasks"], store=store)
-    return await create_plan(tool_input["goal"], store=store)
+        return await create_plan(
+            tool_input["goal"],
+            subtasks=tool_input["subtasks"],
+            store=store,
+            remaining=remaining,
+        )
+    return await create_plan(tool_input["goal"], store=store, remaining=remaining)
 
 
-async def _list(tool_input: dict[str, object], store: PlanStore) -> ToolResult:
+async def _list(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
     """get_plans. Bỏ keyword khi khóa không có."""
 
     if "keyword" in tool_input:
-        return await get_plans(keyword=tool_input["keyword"], store=store)
-    return await get_plans(store=store)
+        return await get_plans(keyword=tool_input["keyword"], store=store, remaining=remaining)
+    return await get_plans(store=store, remaining=remaining)
 
 
-async def _detail(tool_input: dict[str, object], store: PlanStore) -> ToolResult:
-    return await get_plan_detail(tool_input["plan_id"], store=store)
+async def _detail(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
+    return await get_plan_detail(tool_input["plan_id"], store=store, remaining=remaining)
 
 
-async def _update(tool_input: dict[str, object], store: PlanStore) -> ToolResult:
+async def _update(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
     return await update_subtask(
         tool_input["plan_id"],
         tool_input["subtask_id"],
         tool_input["status"],
         store=store,
+        remaining=remaining,
     )
 
 
-async def _add(tool_input: dict[str, object], store: PlanStore) -> ToolResult:
-    return await add_subtask(tool_input["plan_id"], tool_input["title"], store=store)
+async def _add(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
+    return await add_subtask(
+        tool_input["plan_id"],
+        tool_input["title"],
+        store=store,
+        remaining=remaining,
+    )
 
 
-async def _note(tool_input: dict[str, object], store: PlanStore) -> ToolResult:
+async def _note(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
     return await set_subtask_note(
         tool_input["plan_id"],
         tool_input["subtask_id"],
         tool_input["note"],
         store=store,
+        remaining=remaining,
     )
 
 
@@ -163,10 +201,15 @@ def _invalid_input(name: str, tool_input: dict[str, object]) -> str | None:
     return None
 
 
-async def _invoke(name: str, tool_input: dict[str, object], store: PlanStore) -> ToolResult:
+async def _invoke(
+    name: str,
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+) -> ToolResult:
     """Gọi hàm trong bảng tên. Bỏ khóa tùy chọn khi object không có."""
 
-    return await _DISPATCH[name](tool_input, store)
+    return await _DISPATCH[name](tool_input, store, remaining)
 
 
 def _log_tool(name: object) -> object:
@@ -215,6 +258,7 @@ async def _run(
     name: object,
     tool_input: object,
     store: PlanStore,
+    remaining: Remaining,
 ) -> tuple[ToolResult, str | None, str | None]:
     """Phân loại. BaseException không bị bắt ở đây. Catalog hỏng là unexpected."""
 
@@ -229,9 +273,10 @@ async def _run(
     if message is not None:
         return _failure(message, "invalid_input")
     try:
-        result = await _invoke(name, tool_input, store)
+        result = await _invoke(name, tool_input, store, remaining)
     except (ToolError, PlanDomainError) as error:
-        return _failure(str(error), "domain")
+        effect = error.effect if isinstance(error, ToolError) else None
+        return _failure(str(error), "domain", effect=effect)
     except Exception as error:
         return _failure(_UNEXPECTED, "unexpected", type(error).__name__)
     return result, None, None
@@ -243,10 +288,11 @@ async def execute_tool(
     *,
     store: PlanStore,
     log: Callable[[str], None] | None = None,
+    remaining: Remaining = None,
 ) -> ToolResult:
     """Chạy một tool trên kho được truyền vào và ghi đúng một dòng khi có kết quả."""
 
     started = _now()
-    result, error_type, detail = await _run(name, tool_input, store)
+    result, error_type, detail = await _run(name, tool_input, store, remaining)
     _write_log(name, tool_input, result, error_type, detail, started, log)
     return result

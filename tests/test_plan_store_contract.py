@@ -6,7 +6,7 @@ from dataclasses import replace
 
 import pytest
 
-from core.plans import Plan, PlanDomainError, PlanStore, Subtask, SubtaskStatus
+from core.plans import Plan, PlanConflictError, PlanDomainError, PlanStore, Subtask, SubtaskStatus
 from tests.fakes.memory_plan_store import MemoryPlanStore
 from tests.helpers import _UUID
 
@@ -92,6 +92,7 @@ async def _case_edit(store: PlanStore) -> None:
                 goal=current.goal,
                 subtasks=updated,
                 created_order=current.created_order,
+                version=current.version,
             )
         )
         opened = await store.get(current.id)
@@ -107,6 +108,7 @@ async def _case_edit(store: PlanStore) -> None:
             goal=current.goal,
             subtasks=current.subtasks + (extra,),
             created_order=current.created_order,
+            version=current.version,
         )
     )
     opened = await store.get(current.id)
@@ -122,6 +124,7 @@ async def _case_edit(store: PlanStore) -> None:
             goal=opened.goal,
             subtasks=(noted,) + opened.subtasks[1:],
             created_order=opened.created_order,
+            version=opened.version,
         )
     )
     with_note = await store.get(opened.id)
@@ -134,6 +137,7 @@ async def _case_edit(store: PlanStore) -> None:
             goal=with_note.goal,
             subtasks=(cleared,) + with_note.subtasks[1:],
             created_order=with_note.created_order,
+            version=with_note.version,
         )
     )
     final = await store.get(with_note.id)
@@ -162,7 +166,13 @@ async def _case_missing(store: PlanStore) -> None:
     for plan_id in candidates:
         with pytest.raises(PlanDomainError) as caught:
             await store.replace(
-                Plan(id=plan_id, goal="Không tạo", subtasks=(), created_order=kept.created_order)
+                Plan(
+                    id=plan_id,
+                    goal="Không tạo",
+                    subtasks=(),
+                    created_order=kept.created_order,
+                    version=0,
+                )
             )
         assert str(caught.value) == _MISSING
     after = await store.list_newest_first()
@@ -187,6 +197,7 @@ async def _case_drop_subtask(store: PlanStore) -> None:
             goal=plan.goal,
             subtasks=(kept,),
             created_order=plan.created_order,
+            version=plan.version,
         )
     )
     opened = await store.get(plan.id)
@@ -208,6 +219,7 @@ async def _case_replace_goal(store: PlanStore) -> None:
             goal="Mục tiêu mới",
             subtasks=plan.subtasks,
             created_order=plan.created_order,
+            version=plan.version,
         )
     )
     opened = await store.get(plan.id)
@@ -235,6 +247,7 @@ async def _case_reorder_insert(store: PlanStore) -> None:
             goal=plan.goal,
             subtasks=(second, middle, first),
             created_order=plan.created_order,
+            version=plan.version,
         )
     )
     opened = await store.get(plan.id)
@@ -288,3 +301,79 @@ def plan_store(request: pytest.FixtureRequest) -> PlanStore:
 
 def test_plan_store_contract(plan_store: PlanStore) -> None:
     asyncio.run(run_contract(plan_store))
+
+
+def _written(plan: Plan, *, goal: str | None = None, subtasks: tuple[Subtask, ...] | None = None) -> Plan:
+    return Plan(
+        id=plan.id,
+        goal=plan.goal if goal is None else goal,
+        subtasks=plan.subtasks if subtasks is None else subtasks,
+        created_order=plan.created_order,
+        version=plan.version,
+    )
+
+
+async def _overlap_and_follow(store: PlanStore) -> None:
+    """Đọc-đọc-ghi từ chối. Không chồng thì cả hai việc còn. Hai kế hoạch đều ghi được."""
+
+    origin = await store.add("Gốc", (_subtask("Việc gốc"),))
+    read_a = await store.get(origin.id)
+    read_b = await store.get(origin.id)
+    assert read_a is not None
+    assert read_b is not None
+    await store.replace(_written(read_a, goal="A đã ghi"))
+    with pytest.raises(PlanConflictError):
+        await store.replace(_written(read_b, goal="B ghi đè"))
+    kept = await store.get(origin.id)
+    assert kept is not None
+    assert kept.goal == "A đã ghi"
+    _same_subtasks(kept.subtasks, read_a.subtasks)
+
+    matched = await store.get(origin.id)
+    assert matched is not None
+    await store.replace(_written(matched, goal="Khớp"))
+    after = await store.get(origin.id)
+    assert after is not None
+    assert after.version == matched.version + 1
+    assert after.goal == "Khớp"
+
+    base = await store.add("Cả hai", ())
+    earlier = await store.get(base.id)
+    assert earlier is not None
+    left = _subtask("Việc trái")
+    await store.replace(_written(earlier, subtasks=(left,)))
+    later = await store.get(base.id)
+    assert later is not None
+    right = _subtask("Việc phải")
+    await store.replace(_written(later, subtasks=later.subtasks + (right,)))
+    both = await store.get(base.id)
+    assert both is not None
+    assert [item.title for item in both.subtasks] == ["Việc trái", "Việc phải"]
+
+    one = await store.add("Một", (_subtask("X"),))
+    two = await store.add("Hai", (_subtask("Y"),))
+    await store.replace(_written(one, goal="Một mới"))
+    await store.replace(_written(two, goal="Hai mới"))
+    opened_one = await store.get(one.id)
+    opened_two = await store.get(two.id)
+    assert opened_one is not None
+    assert opened_two is not None
+    assert opened_one.goal == "Một mới"
+    assert opened_two.goal == "Hai mới"
+    _same_subtasks(opened_one.subtasks, one.subtasks)
+    _same_subtasks(opened_two.subtasks, two.subtasks)
+
+
+def test_overlap_rejects_and_follow_up_keeps_both(plan_store: PlanStore) -> None:
+    asyncio.run(_overlap_and_follow(plan_store))
+
+
+def test_plan_without_version_is_type_error() -> None:
+    with pytest.raises(TypeError):
+        Plan(id="1", goal="Mục tiêu", subtasks=(), created_order=1)
+
+
+def test_plan_conflict_error_is_not_domain_error() -> None:
+    from core.plans import PlanConflictError
+
+    assert not issubclass(PlanConflictError, PlanDomainError)

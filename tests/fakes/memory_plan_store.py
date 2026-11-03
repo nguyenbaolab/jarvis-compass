@@ -1,8 +1,9 @@
 """PlanStore trong bộ nhớ, chỉ cho test. Không đưa class này vào src/."""
 
 import uuid
+from dataclasses import replace
 
-from core.plans import Plan, PlanDomainError, Subtask
+from core.plans import Plan, PlanConflictError, PlanDomainError, Subtask
 
 
 class MemoryPlanStore:
@@ -20,6 +21,7 @@ class MemoryPlanStore:
             goal=goal,
             subtasks=subtasks,
             created_order=self._next_order,
+            version=0,
         )
         self._next_order += 1
         self._plans.append(plan)
@@ -43,6 +45,8 @@ class MemoryPlanStore:
 
         for index, stored in enumerate(self._plans):
             if stored.id == plan.id:
-                self._plans[index] = plan
+                if plan.version != stored.version:
+                    raise PlanConflictError()
+                self._plans[index] = replace(plan, version=plan.version + 1)
                 return
         raise PlanDomainError("Không có kế hoạch với danh tính này.")
