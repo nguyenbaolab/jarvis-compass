@@ -13,7 +13,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 ## §2 Người dùng
 
 - Solo dev (Nguyen Bao) — dùng cá nhân hàng ngày, đồng thời là dự án portfolio.
-- Truy cập từ nhiều điểm chạm: máy tính (qua jarvis-desktop), điện thoại (qua Telegram, sau này app Android riêng).
+- Truy cập từ nhiều điểm chạm: máy tính (qua jarvis-desktop), điện thoại (qua Telegram và Mini App có lịch trong Telegram, sau này app Android riêng).
 
 ## §3 Feature list
 
@@ -34,7 +34,9 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F13 | Streaming response + barge-in support | Hỗ trợ streaming response cho client voice (Mức 1 real-time: STT VAD → streaming → TTS từng câu → barge-in) |
 | F14 | HTTP API cho jarvis-desktop client | Endpoint để jarvis-desktop gọi sang khi cần lập kế hoạch, qua tool mới trong tool_router |
 | F15 | One-way sync to Google Tasks (display only) | Đồng bộ một chiều database → Google Tasks để xem cho tiện, không phải core kiến trúc, không phải MVP |
-| F16 | Android app với hardware-key trigger | Giai đoạn 2 — Accessibility Service, Power + Volume Up trigger overlay, nhận push qua FCM |
+| F16 | App Android riêng với hardware-key trigger | Giai đoạn 2, làm sau F18 và dùng lại cùng API. Accessibility Service, Power + Volume Up trigger overlay, nhận push qua FCM |
+| F17 | Ngày dự kiến cho việc con | Mỗi việc con có trường ngày dự kiến, để bot đặt ngày thay vì nhét ngày hay tuần vào tiêu đề |
+| F18 | Telegram Mini App có lịch | Trang web mở trong Telegram, xem việc con theo lịch ngày (cần F17). Worker của F11 phục vụ, xác thực bằng initData của Telegram. Là bản đầu của jarvis-android, dùng chung API với app Android riêng (F16) |
 
 ## §4 Negative scope — cố ý KHÔNG làm
 
@@ -62,9 +64,19 @@ Xem docs/ARCHITECTURE.md §0.
 - v0.1.0 — MVP complete, validated engagement pattern qua Telegram
 - v0.2.0 — Android app Giai đoạn 2
 
+Thứ tự làm tiếp (chốt 2026-11-03), mỗi mục một vòng riêng:
+
+1. Độ bền ghi: các mục L1-01 đến L1-04 trong docs/reviews/2026-11-01-repo-review.md.
+2. F11 Telegram bot: nối composition root, chuyển sang Workers Paid (D-018), đo bộ nhớ gần trần 128 MiB.
+3. F10 nhắc việc chủ động, làm trước lịch (D-020).
+4. F17 ngày dự kiến cho việc con.
+5. F18 Telegram Mini App có lịch (D-019), cần F17.
+
 ## §8 Pending — chưa chốt
 
 - Tên tool cụ thể trong jarvis-desktop tool_router (`manage_plan` hoặc tên khác) — cần viết prompt implement riêng cho jarvis-desktop sau khi jarvis-compass có hình hài cơ bản
+- Phiên bản của F17 và F18 (v0.2.0 hay trước đó), và F16 chuyển sang phiên bản nào
+- F01, F02, F09 thuộc MVP nhưng chưa xếp vào thứ tự làm tiếp ở §7
 
 ## §9 Hành vi đã chốt
 

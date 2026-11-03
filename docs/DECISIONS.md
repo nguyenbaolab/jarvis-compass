@@ -307,3 +307,35 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Trade-off:** Gói Paid không nâng trần bộ nhớ 128 MiB mỗi isolate. Rủi ro bộ nhớ phải đo riêng ở F11.
 
 **Phương án đã bỏ:** bật Paid ngay (chưa cần khi chỉ chạy local); ở Free tới khi thấy lỗi 1102 (lỗi cắt request khó gỡ, nhất là khi đang chạy eval).
+
+## D-019 — jarvis-android bản đầu là Telegram Mini App có lịch
+
+**Date:** 2026-11-03 (chốt trong 2026-11-01 đến 2026-11-03)
+
+**Status:** Accepted
+
+**Bối cảnh:** Client trên điện thoại hiện chỉ là bot Telegram dạng chữ (F11), chưa có chỗ xem lịch việc. Ba phần của hệ sinh thái: jarvis-compass là bộ não phía sau, jarvis-desktop là giao diện máy tính, jarvis-android là giao diện điện thoại.
+
+**Quyết định:** Bản đầu của jarvis-android là Telegram Mini App có lịch (F18): trang web mở trong Telegram, do Worker của F11 phục vụ, xác thực người dùng bằng `initData` của Telegram. App Android riêng (F16) làm sau và dùng lại cùng API.
+
+**Lý do:**
+- Nhắc việc vẫn đi qua Telegram Bot API đúng D-007, chưa cần FCM cho tới khi có app riêng.
+- Dùng chung Worker và API của F11, chưa phải dựng thêm một dự án Android.
+
+**Trade-off:** Mini App là trang web trong Telegram nên không có hardware-key trigger của F16; phần đó chờ app Android riêng. Lịch cần F17 để có dữ liệu ngày.
+
+**Phương án đã bỏ:** làm app Android riêng làm bản đầu.
+
+## D-020 — Nhắc việc chủ động (F10) làm trước ngày cho việc con (F17) và lịch (F18)
+
+**Date:** 2026-11-03 (chốt trong 2026-11-01 đến 2026-11-03)
+
+**Status:** Accepted
+
+**Bối cảnh:** Sau F11 có hai hướng: nhắc việc chủ động (F10), hoặc ngày cho việc con (F17) rồi Mini App có lịch (F18).
+
+**Quyết định:** Làm F10 trước. Thứ tự: F11, F10, F17, F18.
+
+**Lý do:** Vấn đề cốt lõi của sản phẩm là engagement hàng ngày (PRODUCT §1); nhắc việc chủ động đánh thẳng vào đó. Lịch cần thêm F17 trước khi có dữ liệu ngày.
+
+**Phương án đã bỏ:** làm F17 và lịch trước F10.
