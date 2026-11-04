@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 import api
 import api.routes_planning
-import api.routes_telegram
+from api.routes_telegram import router as telegram_router
 import clients
 import clients.telegram
 import config
@@ -25,6 +25,7 @@ import tools.plan_tools
 import tools.tool_router
 
 app = FastAPI()
+app.include_router(telegram_router)
 
 
 @app.get("/health")

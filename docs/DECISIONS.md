@@ -362,3 +362,19 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Trade-off:** Lần ghi quá hạn có thể vẫn chạy xong ở PostgREST sau khi client bỏ. Câu "chưa chắc" đúng, nhưng nếu mô hình thử lại trong cùng lượt thì có thể tạo trùng (spec chấp nhận; chống trùng khi Telegram gửi lại webhook thuộc F11). Hạn chờ trên Worker (Pyodide) chưa kiểm chứng, phải chạy `pywrangler dev` trước khi dùng thật. Migration bỏ chữ ký cũ của `replace_plan`, nên giữa `db push` và deploy Worker các tool ghi trên kế hoạch có sẵn sẽ lỗi.
 
 **Phương án đã bỏ:** giữ khóa từ lúc đọc tới lúc ghi (đọc và ghi là hai lời gọi HTTP riêng); gộp hai bản trong kho (cần luật gộp từng trường); truyền một số giây tính sẵn hoặc một mốc tuyệt đối (số cũ đi, test bịt `_now` không khống chế được); gắn ngân sách vào httpx hoặc coi timeout httpx là chỗ bảo đảm (không phải tổng thời gian); để mặc định 120 giây; ghép chuỗi trong core hoặc để mỗi file một bản sao câu cố định.
+
+## D-022 — Kênh Telegram: danh tính chủ bot, một update một lần, ngữ cảnh hội thoại
+
+**Date:** 2026-11-04
+**Status:** Accepted
+
+**Bối cảnh:** F11 đưa tin chữ của chủ bot vào lượt đã có và gửi câu trả lời về cùng cuộc trò chuyện. F10 và F18 dùng lại ba luật này. Kho kế hoạch không có khái niệm người dùng.
+
+**Quyết định:**
+1. Danh tính chủ bot là mã số người gửi trên Telegram, không phải tên người dùng. So khớp đúng mã số. Chuỗi thập phân của cùng mã đó được coi là khớp. Không cắt khoảng trắng.
+2. Một update, nhận bằng mã update, chỉ chạy lượt một lần và không tạo hai kế hoạch. Trạng thái nằm ở kho bền, không nằm trong bộ nhớ Worker giữa hai request. Câu `Chưa chắc tin này đã được xử lý.` là kết quả đã lưu khi update đứt hoặc khi lượt ném ngoại lệ không phải thiếu khóa. Câu này khác câu `Chưa chắc thay đổi đã được lưu.` của D-021.
+3. Ngữ cảnh là các tin chữ của chủ bot và câu trả lời của bot trong cuộc trò chuyện riêng, tối đa 20 tin đã lưu, không quá 24 giờ, theo thứ tự cũ tới mới, rồi tới tin mới. Ngữ cảnh nằm ở kho bền. Không dùng `session_id`. Chỉ câu `Mình chỉ đọc được tin chữ.` đứng ngoài ngữ cảnh. Mọi đường gửi câu đã lưu ghi ngữ cảnh trước khi gửi, ghi lỗi thì Hoãn.
+
+**Lý do:** Ba luật này là hợp đồng các vòng sau dùng lại. Nhét người dùng vào kế hoạch, hoặc nhớ hội thoại trong Worker, làm sai nguyên tắc II và làm F10 không dùng lại được.
+
+**Phương án đã bỏ:** nhận diện bằng tên người dùng Telegram; chống trùng bằng bộ nhớ của một isolate; ngữ cảnh theo `session_id` của F02 (`src/core/session.py`).
