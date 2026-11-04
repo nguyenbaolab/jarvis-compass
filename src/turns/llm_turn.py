@@ -22,6 +22,9 @@ from tools.tool_router import execute_tool
 _BUDGET_SECONDS = 20.0
 _MAX_ROUNDS = 3
 _MODEL_ERROR = "Chưa liên lạc được để trả lời lúc này."
+_NO_REPLY = "Mình chưa có câu trả lời cho tin này."
+_CUT = "Câu trả lời bị cắt vì quá dài."
+_REFUSAL = "Mình không trả lời được tin này."
 _CAP = "Chưa trả lời xong yêu cầu này."
 _MISSING_KEY = "Thiếu ANTHROPIC_API_KEY."
 
@@ -103,13 +106,13 @@ def _abnormal(effects: list[Saved | Abandoned | Rejected], fallback: str) -> str
 
 
 def _normal_text(effects: list[Saved | Abandoned | Rejected], text: str) -> str:
-    """Chữ khác khoảng trắng giữ nguyên. Rỗng hoặc chỉ khoảng trắng khi có lần ghi thành công, bị bỏ, hoặc bị từ chối thì ghép."""
+    """Chữ khác khoảng trắng giữ nguyên. Rỗng khi có lần ghi thì ghép. Không có lần ghi thì câu chưa có trả lời."""
 
     if text.strip() != "":
         return text
     if effects:
         return compose(effects)
-    return text
+    return _NO_REPLY
 
 
 async def _run_tools(
@@ -157,6 +160,10 @@ def _finish(
         return _abnormal(effects, _CAP)
     if response.stop_reason == "tool_use" and response.tool_requests:
         return None
+    if response.stop_reason == "max_tokens":
+        return _abnormal(effects, _CUT)
+    if response.stop_reason == "refusal":
+        return _abnormal(effects, _REFUSAL)
     return _abnormal(effects, _MODEL_ERROR)
 
 

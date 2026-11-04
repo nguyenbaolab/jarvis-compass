@@ -255,12 +255,12 @@ source = { virtual = "." }
 dependencies = [
     { name = "anthropic" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "postgrest" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "httpx" },
     { name = "pytest" },
     { name = "workers-py" },
     { name = "workers-runtime-sdk" },
@@ -270,12 +270,12 @@ dev = [
 requires-dist = [
     { name = "anthropic" },
     { name = "fastapi" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "postgrest" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "httpx", specifier = ">=0.28.1" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "workers-py" },
     { name = "workers-runtime-sdk" },

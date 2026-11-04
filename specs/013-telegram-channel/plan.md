@@ -274,5 +274,6 @@ Migration lên cloud, deploy, `wrangler.jsonc`, `pywrangler dev`, `setWebhook`, 
 6. Handler: async def, trả HTTP sau khi gửi xong, không tác vụ nền.
 7. httpx: chuyển từ dev sang dependencies, không thêm gói. Đây là chuyển nhóm đã duyệt, không cần dừng.
 8. D-022: duyệt nguyên văn, cộng một câu: mọi đường gửi câu đã lưu ghi ngữ cảnh trước khi gửi, ghi lỗi thì Hoãn.
+9. Đọc ngữ cảnh lỗi sau khi claim: Hoãn, không gửi, đúng Hoãn (c) của spec. Lần nhận sau theo FR-008.
 
 Cũng đã duyệt: POST /telegram, timeout 10 giây mỗi sendMessage, body rỗng, quickstart.md.

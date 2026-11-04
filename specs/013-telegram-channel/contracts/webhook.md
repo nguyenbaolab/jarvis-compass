@@ -20,7 +20,7 @@ Route nhận update. Mã HTTP đã duyệt. Body của response rỗng ở mọi
 
 Từ chối và Hoãn khác mã. Bỏ qua và xong cùng 200. Telegram gửi lại khi không nhận 2xx.
 
-Không ghi secret đúng, secret request đưa, token, chữ tin, hay câu trả lời vào response hay vào nhật ký kênh. Nhật ký lượt vẫn là bảy khóa tool và tám khóa mô hình, không thêm khóa.
+Không ghi secret đúng, secret request đưa, token, chữ tin, hay câu trả lời vào response hay vào nhật ký kênh. Kênh ghi thêm một dòng nhật ký chỉ có khóa `outcome` ("defer" hoặc "done") cho mỗi lần nhận đã tới kho, không chứa gì khác, và không đổi bảy khóa tool hay tám khóa mô hình. Nhật ký lượt vẫn là bảy khóa tool và tám khóa mô hình, không thêm khóa.
 
 ## Thứ tự
 

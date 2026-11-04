@@ -1,6 +1,5 @@
 """Load env vars cho jarvis-compass. Không hardcode giá trị thật."""
 
-import os
 from collections.abc import Mapping
 
 
@@ -38,9 +37,40 @@ def require_supabase(source: object) -> tuple[str, str]:
     return str(url), str(key)
 
 
-def _get_str(key: str, default: str) -> str:
-    """Đọc biến môi trường dạng string."""
-    return os.getenv(key, default)
+def _require(source: object, name: str) -> str:
+    value = _read_setting(source, name)
+    if not _present(value):
+        raise SettingsError(f"Thiếu {name}.")
+    return str(value)
 
 
-TELEGRAM_BOT_TOKEN: str = _get_str("TELEGRAM_BOT_TOKEN", "")
+def require_telegram_webhook_secret(source: object) -> str:
+    """Đọc TELEGRAM_WEBHOOK_SECRET. Thiếu hoặc rỗng thì lỗi. Không strip."""
+
+    return _require(source, "TELEGRAM_WEBHOOK_SECRET")
+
+
+def require_telegram_bot_token(source: object) -> str:
+    """Đọc TELEGRAM_BOT_TOKEN. Thiếu hoặc rỗng thì lỗi. Không strip."""
+
+    return _require(source, "TELEGRAM_BOT_TOKEN")
+
+
+def require_telegram_owner_id(source: object) -> str:
+    """Đọc TELEGRAM_OWNER_ID. Thiếu hoặc rỗng thì lỗi. Không strip."""
+
+    return _require(source, "TELEGRAM_OWNER_ID")
+
+
+def require_anthropic_api_key(source: object) -> str:
+    """Đọc ANTHROPIC_API_KEY. Thiếu hoặc rỗng thì lỗi. Không strip."""
+
+    return _require(source, "ANTHROPIC_API_KEY")
+
+
+def owner_id_matches(configured: str, user_id: object) -> bool:
+    """Khớp khi user_id là int, không phải bool, và str(user_id) đúng bằng chuỗi cấu hình."""
+
+    if isinstance(user_id, bool) or not isinstance(user_id, int):
+        return False
+    return str(user_id) == configured

@@ -1,5 +1,7 @@
 """Chỗ duy nhất trong src/ tạo AsyncPostgrestClient."""
 
+from datetime import datetime
+
 import httpx
 from postgrest import AsyncPostgrestClient
 from postgrest.constants import DEFAULT_POSTGREST_CLIENT_HEADERS
@@ -123,3 +125,105 @@ async def replace_plan(
         if error.message == "plan_version_conflict":
             raise StoredPlanConflict from None
         raise
+
+
+def _rpc_data(data: object) -> object:
+    """Bọc list một phần tử của PostgREST. Mảng jsonb nhiều phần tử giữ nguyên."""
+
+    if isinstance(data, list) and len(data) == 1 and isinstance(data[0], list):
+        return data[0]
+    if isinstance(data, list) and len(data) == 1 and isinstance(data[0], dict) and "inserted" in data[0]:
+        return data[0]
+    if isinstance(data, list) and len(data) == 1 and isinstance(data[0], bool):
+        return data[0]
+    return data
+
+
+def _stamp(value: datetime) -> str:
+    return value.isoformat()
+
+
+async def claim_telegram_update(
+    client: AsyncPostgrestClient,
+    update_id: int,
+    started_at: datetime,
+) -> dict:
+    """Một RPC claim. Không select ở Python rồi mới insert."""
+
+    response = await client.rpc(
+        "claim_telegram_update",
+        {"p_update_id": update_id, "p_started_at": _stamp(started_at)},
+    ).execute()
+    data = _rpc_data(response.data)
+    if not isinstance(data, dict):
+        raise ValueError("RPC claim không trả object.")
+    return data
+
+
+async def save_telegram_reply(client: AsyncPostgrestClient, update_id: int, reply: str) -> bool:
+    """Một RPC save. Lỗi RPC không thành false."""
+
+    response = await client.rpc(
+        "save_telegram_reply",
+        {"p_update_id": update_id, "p_reply": reply},
+    ).execute()
+    return _rpc_data(response.data) is True
+
+
+async def mark_telegram_sent(
+    client: AsyncPostgrestClient,
+    update_id: int,
+    sent_at: datetime,
+) -> None:
+    """Một RPC mark. Hàm SQL trả void."""
+
+    await client.rpc(
+        "mark_telegram_sent",
+        {"p_update_id": update_id, "p_sent_at": _stamp(sent_at)},
+    ).execute()
+
+
+async def append_telegram_context(
+    client: AsyncPostgrestClient,
+    update_id: int,
+    role: str,
+    chat_id: int,
+    body: str,
+    saved_at: datetime,
+) -> None:
+    """Một RPC append. Trùng khóa thì hàm SQL không đổi body."""
+
+    await client.rpc(
+        "append_telegram_context",
+        {
+            "p_update_id": update_id,
+            "p_role": role,
+            "p_chat_id": chat_id,
+            "p_body": body,
+            "p_saved_at": _stamp(saved_at),
+        },
+    ).execute()
+
+
+async def list_telegram_context(
+    client: AsyncPostgrestClient,
+    chat_id: int,
+    saved_at_gte: datetime,
+    limit: int,
+) -> list:
+    """Một RPC list. Mốc là tham số, không gọi now()."""
+
+    response = await client.rpc(
+        "list_telegram_context",
+        {
+            "p_chat_id": chat_id,
+            "p_saved_at_gte": _stamp(saved_at_gte),
+            "p_limit": limit,
+        },
+    ).execute()
+    data = _rpc_data(response.data)
+    if data is None:
+        return []
+    if not isinstance(data, list):
+        raise ValueError("RPC list không trả mảng.")
+    return data

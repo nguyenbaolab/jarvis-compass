@@ -15,6 +15,8 @@ from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 from turns.llm_turn import run_turn
 
 _MODEL_ERROR = "Chưa liên lạc được để trả lời lúc này."
+_NO_REPLY = "Mình chưa có câu trả lời cho tin này."
+_CUT = "Câu trả lời bị cắt vì quá dài."
 _CAP = "Chưa trả lời xong yêu cầu này."
 _MISSING = "Thiếu ANTHROPIC_API_KEY."
 _MISSING_PLAN = "Không có kế hoạch với danh tính này."
@@ -153,10 +155,17 @@ def test_history_order_is_kept_and_not_mutated() -> None:
     )
 
 
-def test_empty_text_is_success() -> None:
+def test_empty_text_is_no_reply() -> None:
     client = FakeClient([_reply("", "end_turn")])
     result = _run("xin chào", [], client, BoomIfCalled(), "caller-key", [])
-    assert result == ""
+    assert result == _NO_REPLY
+
+
+def test_refusal_without_effects_returns_refusal_sentence() -> None:
+    client = FakeClient([_reply("", "refusal")])
+    result = _run("xin chào", [], client, BoomIfCalled(), "caller-key", [])
+    assert result == "Mình không trả lời được tin này."
+    assert result != "Chưa liên lạc được để trả lời lúc này."
 
 
 def test_one_tool_then_text_forwards_output() -> None:
@@ -253,7 +262,7 @@ def test_max_tokens_does_not_run_tools_and_logs_empty_error_type() -> None:
         ]
     )
     result = _run("kể việc", [], client, BoomIfCalled(), "caller-key", logs)
-    assert result == _MODEL_ERROR
+    assert result == _CUT
     assert len(client.calls) == 1
     assert len(logs) == 1
     logged = json.loads(logs[0])
@@ -982,8 +991,8 @@ def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch)
 
 def test_model_text_and_tool_message_stay_exact(monkeypatch: pytest.MonkeyPatch) -> None:
     assert _turn([_create("Học tiếng Nhật"), _reply("Đã xong việc này.", "end_turn")]) == "Đã xong việc này."
-    assert _turn([_reply("", "end_turn")]) == ""
-    assert _turn([_reply("   ", "end_turn")]) == "   "
+    assert _turn([_reply("", "end_turn")]) == _NO_REPLY
+    assert _turn([_reply("   ", "end_turn")]) == _NO_REPLY
     marks = iter((0.0, 21.0))
     monkeypatch.setattr("turns.llm_turn._now", lambda: next(marks))
     assert _turn([_reply("không gọi", "end_turn")]) == _MODEL_ERROR
