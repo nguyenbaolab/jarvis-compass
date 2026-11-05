@@ -1,5 +1,7 @@
 # Contract: Webhook Telegram
 
+Cập nhật 2026-11-05: dòng nhật ký của kênh có thêm khóa `reason`, `update_id` và `error_type`; xem docs/ARCHITECTURE.md §6. Đoạn nhật ký bên dưới giữ làm biên bản của spec 013.
+
 Route nhận update. Mã HTTP đã duyệt. Body của response rỗng ở mọi nhánh.
 
 ## Request
