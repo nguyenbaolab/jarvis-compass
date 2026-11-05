@@ -238,7 +238,7 @@ def test_route_defer_logs_store_unavailable() -> None:
     assert response.content == b""
     items = _outcome_lines(logs)
     assert len(items) == 1
-    _assert_channel(items[0], "defer", "store_unavailable", 9, None)
+    _assert_channel(items[0], "defer", "store_unavailable", 9, "RuntimeError")
 
 
 def test_route_bool_update_id_is_bad_ids() -> None:

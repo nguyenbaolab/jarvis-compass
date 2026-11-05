@@ -1,0 +1,6 @@
+src/api/telegram_update.py
+src/api/routes_telegram.py
+tests/test_telegram_log_reasons_flow.py
+tests/test_telegram_log_reasons_route.py
+docs/ARCHITECTURE.md
+docs/reviews/**

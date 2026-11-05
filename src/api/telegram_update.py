@@ -89,7 +89,7 @@ def write_channel_line(
     payload: dict[str, object] = {"outcome": outcome, "reason": reason}
     if type(update_id) is int:
         payload["update_id"] = update_id
-    if reason == REASON_UNEXPECTED and error_type is not None:
+    if error_type is not None:
         payload["error_type"] = error_type
     writer = default_log if log is None else log
     writer(json.dumps(payload, ensure_ascii=False))
@@ -147,23 +147,23 @@ async def _save_context_send(
     *,
     remember: bool,
     done_reason: str,
-) -> tuple[Outcome, str]:
+) -> tuple[Outcome, str, str | None]:
     try:
         saved = await updates.save_reply_if_absent(inbound.update_id, reply)
-    except Exception:
-        return Outcome.Defer, REASON_REPLY_NOT_SAVED
+    except Exception as error:
+        return Outcome.Defer, REASON_REPLY_NOT_SAVED, type(error).__name__
     if not saved:
-        return Outcome.Defer, REASON_REPLY_NOT_SAVED
+        return Outcome.Defer, REASON_REPLY_NOT_SAVED, None
     if remember:
         try:
             await _remember(context, inbound, reply, saved_at)
-        except Exception:
-            return Outcome.Defer, REASON_CONTEXT_FAILED
+        except Exception as error:
+            return Outcome.Defer, REASON_CONTEXT_FAILED, type(error).__name__
     try:
         delivered = await _deliver(sender, updates, inbound, reply, saved_at)
-    except Exception:
-        return Outcome.Defer, REASON_SEND_FAILED
-    return delivered, done_reason
+    except Exception as error:
+        return Outcome.Defer, REASON_SEND_FAILED, type(error).__name__
+    return delivered, done_reason, None
 
 
 async def _resend(
@@ -173,16 +173,16 @@ async def _resend(
     inbound: Inbound,
     reply: str,
     now: datetime,
-) -> tuple[Outcome, str]:
+) -> tuple[Outcome, str, str | None]:
     try:
         await _remember(context, inbound, reply, now)
-    except Exception:
-        return Outcome.Defer, REASON_CONTEXT_FAILED
+    except Exception as error:
+        return Outcome.Defer, REASON_CONTEXT_FAILED, type(error).__name__
     try:
         delivered = await _deliver(sender, updates, inbound, reply, now)
-    except Exception:
-        return Outcome.Defer, REASON_SEND_FAILED
-    return delivered, REASON_RESENT
+    except Exception as error:
+        return Outcome.Defer, REASON_SEND_FAILED, type(error).__name__
+    return delivered, REASON_RESENT, None
 
 
 async def handle_update(
@@ -202,8 +202,14 @@ async def handle_update(
         updates, context = await open_channel()
         now = clock()
         claimed = await updates.claim(inbound.update_id, now)
-    except Exception:
-        _note(log, Outcome.Defer, REASON_STORE_UNAVAILABLE, inbound.update_id)
+    except Exception as error:
+        _note(
+            log,
+            Outcome.Defer,
+            REASON_STORE_UNAVAILABLE,
+            inbound.update_id,
+            type(error).__name__,
+        )
         return Outcome.Defer
 
     if not claimed.inserted:
@@ -216,11 +222,13 @@ async def handle_update(
             _note(log, Outcome.Defer, REASON_IN_FLIGHT, inbound.update_id)
             return Outcome.Defer
         if decision is Decision.Resend and isinstance(claimed.reply, str):
-            outcome, reason = await _resend(updates, context, sender, inbound, claimed.reply, now)
-            _note(log, outcome, reason, inbound.update_id)
+            outcome, reason, error_type = await _resend(
+                updates, context, sender, inbound, claimed.reply, now
+            )
+            _note(log, outcome, reason, inbound.update_id, error_type)
             return outcome
         if decision is Decision.SaveUncertain:
-            outcome, reason = await _save_context_send(
+            outcome, reason, error_type = await _save_context_send(
                 updates,
                 context,
                 sender,
@@ -230,13 +238,13 @@ async def handle_update(
                 remember=True,
                 done_reason=REASON_UNCERTAIN_REPLIED,
             )
-            _note(log, outcome, reason, inbound.update_id)
+            _note(log, outcome, reason, inbound.update_id, error_type)
             return outcome
         _note(log, Outcome.Defer, REASON_UNEXPECTED, inbound.update_id)
         return Outcome.Defer
 
     if _blank(inbound.text):
-        outcome, reason = await _save_context_send(
+        outcome, reason, error_type = await _save_context_send(
             updates,
             context,
             sender,
@@ -246,13 +254,19 @@ async def handle_update(
             remember=False,
             done_reason=REASON_NON_TEXT,
         )
-        _note(log, outcome, reason, inbound.update_id)
+        _note(log, outcome, reason, inbound.update_id, error_type)
         return outcome
 
     try:
         history = await _history(context, inbound.chat_id, now)
-    except Exception:
-        _note(log, Outcome.Defer, REASON_CONTEXT_FAILED, inbound.update_id)
+    except Exception as error:
+        _note(
+            log,
+            Outcome.Defer,
+            REASON_CONTEXT_FAILED,
+            inbound.update_id,
+            type(error).__name__,
+        )
         return Outcome.Defer
 
     try:
@@ -269,7 +283,7 @@ async def handle_update(
     except Exception:
         reply = _UNCERTAIN
 
-    outcome, reason = await _save_context_send(
+    outcome, reason, error_type = await _save_context_send(
         updates,
         context,
         sender,
@@ -279,5 +293,5 @@ async def handle_update(
         remember=True,
         done_reason=REASON_REPLIED,
     )
-    _note(log, outcome, reason, inbound.update_id)
+    _note(log, outcome, reason, inbound.update_id, error_type)
     return outcome

@@ -64,13 +64,25 @@ def _outcome_lines(logs: list[str]) -> list[dict[str, object]]:
     return found
 
 
-def _assert_channel(item: dict[str, object], outcome: str, reason: str, update_id: int) -> None:
+def _assert_channel(
+    item: dict[str, object],
+    outcome: str,
+    reason: str,
+    update_id: int,
+    error_type: str | None = None,
+) -> None:
     assert set(item) <= _KEYS
-    assert list(item) == ["outcome", "reason", "update_id"]
+    keys = ["outcome", "reason", "update_id"]
+    if error_type is not None:
+        keys.append("error_type")
+    assert list(item) == keys
     assert item["outcome"] == outcome
     assert item["reason"] == reason
     assert item["update_id"] == update_id
-    assert "error_type" not in item
+    if error_type is None:
+        assert "error_type" not in item
+    else:
+        assert item["error_type"] == error_type
 
 
 async def _in_flight(update_id: int) -> list[str]:
@@ -310,26 +322,28 @@ _CASES = {
 
 
 @pytest.mark.parametrize(
-    ("reason", "outcome", "update_id"),
+    ("reason", "outcome", "update_id", "error_type"),
     [
-        pytest.param("in_flight", "defer", 301, id="in_flight"),
-        pytest.param("store_unavailable", "defer", 302, id="store_unavailable"),
-        pytest.param("reply_not_saved", "defer", 303, id="reply_not_saved"),
-        pytest.param("context_failed", "defer", 304, id="context_failed"),
-        pytest.param("send_failed", "defer", 305, id="send_failed"),
-        pytest.param("unexpected", "defer", 306, id="unexpected"),
-        pytest.param("replied", "done", 307, id="replied"),
-        pytest.param("resent", "done", 308, id="resent"),
-        pytest.param("already_sent", "done", 309, id="already_sent"),
-        pytest.param("non_text", "done", 310, id="non_text"),
-        pytest.param("uncertain_replied", "done", 311, id="uncertain_replied"),
+        pytest.param("in_flight", "defer", 301, None, id="in_flight"),
+        pytest.param("store_unavailable", "defer", 302, "RuntimeError", id="store_unavailable"),
+        pytest.param("reply_not_saved", "defer", 303, None, id="reply_not_saved"),
+        pytest.param("context_failed", "defer", 304, "RuntimeError", id="context_failed"),
+        pytest.param("send_failed", "defer", 305, "RuntimeError", id="send_failed"),
+        pytest.param("unexpected", "defer", 306, None, id="unexpected"),
+        pytest.param("replied", "done", 307, None, id="replied"),
+        pytest.param("resent", "done", 308, None, id="resent"),
+        pytest.param("already_sent", "done", 309, None, id="already_sent"),
+        pytest.param("non_text", "done", 310, None, id="non_text"),
+        pytest.param("uncertain_replied", "done", 311, None, id="uncertain_replied"),
     ],
 )
-def test_flow_log_reason(reason: str, outcome: str, update_id: int) -> None:
+def test_flow_log_reason(
+    reason: str, outcome: str, update_id: int, error_type: str | None
+) -> None:
     logs = asyncio.run(_CASES[reason](update_id))
     items = _outcome_lines(logs)
     assert len(items) == (2 if reason in _TWO else 1)
-    _assert_channel(items[-1], outcome, reason, update_id)
+    _assert_channel(items[-1], outcome, reason, update_id, error_type)
 
 
 async def _resent_from_saved_reply(update_id: int) -> list[str]:
@@ -352,11 +366,11 @@ async def _resent_from_saved_reply(update_id: int) -> list[str]:
 
 
 @pytest.mark.parametrize(
-    ("case_id", "first_outcome", "first_reason", "update_id"),
+    ("case_id", "first_outcome", "first_reason", "update_id", "error_type"),
     [
-        pytest.param("resent", "defer", "send_failed", 308, id="resent"),
-        pytest.param("already_sent", "done", "replied", 309, id="already_sent"),
-        pytest.param("uncertain_replied", "defer", "reply_not_saved", 311, id="uncertain_replied"),
+        pytest.param("resent", "defer", "send_failed", 308, "RuntimeError", id="resent"),
+        pytest.param("already_sent", "done", "replied", 309, None, id="already_sent"),
+        pytest.param("uncertain_replied", "defer", "reply_not_saved", 311, None, id="uncertain_replied"),
     ],
 )
 def test_flow_first_line(
@@ -364,10 +378,170 @@ def test_flow_first_line(
     first_outcome: str,
     first_reason: str,
     update_id: int,
+    error_type: str | None,
 ) -> None:
     if case_id == "resent":
         logs = asyncio.run(_resent_from_saved_reply(update_id))
     else:
         logs = asyncio.run(_CASES[case_id](update_id))
     items = _outcome_lines(logs)
-    _assert_channel(items[0], first_outcome, first_reason, update_id)
+    _assert_channel(items[0], first_outcome, first_reason, update_id, error_type)
+
+
+_LEAK = "boom secret-dung"
+_FIXED_TEXT = "Mình chỉ đọc được tin chữ."
+
+
+class LeakError(Exception):
+    """Exception giả. Thông điệp chứa chuỗi giống secret và không được vào nhật ký."""
+
+
+class _SaveRaises(MemoryTelegramChannel):
+    async def save_reply_if_absent(self, update_id: int, reply: str) -> bool:
+        del update_id, reply
+        raise RuntimeError("save down")
+
+
+class _MarkSentRaises(MemoryTelegramChannel):
+    async def mark_sent(self, update_id: int, sent_at: datetime) -> None:
+        await super().mark_sent(update_id, sent_at)
+        raise RuntimeError("mark sent")
+
+
+class _MarkSentLeak(MemoryTelegramChannel):
+    async def mark_sent(self, update_id: int, sent_at: datetime) -> None:
+        await super().mark_sent(update_id, sent_at)
+        raise LeakError(_LEAK)
+
+
+class _LeakList(MemoryTelegramChannel):
+    async def list_recent(self, chat_id: int, saved_at_gte: datetime, limit: int) -> tuple:
+        del chat_id, saved_at_gte, limit
+        raise LeakError(_LEAK)
+
+
+def _forbid_leak(logs: list[str]) -> None:
+    assert _LEAK not in "\n".join(logs)
+
+
+def test_reply_not_saved_when_save_raises() -> None:
+    logs: list[str] = []
+    sender = RecordingSender()
+    model = ScriptModel([_reply("không", "end_turn")])
+    outcome = asyncio.run(
+        _go(
+            _SaveRaises(),
+            sender,
+            model,
+            Clock(_START),
+            312,
+            None,
+            plans=BoomPlans(),
+            log=logs,
+        )
+    )
+    assert outcome is Outcome.Defer
+    assert sender.parts == []
+    assert model.calls == []
+    items = _outcome_lines(logs)
+    assert len(items) == 1
+    _assert_channel(items[0], "defer", "reply_not_saved", 312, "RuntimeError")
+
+
+def test_send_failed_when_mark_sent_raises() -> None:
+    logs: list[str] = []
+    sender = RecordingSender()
+    model = ScriptModel([_reply("không", "end_turn")])
+    outcome = asyncio.run(
+        _go(
+            _MarkSentRaises(),
+            sender,
+            model,
+            Clock(_START),
+            313,
+            None,
+            plans=BoomPlans(),
+            log=logs,
+        )
+    )
+    assert outcome is Outcome.Defer
+    assert sender.parts == [(_CHAT, _FIXED_TEXT)]
+    assert model.calls == []
+    items = _outcome_lines(logs)
+    assert len(items) == 1
+    _assert_channel(items[0], "defer", "send_failed", 313, "RuntimeError")
+
+
+def test_leak_store_unavailable() -> None:
+    async def open_channel() -> tuple[object, object]:
+        raise LeakError(_LEAK)
+
+    logs: list[str] = []
+    outcome = asyncio.run(
+        handle_update(
+            Inbound(update_id=314, chat_id=_CHAT, text="tin"),
+            open_channel=open_channel,
+            sender=RecordingSender(),
+            plans=BoomPlans(),
+            client=ScriptModel([_reply("không", "end_turn")]),
+            api_key="caller-key",
+            clock=Clock(_START),
+            log=logs.append,
+        )
+    )
+    assert outcome is Outcome.Defer
+    items = _outcome_lines(logs)
+    assert len(items) == 1
+    _assert_channel(items[0], "defer", "store_unavailable", 314, "LeakError")
+    _forbid_leak(logs)
+
+
+def test_leak_send_failed_mark_sent() -> None:
+    async def scenario() -> list[str]:
+        store = _MarkSentLeak()
+        await store.claim(315, _START)
+        assert await store.save_reply_if_absent(315, "câu giữ") is True
+        logs: list[str] = []
+        outcome = await _go(
+            store,
+            RecordingSender(),
+            ScriptModel([_reply("không", "end_turn")]),
+            Clock(_START),
+            315,
+            "tin",
+            plans=BoomPlans(),
+            log=logs,
+        )
+        assert outcome is Outcome.Defer
+        return logs
+
+    logs = asyncio.run(scenario())
+    items = _outcome_lines(logs)
+    assert len(items) == 1
+    _assert_channel(items[0], "defer", "send_failed", 315, "LeakError")
+    _forbid_leak(logs)
+
+
+def test_leak_context_failed() -> None:
+    logs: list[str] = []
+    sender = RecordingSender()
+    model = ScriptModel([_reply("không", "end_turn")])
+    outcome = asyncio.run(
+        _go(
+            _LeakList(),
+            sender,
+            model,
+            Clock(_START),
+            316,
+            "tin chu",
+            plans=BoomPlans(),
+            log=logs,
+        )
+    )
+    assert outcome is Outcome.Defer
+    assert sender.parts == []
+    assert model.calls == []
+    items = _outcome_lines(logs)
+    assert len(items) == 1
+    _assert_channel(items[0], "defer", "context_failed", 316, "LeakError")
+    _forbid_leak(logs)
