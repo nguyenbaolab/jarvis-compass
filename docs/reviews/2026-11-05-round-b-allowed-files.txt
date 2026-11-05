@@ -1,0 +1,3 @@
+docs/reviews/2026-11-05-repo-review.md
+docs/PRODUCT.md
+docs/reviews/**
