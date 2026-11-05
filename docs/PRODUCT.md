@@ -29,7 +29,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F08 | Planning tool — add_subtask | Thêm subtask vào plan đang có |
 | F09 | Planning tool — revise_plan | Xem lại và đề xuất điều chỉnh plan |
 | F10 | Proactive check-in (remote push) | Cron job server-side nhắc việc sáng/tối, luôn remote push, không phụ thuộc client có mở app hay không |
-| F11 | Telegram Bot interface (MVP client) | Text hoặc voice message (Telegram tự transcribe), nhận scheduled check-in qua Telegram Bot API |
+| F11 | Telegram Bot interface (MVP client) | Nhận tin chữ của chủ bot và trả lời trong cuộc trò chuyện riêng; tin không phải chữ (voice, ảnh, file, sticker) nhận một câu cố định, voice làm riêng ở F19; nhận scheduled check-in qua Telegram Bot API |
 | F12 | Model-agnostic LLM layer | Cổng trung lập và adapter Anthropic |
 | F13 | Streaming response + barge-in support | Hỗ trợ streaming response cho client voice (Mức 1 real-time: STT VAD → streaming → TTS từng câu → barge-in) |
 | F14 | HTTP API cho jarvis-desktop client | Endpoint để jarvis-desktop gọi sang khi cần lập kế hoạch, qua tool mới trong tool_router |
@@ -37,6 +37,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F16 | App Android riêng với hardware-key trigger | Giai đoạn 2, làm sau F18 và dùng lại cùng API. Accessibility Service, Power + Volume Up trigger overlay, nhận push qua FCM |
 | F17 | Ngày dự kiến cho việc con | Mỗi việc con có trường ngày dự kiến, để bot đặt ngày thay vì nhét ngày hay tuần vào tiêu đề |
 | F18 | Telegram Mini App có lịch | Trang web mở trong Telegram, xem việc con theo lịch ngày (cần F17). Worker của F11 phục vụ, xác thực bằng initData của Telegram. Là bản đầu của jarvis-android, dùng chung API với app Android riêng (F16) |
+| F19 | Nhận tin voice qua Telegram | Nhận tin voice của chủ bot, phiên âm thành chữ rồi chạy như tin chữ. Cách phiên âm chưa chọn: cần kiểm Bot API có gửi sẵn bản chữ cho bot không, nếu không thì cần một cách phiên âm riêng. Làm sau F11, chưa xếp vào thứ tự ở §7 |
 
 ## §4 Negative scope — cố ý KHÔNG làm
 
@@ -66,7 +67,7 @@ Xem docs/ARCHITECTURE.md §0.
 
 Thứ tự làm tiếp (chốt 2026-11-03), mỗi mục một vòng riêng:
 
-1. F11 Telegram bot: nối composition root, chuyển sang Workers Paid (D-018), đo bộ nhớ gần trần 128 MiB; kèm các mục L1-04, L1-12 và L1-13 trong docs/reviews/2026-11-01-repo-review.md.
+1. F11 Telegram bot chạy thật: logic kênh (spec 013) đã xong và đã chạy thật trên `pywrangler dev`; còn Workers Paid (D-018), đo bộ nhớ gần trần 128 MiB và số subrequest, áp migration lên cloud, `setWebhook`.
 2. F10 nhắc việc chủ động, làm trước lịch (D-020).
 3. F17 ngày dự kiến cho việc con.
 4. F18 Telegram Mini App có lịch (D-019), cần F17.
