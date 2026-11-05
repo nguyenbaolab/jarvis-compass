@@ -1,0 +1,2 @@
+docs/reviews/**
+docs/DECISIONS.md
