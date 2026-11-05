@@ -8,7 +8,7 @@ class SettingsError(Exception):
 
 
 def _read_setting(source: object, name: str) -> object:
-    """Mapping thì .get. Nguồn khác thì getattr. Không đọc os.getenv."""
+    """Mapping thì .get. Nguồn khác thì getattr. Không đọc biến môi trường của tiến trình."""
 
     if isinstance(source, Mapping):
         return source.get(name)

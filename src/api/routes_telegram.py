@@ -7,7 +7,26 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Request, Response
 
-from api.telegram_update import Inbound, Outcome, handle_update
+from api.telegram_update import (
+    OUTCOME_IGNORE,
+    OUTCOME_REJECT,
+    REASON_BAD_IDS,
+    REASON_BODY_UNREADABLE,
+    REASON_NOT_A_MESSAGE,
+    REASON_NOT_OWNER,
+    REASON_NOT_PRIVATE_CHAT,
+    REASON_OWNER_NOT_CONFIGURED,
+    REASON_SECRET_HEADER_MISSING,
+    REASON_SECRET_MISMATCH,
+    REASON_SECRET_NOT_CONFIGURED,
+    REASON_TOKEN_NOT_CONFIGURED,
+    REASON_UNEXPECTED,
+    Inbound,
+    Outcome,
+    channel_update_id,
+    handle_update,
+    write_channel_line,
+)
 from config.settings import (
     SettingsError,
     owner_id_matches,
@@ -49,7 +68,7 @@ def secrets_match(expected: str, provided: object) -> bool:
 
 
 def current_deps(request: Request) -> TelegramDeps:
-    """Cấu hình từ request.scope['env']. Không đọc os.environ."""
+    """Cấu hình từ request.scope['env'], không từ biến môi trường của tiến trình."""
 
     env = request.scope.get("env")
     if env is None:
@@ -69,21 +88,46 @@ def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _inbound(payload: object, owner_id: str) -> Inbound | None:
+def _channel_log(
+    deps: TelegramDeps,
+    outcome: str,
+    reason: str,
+    update_id: int | None = None,
+    error_type: str | None = None,
+) -> None:
+    write_channel_line(
+        None if deps.logs is None else deps.logs.append,
+        outcome,
+        reason,
+        update_id=update_id,
+        error_type=error_type,
+    )
+
+
+def _ignore(deps: TelegramDeps, payload: object, reason: str) -> None:
+    _channel_log(deps, OUTCOME_IGNORE, reason, update_id=channel_update_id(payload))
+
+
+def _inbound(deps: TelegramDeps, payload: object, owner_id: str) -> Inbound | None:
     if not isinstance(payload, dict) or not isinstance(payload.get("message"), dict):
+        _ignore(deps, payload, REASON_NOT_A_MESSAGE)
         return None
     message = payload["message"]
     chat = message.get("chat")
     sender = message.get("from")
     if not isinstance(chat, dict) or chat.get("type") != "private":
+        _ignore(deps, payload, REASON_NOT_PRIVATE_CHAT)
         return None
     if not isinstance(sender, dict) or not owner_id_matches(owner_id, sender.get("id")):
+        _channel_log(deps, OUTCOME_IGNORE, REASON_NOT_OWNER, update_id=channel_update_id(payload))
         return None
     update_id = payload.get("update_id")
     chat_id = chat.get("id")
     if isinstance(update_id, bool) or not isinstance(update_id, int):
+        _ignore(deps, payload, REASON_BAD_IDS)
         return None
     if isinstance(chat_id, bool) or not isinstance(chat_id, int):
+        _ignore(deps, payload, REASON_BAD_IDS)
         return None
     text = message.get("text")
     if not isinstance(text, str):
@@ -109,22 +153,31 @@ async def telegram_webhook(request: Request, deps: TelegramDeps = Depends(curren
     try:
         secret = require_telegram_webhook_secret(deps.env)
     except SettingsError:
+        _channel_log(deps, OUTCOME_REJECT, REASON_SECRET_NOT_CONFIGURED)
         return _empty(401)
-    if not secrets_match(secret, header_secret(request)):
+    provided = header_secret(request)
+    if provided is None:
+        _channel_log(deps, OUTCOME_REJECT, REASON_SECRET_HEADER_MISSING)
+        return _empty(401)
+    if not secrets_match(secret, provided):
+        _channel_log(deps, OUTCOME_REJECT, REASON_SECRET_MISMATCH)
         return _empty(401)
     try:
         token = require_telegram_bot_token(deps.env)
     except SettingsError:
+        _channel_log(deps, OUTCOME_REJECT, REASON_TOKEN_NOT_CONFIGURED)
         return _empty(401)
     try:
         payload = await request.json()
     except Exception:
+        _channel_log(deps, OUTCOME_IGNORE, REASON_BODY_UNREADABLE)
         return _empty(200)
     try:
         owner_id = require_telegram_owner_id(deps.env)
     except SettingsError:
+        _channel_log(deps, OUTCOME_IGNORE, REASON_OWNER_NOT_CONFIGURED, update_id=channel_update_id(payload))
         return _empty(200)
-    inbound = _inbound(payload, owner_id)
+    inbound = _inbound(deps, payload, owner_id)
     if inbound is None:
         return _empty(200)
     try:
@@ -164,7 +217,14 @@ async def telegram_webhook(request: Request, deps: TelegramDeps = Depends(curren
             clock=clock,
             log=None if deps.logs is None else deps.logs.append,
         )
-    except Exception:
+    except Exception as error:
+        _channel_log(
+            deps,
+            Outcome.Defer.value,
+            REASON_UNEXPECTED,
+            update_id=inbound.update_id,
+            error_type=type(error).__name__,
+        )
         return _empty(503)
     if outcome is Outcome.Defer:
         return _empty(503)
