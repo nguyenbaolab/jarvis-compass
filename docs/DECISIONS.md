@@ -378,3 +378,18 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Lý do:** Ba luật này là hợp đồng các vòng sau dùng lại. Nhét người dùng vào kế hoạch, hoặc nhớ hội thoại trong Worker, làm sai nguyên tắc II và làm F10 không dùng lại được.
 
 **Phương án đã bỏ:** nhận diện bằng tên người dùng Telegram; chống trùng bằng bộ nhớ của một isolate; ngữ cảnh theo `session_id` của F02 (`src/core/session.py`).
+
+## D-023 — RPC PostgREST trả giá trị, không void
+
+**Date:** 2026-11-05
+**Status:** Accepted
+
+**Bối cảnh:** Chạy thật trên pywrangler dev: httpx trong `python_modules` (transport `httpx/_transports/jsfetch.py`) đọc mọi phản hồi bằng `response_js.body.getReader()` mà không kiểm tra `body`. PostgREST trả 204 No Content, không có body, khi hàm SQL là `void`. Lời gọi vẫn ghi DB xong rồi ném `AttributeError`. Ba hàm đang dùng theo đường đó là `replace_plan(uuid, text, jsonb, integer)`, `mark_telegram_sent(bigint, timestamptz)` và `append_telegram_context(bigint, text, bigint, text, timestamptz)`. Hệ quả đã quan sát: tin chữ không được trả lời vì ghi ngữ cảnh lỗi trước khi gửi, và tool ghi kế hoạch báo lỗi dù DB đã lưu. Các hàm trả `jsonb` hoặc `boolean` không vấp lỗi này. Test trên Windows không bắt được vì httpx ở đó dùng transport socket bình thường.
+
+**Quyết định:** Migration `20261105150000_rpc_return_values.sql` đổi ba hàm sang `returns boolean`, cùng tham số và cùng thân. `replace_plan` trả `true` khi ghi xong; `plan_missing` và `plan_version_conflict` vẫn `raise`. `mark_telegram_sent` trả `true` khi cập nhật đúng một hàng. `append_telegram_context` trả `true` khi chèn đúng một hàng, `false` khi `on conflict do nothing`. Python không đọc boolean đó.
+
+**Lý do:** Lỗi nằm ở phản hồi không có body, không ở dữ liệu. Trả `boolean` làm PostgREST gửi body. `save_telegram_reply` đã chạy tốt trên Worker với cùng mẫu `get diagnostics` và `return changed = 1`. Test `tests/test_rpc_returns.py` đọc các migration và báo lỗi nếu định nghĩa cuối của một RPC mà `src/db/client.py` gọi là `void`.
+
+**Trade-off:** `create or replace` không đổi được kiểu trả, nên migration phải `drop function` đúng chữ ký rồi tạo lại và cấp lại quyền; các hàm chỉ được gọi bởi `service_role` qua Worker nên không có caller nào khác bị ảnh hưởng. Giá trị `false` của hai hàm kênh hiện không được Python kiểm. Test bảo vệ đọc migration, không gọi PostgREST, nên không chứng minh được Worker đọc được body; việc đó được kiểm khi chạy thật.
+
+**Phương án đã bỏ:** bắt `AttributeError` trong `src/db/client.py` rồi coi là thành công: cách đó biến một phản hồi lỗi không có body (ví dụ cổng trả 502 rỗng) thành ghi thành công. Chờ bản sửa của thư viện: không có hạn.

@@ -107,7 +107,7 @@ async def replace_plan(
     subtasks: list[dict],
     expected_version: int,
 ) -> None:
-    """Một RPC replace_plan. Hàm SQL trả void, nên không đọc giá trị trả về."""
+    """Một RPC replace_plan. Hàm SQL trả boolean; giá trị không được đọc, lỗi đi qua APIError."""
 
     try:
         await client.rpc(
@@ -175,7 +175,7 @@ async def mark_telegram_sent(
     update_id: int,
     sent_at: datetime,
 ) -> None:
-    """Một RPC mark. Hàm SQL trả void."""
+    """Một RPC mark. Hàm SQL trả boolean, giá trị không được đọc."""
 
     await client.rpc(
         "mark_telegram_sent",
@@ -191,7 +191,7 @@ async def append_telegram_context(
     body: str,
     saved_at: datetime,
 ) -> None:
-    """Một RPC append. Trùng khóa thì hàm SQL không đổi body."""
+    """Một RPC append. Trùng khóa thì hàm SQL không đổi body. Hàm SQL trả boolean, giá trị không được đọc."""
 
     await client.rpc(
         "append_telegram_context",
