@@ -67,7 +67,7 @@ Xem docs/ARCHITECTURE.md §0.
 
 Thứ tự làm tiếp (chốt 2026-11-03), mỗi mục một vòng riêng:
 
-1. F11 Telegram bot chạy thật: logic kênh (spec 013) đã xong và đã chạy thật trên `pywrangler dev`; còn Workers Paid (D-018), đo bộ nhớ gần trần 128 MiB và số subrequest, áp migration lên cloud, `setWebhook`.
+1. F11 Telegram bot chạy thật: logic kênh (spec 013) đã xong, đã chạy thật trên `pywrangler dev` và trên cloud (2026-11-05: Workers Paid, migration đã áp, deploy, `setWebhook`, thử thật qua Telegram). Còn mở: Q2-15 đến Q2-18 trong `docs/reviews/2026-11-05-repo-review.md`, số đo bộ nhớ và số subrequest trực tiếp.
 2. F10 nhắc việc chủ động, làm trước lịch (D-020).
 3. F17 ngày dự kiến cho việc con.
 4. F18 Telegram Mini App có lịch (D-019), cần F17.
