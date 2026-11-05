@@ -23,7 +23,7 @@ Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhá
 | L1-05 | nên sửa | src/tools/tool_definitions.py:40-77 | set_subtask_note không nói xóa bằng chuỗi rỗng; status không có enum | mở (prompt v2) |
 | L1-06 | ghi nhận | src/db/plan_store.py:61-62 | Trạng thái lạ trong kho thành lỗi domain thay vì unexpected | mở |
 | L1-07 | ghi nhận | src/core/plans.py:47 | Docstring PlanStore nói không có bản cài đặt trong src/ | đã sửa ở chore/review-fixes-2026-11-01 |
-| L1-08 | suy đoán | pylock.toml | pylock khóa pydantic khác uv.lock; Worker có thể chạy bản khác test | mở |
+| L1-08 | suy đoán | pylock.toml | pylock khóa pydantic khác uv.lock; Worker có thể chạy bản khác test | mở (xác nhận 2026-11-05: pydantic 2.12.5 so với 2.13.5; xem Q2-02) |
 | L1-09 | ghi nhận | src/tools/plan_tools.py:83 (_await_store); src/tools/tool_router.py:280 | Lỗi mạng không phải quá hạn khi ghi (ví dụ ConnectError) ra câu chung "Không thực hiện được yêu cầu này." với error_type unexpected, không ra câu chưa chắc; lần ghi có thể đã vào kho | mở |
 | L1-10 | ghi nhận | src/turns/llm_turn.py:97 (_abnormal); src/tools/saved_reply.py:60 (compose) | Lần ghi bị từ chối, mô hình thử lại thành công, rồi lượt kết thúc bất thường: bản ghép có cả dòng "Đã lưu…" lẫn câu "Thay đổi chưa được áp dụng…" | mở |
 | L1-11 | ghi nhận | src/tools/tool_router.py:277-279 (_run) | Quá hạn và xung đột phiên bản đều ghi error_type domain, chỉ phân biệt bằng duration_ms; eval không tách được hai loại | mở |
@@ -34,7 +34,7 @@ Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhá
 | L2-03 | nên sửa | tests/test_eval_score.py:196-216 | Sáu tiêu đề trong một lần chấm, chỉ nhánh đầu được kiểm; thiếu ca Markdown `+ ` | đã sửa ở chore/review-fixes-2026-11-01 |
 | L2-04 | nên sửa | scripts/check.ps1:339-340 | git diff --name-only dò đổi tên, nguồn của file bị chuyển lọt kiểm | đã sửa ở chore/review-fixes-2026-11-01 |
 | L2-05 | nên sửa | scripts/claude-b9-settings.json | git --output và git grep -O ghi file, chạy lệnh dưới dontAsk | đã sửa ở chore/review-fixes-2026-11-01 |
-| L2-06 | ghi nhận | scripts/check.ps1:445-447 | Luật Env reads chỉ quét src/turns và adapter | mở (dọn check.ps1) |
+| L2-06 | ghi nhận | scripts/check.ps1:445-447 | Luật Env reads chỉ quét src/turns và adapter | đã sửa ở chore/webhook-log-reasons (hàng Env reads quét cả src) |
 | L2-07 | ghi nhận | tests/test_llm_turn.py, test_tool_router.py, test_plan_row_mapping.py | Test khóa đúng hành vi mà L1-04 đến L1-06 muốn đổi | mở |
 | L2-08 | ghi nhận | nhiều file test | Khẳng định yếu: chỉ kiểm loại exception, done lặp không đếm replace | mở (dọn) |
 | L2-09 | ghi nhận | test_eval_run.py:214; evals/summary.py:109; test_get_plans.py:178 | Tên test hoặc docstring lệch nội dung; chưa có ca từ khóa NFD | mở (dọn) |
@@ -48,7 +48,7 @@ Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhá
 | L3-04 | nên sửa | specs/001, specs/003, specs/009/quickstart.md | Spec cũ nói ngược code, không có dòng trỏ ngược; mọi spec để Status: Draft | một phần: dòng đánh dấu ở chore/review-fixes-2026-11-01; quy ước Status còn mở |
 | L3-05 | ghi nhận | docs/ARCHITECTURE.md:76 | Câu "loguru chưa chốt" trong khi log đã chốt không thư viện | đã sửa ở chore/review-fixes-2026-11-01 |
 | L3-06 | ghi nhận | docs/DECISIONS.md D-003; docs/PRODUCT.md §5 | Hai con số chi phí; PRODUCT đúng theo giá Haiku 5.5 | đã sửa ở docs/decisions-2026-11-01 |
-| L3-07 | ghi nhận | scripts/check.ps1 | Nguyên tắc III không có hàng kiểm; Tools, db, clients thiếu luật import | mở (dọn check.ps1) |
+| L3-07 | ghi nhận | scripts/check.ps1 | Nguyên tắc III không có hàng kiểm; Tools, db, clients thiếu luật import | một phần: hàng Update imports (chore/webhook-log-reasons); còn thiếu luật cho tools, db, clients và nguyên tắc III |
 | L3-08 | ghi nhận | constitution, Quy ước mã nguồn | Luật đọc config không ghi phạm vi; tests/ đọc env không có ngoại lệ chính thức | đã sửa ở docs/decisions-2026-11-01 |
 | L3-09 | ghi nhận | docs/PRODUCT.md F05 | "Active plans" trong khi kế hoạch không có trạng thái | mở (F10) |
 | L3-10 | ghi nhận | docs/DECISIONS.md D-016 | evals/runner.py là composition root ngoài src/; D-016 không nói có tính không | đã sửa ở docs/decisions-2026-11-01 |

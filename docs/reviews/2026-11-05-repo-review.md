@@ -1,0 +1,55 @@
+# Quét repo 2026-11-05
+
+review-base: ed0c20c
+
+Quét lần hai, chỉ đọc, ở `main` `ed0c20c` (sau 013, trước vòng chạy thật F11). Bảng L1, L2, L3 của lần quét 2026-11-01 nằm ở `2026-11-01-repo-review.md` và vẫn là nguồn trạng thái của các mục đó; file này ghi phát hiện mới, phạm vi đã đọc và danh sách đã xét. Mốc quét là `ed0c20c`, không phải commit sửa kèm sau đó, nên các thay đổi `src/` của nhánh `chore/webhook-log-reasons` tính vào lần quét sau.
+
+Hàng `Repo review` của `check.ps1` đếm 17 file `src/` đổi từ `d32166e`, vượt ngưỡng 15, ngoài mốc "trước F11 chạy thật".
+
+## Phạm vi đã đọc
+
+- Mã chạy thật đổi từ `d32166e`: 17 file `src/` (nhóm Telegram: `routes_telegram.py`, `telegram_update.py`, `core/telegram_channel.py`, `db/telegram_channel_store.py`, `clients/telegram.py`, `config/settings.py`, `app.py`; nhóm độ bền ghi và prompt: `tools/saved_reply.py`, `tools/tool_router.py`, `tools/plan_tools.py`, `tools/base.py`, `turns/llm_turn.py`, `core/plans.py`, `db/client.py`, `db/plan_store.py`, `db/models.py`, `core/system_prompt.py`) và migration `20261104143000_telegram_channel.sql`.
+- Thư viện trong `.venv`: `workers/rpc.py` (`_EnvWrapper`), `workers/utils.py` (`_is_js_instance`), `workers/asgi.py`, `postgrest` 2.31.0 (tạo session mặc định). So `pylock.toml` với `uv.lock` bằng đọc hai file.
+- Nhóm xuyên suốt: `AGENTS.md`, `.specify/memory/constitution.md` 1.2.1, `docs/DECISIONS.md` (D-018 đến D-022), `docs/ARCHITECTURE.md`, `docs/PRODUCT.md`, `specs/013-telegram-channel/contracts/webhook.md`, `scripts/check.ps1`, `scripts/claude-b9-settings.json`, `.env.example`, `pyproject.toml`.
+- Không đọc lại toàn bộ test 013 (B9 và mutation đã soi). Không đọc `.dev.vars`. Chat không chạy test; số test lấy từ `check.ps1` do người dùng chạy.
+- Thử trong repo tạm của máy ảo (git 2.34.1): hành vi viết tắt cờ của `git grep` và `git diff`. Chưa thử trên Git for Windows.
+
+## Phát hiện
+
+Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhánh hoặc commit), đóng (đã kiểm, không có vấn đề).
+
+| ID | Mức | Chỗ | Tóm tắt | Trạng thái |
+|---|---|---|---|---|
+| Q2-01 | nên sửa | `routes_telegram.py` (đường 401, Bỏ qua, `except Exception` cuối); `telegram_update.py` (`_note`) | Đường từ chối, bỏ qua và exception cuối không ghi dòng log nào; dòng của `handle_update` chỉ có `outcome`, không có lý do. Lần chạy thật đầu không có chỗ đọc lý do 401, 200 hay 503 | đã sửa ở `chore/webhook-log-reasons` (`36c5c46`): mỗi lần nhận ghi một dòng có `reason` (mã đóng), `update_id`, `error_type` |
+| Q2-02 | ghi nhận | `pylock.toml`, `uv.lock` | `pylock.toml` khóa pydantic 2.12.5 và pydantic-core 2.41.5; `uv.lock` khóa 2.13.5 và 2.46.5; các gói còn lại trùng bản (httpx 0.28.1, h2 4.4.1, postgrest 2.31.0, anthropic 1.5.0). Chưa biết pywrangler build từ file nào và `pylock.toml` sinh bằng lệnh nào | mở (recon, rồi `pywrangler dev`) |
+| Q2-03 | ghi nhận | `telegram_update.py` (`_deliver`) | Gửi lại phát lại mọi phần của câu đã lưu: phần 1 gửi xong, phần 2 lỗi thì lần nhận sau gửi lại cả phần 1; `mark_sent` lỗi sau khi gửi hết thì cả câu đi lần hai. Hệ quả của gửi ít nhất một lần; D-022 không nêu trường hợp này | mở |
+| Q2-04 | ghi nhận | `core/telegram_channel.py` (`select_context`), hàm SQL `list_telegram_context`, `telegram_update.py` (`_remember`) | Suy đoán từ đọc code: hai dòng của một cặp có cùng `saved_at`, `user` đứng trước, giới hạn 20 là số chẵn, nên danh sách ngữ cảnh gần như luôn mở đầu bằng `user`; mở đầu bằng `assistant` chỉ khi cặp bị đứt giữa chừng. Phép thử cuộc gọi API thật với danh sách mở đầu bằng `assistant` hạ ưu tiên | mở (chưa có test) |
+| Q2-05 | ghi nhận | `db/client.py` (`postgrest_client`), `db/telegram_channel_store.py` | Mỗi lời gọi kho mở một client httpx mới (TLS, h2). Một update có 6 lời gọi kênh, thêm lời gọi kho cho mỗi tool, tối đa 4 lần gọi mô hình và vài lần `sendMessage`. Chưa đo số subrequest và thời gian trên Worker | mở (đo ở vòng chạy thật) |
+| Q2-06 | nên sửa | `scripts/claude-b9-settings.json` | Git chấp nhận cờ dài viết tắt: `git grep --op=<lệnh>` (hoặc `--open=`) chạy lệnh bất kỳ; `git grep --no-ind`, `git grep --untracked --no-exclude-standard` (cả tiền tố `--no-exc`) và `git diff --no-index` in nội dung file bị gitignore như `.dev.vars`; mẫu deny cũ `git *--open-files-in-pager*` bị vòng qua. Pytest không bị (`allow_abbrev=False`) | đã sửa ở `chore/webhook-log-reasons` (`a1fbeed`): deny thêm tiền tố `--op`, `--no-ind`, `--no-exc` cho Bash và PowerShell; thử trên Claude Code thật: 4 lệnh bị từ chối ở cả hai công cụ, 2 lệnh đối chứng chạy được. Chưa thử Git for Windows |
+| Q2-07 | nên sửa | `scripts/check.ps1` | Hàng Env reads chỉ quét `src/turns` và `src/clients/anthropic_model.py`, nên `routes_telegram.py`, `clients/telegram.py`, `db/`, `config/settings.py` đọc cấu hình mà không có máy kiểm (os.getenv rỗng trên Worker). `telegram_update.py` chưa có luật import | đã sửa ở `chore/webhook-log-reasons` (`a1fbeed`): Env reads quét cả `src/`, thêm hàng Update imports; đối chứng dương C1 đến C4 thấy fail đúng hàng |
+| Q2-08 | ghi nhận | `docs/PRODUCT.md` dòng 32 và 69 | Dòng 32 ghi F11 nhận voice, "Telegram tự transcribe", trong khi code trả câu cố định cho voice; các bot mẫu tìm được đều tự tải file voice rồi tự phiên âm, chưa thấy nguồn nói Telegram gửi sẵn bản chữ cho bot (suy đoán, chưa đọc tài liệu Bot API chính thức). Dòng 69 còn ghi "nối composition root" và các mục L1-04, L1-12, L1-13 đã xong | mở (sửa sau khi chốt voice) |
+| Q2-09 | ghi nhận | `telegram_update.py` (`handle_update`: `except Exception` quanh `run_turn`, `MissingKeyError`) | Lượt ném exception bị nuốt thành câu chưa chắc, và lỗi thiếu khóa mô hình, đều ghi `done` với `reason` `replied`, không có `error_type`. Hiếm: lỗi mô hình đã có dòng mô hình tám khóa mang `error_type`, thiếu khóa thì câu hiện ở Telegram | mở |
+| Q2-10 | ghi nhận | `tests/test_telegram_log_reasons_route.py`, `telegram_update.py` (`channel_update_id`, `write_channel_line`) | Hai chỗ cùng chặn `bool` cho `update_id`, nên đổi riêng một chỗ là mutant tương đương; ca `bool` chỉ đỏ khi bỏ cả hai | mở (dọn) |
+
+## Mục mở của lần quét trước, kiểm lại
+
+- Vẫn mở, mã tại các chỗ đó không đổi từ khi ghi mục: L1-05 (`tool_definitions.py`: `status` vẫn `{"type": "string"}` không enum, `set_subtask_note` chưa nói chuỗi rỗng là xóa), L1-06 (`plan_store.py`: trạng thái lạ vẫn ra `PlanDomainError`), L1-09 đến L1-11, phần còn lại của L1-13, L1-12 (mở cho F10).
+- Đổi trạng thái ở lần quét này: L1-08 (xác nhận bằng đọc hai file lock, xem Q2-02), L2-06 (đã sửa, xem Q2-07), L3-07 (một phần, xem Q2-07). Ba dòng đã cập nhật ở `2026-11-01-repo-review.md`.
+- Không kiểm lại (file liên quan không nằm trong phạm vi): L2-01, L2-07 đến L2-11, L3-04, L3-09.
+
+## Đã xét, không có vấn đề (ở mốc ed0c20c)
+
+File nào không đổi từ mốc thì lần sau không cần đọc lại cho các mục này.
+
+- `routes_telegram.py`: thứ tự kiểm secret, token, body, người gửi; so secret bằng `hmac.compare_digest`; không log secret, token, chữ tin.
+- `claim_telegram_update`: `insert ... on conflict do nothing` rồi `get diagnostics` trong một hàm nên nguyên tử; RLS bật, chỉ `service_role` có grant cho hai bảng và năm hàm; migration khớp `telegram_channel_store.py` (cột, khóa chính `(update_id, role)`, kiểu thời gian).
+- `split_utf16` và `owner_id_matches` đúng D-022 (đơn vị UTF-16; so chuỗi đúng, không cắt khoảng trắng).
+- `telegram_update.py` và `core/telegram_channel.py` không import `db`, `clients`, `config`; `core/` chỉ thư viện chuẩn.
+- Đọc cấu hình: `_read_setting` dùng `getattr(env, tên, None)`, cùng cách spike `supabase-postgrest` đọc secret trên Cloudflare; `_EnvWrapper.__getattr__` trả `str` nguyên vẹn (`_is_js_instance` trả `False` với `str`), thiếu thì `AttributeError`, rồi `None`, rồi `SettingsError`. Route truyền `scope["env"]` nguyên vẹn.
+- `postgrest_client` tự dựng session giống mặc định của postgrest 2.31.0 (`http2=True`, `follow_redirects=True`), chỉ khác timeout.
+- `docs/DECISIONS.md` D-022, `docs/ARCHITECTURE.md` §2, §3, §6, constitution 1.2.1 (nguyên tắc II, III, IV) và `.env.example` (đủ sáu tên biến) khớp code. `contracts/webhook.md` có dòng đánh dấu cập nhật nhật ký.
+- Các sửa L2-05, L3-01, L3-02, L2-13 trong `claude-b9-settings.json` còn nguyên; luật allow không đổi.
+
+## Lần quét sau
+
+Khi nào: `check.ps1` báo hàng `Repo review | due` (từ 15 file `src/` đổi so với `review-base`), trước deploy để dùng hằng ngày, trước khi viết case study. Cách làm: như mục "Lần quét sau" của `2026-11-01-repo-review.md`, với `review-base` của file này.
