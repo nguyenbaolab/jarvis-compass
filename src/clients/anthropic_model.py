@@ -1,8 +1,17 @@
 """Adapter Anthropic. Chỗ duy nhất của lát này import SDK."""
 
+import re
+import warnings
+
 from anthropic import AsyncAnthropic
 
 from core.llm import ModelError, ModelRequest, ModelResponse, ToolRequest
+
+warnings.filterwarnings(
+    "ignore",
+    message="^" + re.escape("The following transport option(s) are not supported on Emscripten"),
+    category=UserWarning,
+)
 
 _MODEL = "claude-haiku-5-5"
 _MAX_TOKENS = 2048

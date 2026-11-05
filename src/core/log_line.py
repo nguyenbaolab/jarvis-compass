@@ -1,7 +1,24 @@
 """Ghi một dòng JSON dùng chung. Chỉ thư viện chuẩn."""
 
 import json
+import re
 from collections.abc import Callable
+
+_ERROR_CODE = re.compile(r"^[A-Za-z0-9_]{1,16}$")
+
+
+def error_code_of(error: BaseException) -> str | None:
+    """Đọc thuộc tính `code` theo duck typing vì api/ không được import db.
+
+    Trong thực tế chỉ postgrest APIError có thuộc tính này trong các exception tới nhánh kho.
+    """
+
+    code = getattr(error, "code", None)
+    if type(code) is int:
+        return str(code)
+    if type(code) is str and _ERROR_CODE.fullmatch(code):
+        return code
+    return None
 
 
 def default_log(line: str) -> None:

@@ -1,6 +1,6 @@
 # Contract: Webhook Telegram
 
-Cập nhật 2026-11-05: dòng nhật ký của kênh có thêm khóa `reason`, `update_id` và `error_type`; xem docs/ARCHITECTURE.md §6. Đoạn nhật ký bên dưới giữ làm biên bản của spec 013.
+Cập nhật 2026-11-05: dòng nhật ký của kênh có thêm khóa `reason`, `update_id`, `error_type` và `error_code`; xem docs/ARCHITECTURE.md §6. Đoạn nhật ký bên dưới giữ làm biên bản của spec 013, trừ câu về nội dung dòng kênh.
 
 Route nhận update. Mã HTTP đã duyệt. Body của response rỗng ở mọi nhánh.
 
@@ -22,7 +22,7 @@ Route nhận update. Mã HTTP đã duyệt. Body của response rỗng ở mọi
 
 Từ chối và Hoãn khác mã. Bỏ qua và xong cùng 200. Telegram gửi lại khi không nhận 2xx.
 
-Không ghi secret đúng, secret request đưa, token, chữ tin, hay câu trả lời vào response hay vào nhật ký kênh. Kênh ghi thêm một dòng nhật ký chỉ có khóa `outcome` ("defer" hoặc "done") cho mỗi lần nhận đã tới kho, không chứa gì khác, và không đổi bảy khóa tool hay tám khóa mô hình. Nhật ký lượt vẫn là bảy khóa tool và tám khóa mô hình, không thêm khóa.
+Không ghi secret đúng, secret request đưa, token, chữ tin, câu trả lời, hay nội dung lỗi vào response hay vào nhật ký kênh. Dòng kênh có `outcome`, `reason`, thêm `update_id` khi là int, `error_type` khi bắt exception, và `error_code` khi có mã; không ghi message, hint, hay details, và không đổi bảy khóa tool hay tám khóa mô hình. Nhật ký lượt vẫn là bảy khóa tool và tám khóa mô hình, không thêm khóa.
 
 ## Thứ tự
 

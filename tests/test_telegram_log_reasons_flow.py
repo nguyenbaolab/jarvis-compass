@@ -22,7 +22,7 @@ from tests.test_telegram_update_flow import (
     _reply,
 )
 
-_KEYS = {"outcome", "reason", "update_id", "error_type"}
+_KEYS = {"outcome", "reason", "update_id", "error_type", "error_code"}
 _TWO = {"resent", "already_sent", "uncertain_replied"}
 
 
@@ -70,11 +70,14 @@ def _assert_channel(
     reason: str,
     update_id: int,
     error_type: str | None = None,
+    error_code: str | None = None,
 ) -> None:
     assert set(item) <= _KEYS
     keys = ["outcome", "reason", "update_id"]
     if error_type is not None:
         keys.append("error_type")
+    if error_code is not None:
+        keys.append("error_code")
     assert list(item) == keys
     assert item["outcome"] == outcome
     assert item["reason"] == reason
@@ -83,6 +86,10 @@ def _assert_channel(
         assert "error_type" not in item
     else:
         assert item["error_type"] == error_type
+    if error_code is None:
+        assert "error_code" not in item
+    else:
+        assert item["error_code"] == error_code
 
 
 async def _in_flight(update_id: int) -> list[str]:
