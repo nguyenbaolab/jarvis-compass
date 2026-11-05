@@ -1,7 +1,7 @@
 # Read-only repository checks. Windows PowerShell 5.1. ASCII only.
 # Does not edit tracked files or mutate git state. pytest may write caches and delete its own rows in local Supabase.
 # Parameters: -AllowList (required), -Base (default main).
-# Exit 0 when all ten checks pass, 1 when any check fails, 2 on usage errors. The Repo review row is information only.
+# Exit 0 when all eleven checks pass, 1 when any check fails, 2 on usage errors. The Repo review row is information only.
 
 [CmdletBinding()]
 param(
@@ -431,6 +431,10 @@ $turnsPattern = '^\s*(from|import)\s+(clients|db|config|anthropic)\b'
 $turnsRelativePattern = '^\s*from\s+\.+(clients|db|config|anthropic)\b'
 $turns = Invoke-GrepCheck -Name "Turns imports" -Patterns @($turnsPattern, $turnsRelativePattern) -PathSpecs @("src/turns")
 
+$updatePattern = '^\s*(from|import)\s+(clients|db|config|anthropic)\b'
+$updateRelativePattern = '^\s*from\s+\.+(clients|db|config|anthropic)\b'
+$updateImports = Invoke-GrepCheck -Name "Update imports" -Patterns @($updatePattern, $updateRelativePattern) -PathSpecs @("src/api/telegram_update.py")
+
 $toolsPattern = '^\s*(from|import)\s+db\b'
 $toolsRelativePattern = '^\s*from\s+\.+db\b'
 $tools = Invoke-GrepCheck -Name "Tools imports" -Patterns @($toolsPattern, $toolsRelativePattern) -PathSpecs @("src/tools")
@@ -441,7 +445,7 @@ $sdk = Invoke-GrepCheck -Name "SDK imports" -Patterns @($sdkPattern, $sdkRelativ
 
 $envCallPattern = '\bos\.(getenv|environ)\b'
 $envImportPattern = '^\s*from\s+os\s+import\s+.*\b(getenv|environ)\b'
-$envReads = Invoke-GrepCheck -Name "Env reads" -Patterns @($envCallPattern, $envImportPattern) -PathSpecs @("src/turns", "src/clients/anthropic_model.py")
+$envReads = Invoke-GrepCheck -Name "Env reads" -Patterns @($envCallPattern, $envImportPattern) -PathSpecs @("src")
 
 $evalTestsAllow = '^\s*(from|import)\s+tests\.fakes\.memory_plan_store(\s|$)'
 $evalTests = Invoke-GrepCheck -Name "Eval tests imports" -Patterns @('^\s*(from|import)\s+tests\b') -PathSpecs @("evals") -Allow $evalTestsAllow
@@ -492,6 +496,7 @@ Write-Host ("Changed files | {0} | {1}" -f $changedResult, $changedDetail)
 Write-Host ("Core imports | {0} | {1}" -f $core.Result, $core.Detail)
 Write-Host ("Workers imports | {0} | {1}" -f $workers.Result, $workers.Detail)
 Write-Host ("Turns imports | {0} | {1}" -f $turns.Result, $turns.Detail)
+Write-Host ("Update imports | {0} | {1}" -f $updateImports.Result, $updateImports.Detail)
 Write-Host ("Tools imports | {0} | {1}" -f $tools.Result, $tools.Detail)
 Write-Host ("SDK imports | {0} | {1}" -f $sdk.Result, $sdk.Detail)
 Write-Host ("Env reads | {0} | {1}" -f $envReads.Result, $envReads.Detail)
@@ -513,6 +518,9 @@ if ($workers.Result -ne "pass") {
     $anyFail = $true
 }
 if ($turns.Result -ne "pass") {
+    $anyFail = $true
+}
+if ($updateImports.Result -ne "pass") {
     $anyFail = $true
 }
 if ($tools.Result -ne "pass") {

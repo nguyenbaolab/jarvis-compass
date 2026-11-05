@@ -68,7 +68,7 @@ def secrets_match(expected: str, provided: object) -> bool:
 
 
 def current_deps(request: Request) -> TelegramDeps:
-    """Cấu hình từ request.scope['env']. Không đọc os.environ."""
+    """Cấu hình từ request.scope['env'], không từ biến môi trường của tiến trình."""
 
     env = request.scope.get("env")
     if env is None:
