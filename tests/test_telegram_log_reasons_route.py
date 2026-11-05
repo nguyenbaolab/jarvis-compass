@@ -23,7 +23,7 @@ _TEXT = "chu tin khong log"
 _REPLY = "cau tra loi khong log"
 _LEAK = f"boom {_SECRET}"
 _HEADER = {"X-Telegram-Bot-Api-Secret-Token": _SECRET}
-_KEYS = {"outcome", "reason", "update_id", "error_type"}
+_KEYS = {"outcome", "reason", "update_id", "error_type", "error_code"}
 _FORBIDDEN = (_SECRET, _WRONG, _TOKEN, _TEXT, _REPLY, _LEAK)
 
 
@@ -58,6 +58,7 @@ def _assert_channel(
     reason: str,
     update_id: int | None,
     error_type: str | None,
+    error_code: str | None = None,
 ) -> None:
     assert set(item) <= _KEYS
     keys = ["outcome", "reason"]
@@ -65,6 +66,8 @@ def _assert_channel(
         keys.append("update_id")
     if error_type is not None:
         keys.append("error_type")
+    if error_code is not None:
+        keys.append("error_code")
     assert list(item) == keys
     assert item["outcome"] == outcome
     assert item["reason"] == reason
@@ -76,6 +79,10 @@ def _assert_channel(
         assert "error_type" not in item
     else:
         assert item["error_type"] == error_type
+    if error_code is None:
+        assert "error_code" not in item
+    else:
+        assert item["error_code"] == error_code
 
 
 def _forbid(logs: list[str]) -> None:

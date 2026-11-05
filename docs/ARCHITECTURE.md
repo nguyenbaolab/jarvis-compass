@@ -72,7 +72,7 @@ Cloudflare Cron Trigger (giờ cấu hình sẵn)
 
 ## §6 Logging
 
-- Mỗi lần nhận `POST /telegram` ghi đúng một dòng JSON của kênh: khóa `outcome` (`reject`, `ignore`, `defer`, `done`) và `reason` (mã đóng, định nghĩa ở `src/api/telegram_update.py`), thêm `update_id` khi body là object có `update_id` kiểu int, và `error_type` (tên lớp exception) khi dòng đến từ một exception bị bắt. Không có token, secret, chữ tin, câu trả lời, hay thông điệp exception.
+- Mỗi lần nhận `POST /telegram` ghi đúng một dòng JSON của kênh: khóa `outcome` (`reject`, `ignore`, `defer`, `done`) và `reason` (mã đóng, định nghĩa ở `src/api/telegram_update.py`), thêm `update_id` khi body là object có `update_id` kiểu int, `error_type` (tên lớp exception) khi dòng đến từ một exception bị bắt, và `error_code` khi có mã. `error_code` đọc thuộc tính `code` bằng duck typing ở `core/log_line.py` vì `api/` không import `db`. Không có token, secret, chữ tin, câu trả lời, thông điệp exception, hint, hay details.
 - Mỗi lần gọi tool ghi một dòng JSON bảy khóa. Mỗi lần gọi mô hình đã kết thúc ghi một dòng JSON tám khóa. Cả hai đi qua hàm log được truyền vào `run_turn`. Không thêm khóa, không thêm thư viện log.
 - `src/clients/telegram.py` đặt logger `httpx` và `httpcore` ở mức WARNING khi import, vì URL `sendMessage` chứa token bot và logger `httpx` ở mức INFO in nguyên URL (FR-017). Việc này chỉ hạ mức log của thư viện, không thêm thư viện log và không thêm dòng log của dự án.
 - Không dùng thư viện log: mỗi dòng JSON đi qua hàm được truyền vào (spec 007, 008), loguru không thêm. Các quy ước code khác: xem constitution, mục Quy ước mã nguồn.

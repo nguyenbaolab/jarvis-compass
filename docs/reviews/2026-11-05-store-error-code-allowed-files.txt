@@ -1,0 +1,12 @@
+src/core/log_line.py
+src/api/telegram_update.py
+src/clients/anthropic_model.py
+tests/test_error_code.py
+tests/test_anthropic_transport_warning.py
+tests/test_telegram_log_reasons_flow.py
+tests/test_telegram_log_reasons_route.py
+docs/ARCHITECTURE.md
+docs/PRODUCT.md
+docs/reviews/2026-11-05-repo-review.md
+docs/reviews/2026-11-05-store-error-code-allowed-files.txt
+specs/013-telegram-channel/contracts/webhook.md
