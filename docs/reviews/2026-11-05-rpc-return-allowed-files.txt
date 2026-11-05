@@ -1,0 +1,6 @@
+supabase/migrations/20261105150000_rpc_return_values.sql
+src/db/client.py
+tests/test_rpc_returns.py
+docs/DECISIONS.md
+docs/ARCHITECTURE.md
+docs/reviews/**
