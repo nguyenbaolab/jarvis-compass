@@ -8,6 +8,7 @@ from enum import Enum
 
 from core.llm import ModelClient, TextMessage
 from core.log_line import default_log, error_code_of
+from core.morning import is_next_command, render_digest
 from core.plans import PlanStore
 from core.telegram_channel import (
     CONTEXT_LIMIT,
@@ -263,6 +264,33 @@ async def handle_update(
             now,
             remember=False,
             done_reason=REASON_NON_TEXT,
+        )
+        _note(log, outcome, reason, inbound.update_id, error_type, error_code)
+        return outcome
+
+    if is_next_command(inbound.text):
+        try:
+            stored = await plans.list_newest_first()
+        except Exception as error:
+            error_type, error_code = _caught(error)
+            _note(
+                log,
+                Outcome.Defer,
+                REASON_STORE_UNAVAILABLE,
+                inbound.update_id,
+                error_type,
+                error_code,
+            )
+            return Outcome.Defer
+        outcome, reason, error_type, error_code = await _save_context_send(
+            updates,
+            context,
+            sender,
+            inbound,
+            render_digest(stored),
+            now,
+            remember=True,
+            done_reason=REASON_REPLIED,
         )
         _note(log, outcome, reason, inbound.update_id, error_type, error_code)
         return outcome

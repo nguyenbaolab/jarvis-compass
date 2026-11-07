@@ -1,1 +1,1 @@
-"""Proactive check-in cron jobs."""
+"""Lần gửi sáng. Được import config, db, clients và core. Không import workers."""
