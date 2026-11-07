@@ -393,3 +393,36 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Trade-off:** `create or replace` không đổi được kiểu trả, nên migration phải `drop function` đúng chữ ký rồi tạo lại và cấp lại quyền; các hàm chỉ được gọi bởi `service_role` qua Worker nên không có caller nào khác bị ảnh hưởng. Giá trị `false` của hai hàm kênh hiện không được Python kiểm. Test bảo vệ đọc migration, không gọi PostgREST, nên không chứng minh được Worker đọc được body; việc đó được kiểm khi chạy thật.
 
 **Phương án đã bỏ:** bắt `AttributeError` trong `src/db/client.py` rồi coi là thành công: cách đó biến một phản hồi lỗi không có body (ví dụ cổng trả 502 rỗng) thành ghi thành công. Chờ bản sửa của thư viện: không có hạn.
+
+## D-024 — Thứ tự sau F10: ưu tiên, lịch và tải làm trước form và lịch Mini App
+
+**Date:** 2026-11-07 (chốt trong 2026-11-06 đến 2026-11-07)
+
+**Status:** Accepted
+
+**Supersedes:** Phần thứ tự sau F10 của D-020. F10 vẫn đứng trước.
+
+**Bối cảnh:** Kế hoạch thật đầu tiên (2026-11-06, học bảy module Azure trước hết Chủ nhật 08/11) cho thấy kho không có chỗ lưu ngày có cấu trúc: schema chỉ có hai mốc `created_at` và `status_changed_at` ở việc con, không có cột ngày, ưu tiên, sức, việc lặp hay sự kiện. Bot đã nhét ngày vào cuối tiêu đề việc con (ví dụ "(thứ Sáu 06/11)"), nên ngày chỉ là chữ trong tiêu đề: code không lọc, không sắp, không cộng giờ theo ngày được. Mô hình cũng không có đồng hồ: `SYSTEM_PROMPT` là hằng và mỗi lượt không nhận ngày hôm nay hay múi giờ. D-020 đặt thứ tự F11, F10, F17, F18; các nhu cầu mới (ưu tiên, việc hằng ngày, sự kiện đột xuất, quét tải, form nhập kế hoạch) chen vào giữa.
+
+**Quyết định:**
+1. Thứ tự: F11, F10 (vòng đầu thu hẹp, mục 2), F17 mở rộng (ngày, ưu tiên, sức, lịch sử dời việc), việc hằng ngày và sự kiện đột xuất, quét tải, form nhập kế hoạch cùng F18, xếp lịch thích nghi. Mỗi mục một vòng, mỗi vòng theo Spec Kit.
+2. F10 vòng đầu gồm hai thứ: digest sáng tự gửi lúc 08:00 giờ Helsinki quanh năm, kể cả khi đổi giờ mùa; và lệnh cứng `/next`. Cả hai không gọi mô hình và dùng chung một hàm thuần. `/today` và nhắc theo giờ không thuộc vòng đầu; nhắc theo giờ làm sau F17. Khi chưa có ngày, digest chỉ nói được việc chưa làm đầu tiên của mỗi kế hoạch đang chạy.
+3. Ưu tiên đặt ở kế hoạch, ba mức: cao, vừa, thấp. Việc con thừa hưởng và sửa riêng được. Độ gấp do code tính từ hạn, không lưu.
+4. Quỹ giờ là 8 giờ mỗi ngày, không phân biệt thứ, một hằng số trong core. Ngày nghỉ và nghỉ lễ do chủ bot tự báo, ghi như sự kiện cả ngày làm quỹ giờ ngày đó về 0. Không có lịch lễ tự động.
+5. Ước lượng sức S, M, L tương ứng 1, 3, 6 giờ, đặt ở một chỗ cấu hình. Không bắt buộc. Việc chưa có ước lượng tính tạm như M và lời cảnh báo ghi rõ "tính tạm". Không đòi chính xác.
+6. Việc hằng ngày (ví dụ luyện nói tiếng Phần Lan 30 phút, tập thể dục 1 giờ) là một loại riêng, không phải việc con, vì việc con có điểm kết thúc đo được (PRODUCT §9). Việc hằng ngày tính vào quỹ giờ mỗi ngày.
+7. Quét tải khi thêm việc: code cộng giờ của các việc có ngày đó, việc hằng ngày và sự kiện, so với quỹ giờ; vượt khi tổng lớn hơn 8. Đây là cảnh báo mềm, không chặn. Khi vượt, code trả cảnh báo kèm danh sách việc sẽ bị dời nếu chủ bot vẫn thêm; mô hình chỉ nói lại; chủ bot xác nhận mới ghi. Không bao giờ tự dời việc.
+8. Chọn việc dời: kế hoạch ưu tiên thấp nhất trước; bằng nhau thì việc có hạn muộn hơn trước; chủ bot sửa được.
+9. Ghi trước, thông minh sau: sự kiện đột xuất và lịch sử dời việc (việc nào, từ ngày nào sang ngày nào, lý do, thời điểm) là bảng chỉ thêm không sửa. Lịch của F18 chỉ hiển thị các bảng này. Xếp lại lịch bằng mô hình chỉ chạy khi có thay đổi (sự kiện, thêm việc, gia hạn), không chạy hằng ngày.
+10. Form nhập kế hoạch là Telegram Mini App dùng chung khung với F18, xác thực bằng `initData`. Form và `tool_router` gọi chung một use case ở core, không có đường ghi thứ hai vào kho.
+11. Đồng hồ và múi giờ Helsinki là điều kiện đi trước của mọi hành vi về ngày: code phải đưa ngày hôm nay, thứ và múi giờ cho mô hình và cho phần tính tải. Spec F10 chốt cách làm.
+
+**Lý do:**
+- Thích nghi cần vài tuần dữ liệu thật và không điền ngược được. Ngày, sức, sự kiện và lịch sử dời việc phải được ghi từ sớm.
+- F10 vẫn trước vì dựng sẵn cron, dấu mốc "đã gửi" và đồng hồ mà F17, quét tải và nhắc theo giờ đều dùng lại. Digest không gọi mô hình nên không tốn token.
+- Ưu tiên thuộc về mục tiêu nên đặt ở kế hoạch. Quỹ giờ cố định và sức S, M, L thô vì khó ước lượng chính xác; cảnh báo mềm là đủ.
+- Cộng giờ và chọn việc dời do code làm vì mô hình dễ sai số học. Mô hình nói lại, chủ bot quyết.
+
+**Trade-off:** Digest vòng đầu yếu vì chưa có ngày. Sức S, M, L thô nên cảnh báo có thể lệch; mốc 8 giờ cố định bỏ qua ngày nhẹ hay nặng. Form và lịch lùi sau nhiều vòng so với D-020.
+
+**Phương án đã bỏ:** đi thẳng F17 rồi F18 như D-020 (lịch hiển thị chưa đủ dữ liệu để xếp việc); nhét việc hằng ngày vào việc con; để mô hình tự tính tải hoặc tự dời việc; tự động tính ngày lễ; `/today` ở vòng đầu của F10.

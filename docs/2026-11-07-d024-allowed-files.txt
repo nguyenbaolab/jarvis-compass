@@ -1,0 +1,3 @@
+docs/DECISIONS.md
+docs/PRODUCT.md
+docs/2026-11-07-d024-allowed-files.txt
