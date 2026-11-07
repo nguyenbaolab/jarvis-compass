@@ -3,5 +3,6 @@
   "main": "src/entry.py",
   "compatibility_date": "2026-09-13",
   "compatibility_flags": ["python_workers"],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "triggers": { "crons": ["0 5 * * *", "0 6 * * *", "0 7 * * *"] }
 }

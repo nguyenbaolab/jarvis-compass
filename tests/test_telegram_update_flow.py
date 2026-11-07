@@ -1,7 +1,8 @@
 """Luồng handle_update trên kho giả. Không mở mạng. Không ngủ thật."""
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+import json
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
@@ -900,5 +901,129 @@ def test_missing_key_redelivery_does_not_send_again() -> None:
         assert [(row.update_id, row.role, row.body) for row in after] == [
             (row.update_id, row.role, row.body) for row in before
         ]
+
+    asyncio.run(scenario())
+
+
+_CHANNEL_KEYS = {"outcome", "reason", "update_id", "error_type", "error_code"}
+
+
+def _channel_line(lines: list[str]) -> dict[str, object]:
+    assert len(lines) == 1
+    payload = json.loads(lines[0])
+    assert set(payload) <= _CHANNEL_KEYS
+    assert "outcome" in payload
+    assert "reason" in payload
+    return payload
+
+
+async def _two_plans(plans: MemoryPlanStore) -> str:
+    from core.morning import render_digest
+    from core.plans import Subtask, SubtaskStatus
+
+    await plans.add("Cũ", (Subtask(id="a", title="việc cũ", status=SubtaskStatus.PENDING, note="ghi"),))
+    await plans.add("Mới", (Subtask(id="b", title="việc mới", status=SubtaskStatus.PENDING, note=None),))
+    return render_digest(await plans.list_newest_first())
+
+
+def test_next_command_replies_with_render_digest_and_skips_the_model() -> None:
+    from api.telegram_update import Outcome
+    from core.morning import digest_update_id
+    from core.telegram_channel import select_context
+
+    async def scenario() -> None:
+        plans = MemoryPlanStore()
+        text = await _two_plans(plans)
+        store = MemoryTelegramChannel()
+        sender = RecordingSender()
+        model = ScriptModel([_reply("không được gọi", "end_turn")])
+        lines: list[str] = []
+        done = await _go(store, sender, model, Clock(_START), 41, "/next", plans=plans, log=lines)
+        assert done is Outcome.Done
+        assert model.calls == []
+        assert sender.parts == [(_CHAT, text)]
+        assert text == "Cũ\nviệc cũ\n\nMới\nviệc mới"
+        payload = _channel_line(lines)
+        assert payload["outcome"] == "done"
+        assert payload["reason"] == "replied"
+        assert payload["update_id"] == 41
+        rows = select_context(
+            await store.list_recent(_CHAT, _START - timedelta(hours=1), 20),
+            _START,
+        )
+        assert [(row.role, row.body) for row in rows] == [("user", "/next"), ("assistant", text)]
+        day_id = digest_update_id(date(2026, 6, 1))
+        assert day_id == -20260601
+        assert day_id not in store._updates
+
+    asyncio.run(scenario())
+
+
+def test_next_plan_read_error_defers_without_the_uncertain_sentence() -> None:
+    from api.telegram_update import Outcome
+
+    async def scenario() -> None:
+        store = MemoryTelegramChannel()
+        sender = RecordingSender()
+        model = ScriptModel([_reply(_UNCERTAIN, "end_turn")])
+        lines: list[str] = []
+        deferred = await _go(store, sender, model, Clock(_START), 42, "/next", plans=BoomPlans(), log=lines)
+        assert deferred is Outcome.Defer
+        assert model.calls == []
+        assert sender.parts == []
+        payload = _channel_line(lines)
+        assert payload["outcome"] == "defer"
+        assert payload["reason"] == "store_unavailable"
+        assert _UNCERTAIN not in lines[0]
+        assert store._updates[42].reply is None
+        assert store._updates[42].sent_at is None
+
+    asyncio.run(scenario())
+
+
+def test_next_redelivery_uses_decide_receive() -> None:
+    from api.telegram_update import Outcome
+    from core.plans import Subtask, SubtaskStatus
+
+    async def scenario() -> None:
+        plans = MemoryPlanStore()
+        text = await _two_plans(plans)
+        store = MemoryTelegramChannel()
+        sender = RecordingSender(fail_on=1)
+        model = ScriptModel([_reply("không được gọi", "end_turn")])
+        first = await _go(store, sender, model, Clock(_START), 43, "/next", plans=plans)
+        assert first is Outcome.Defer
+        assert model.calls == []
+        assert sender.parts == []
+        await plans.add("Đổi", (Subtask(id="c", title="việc khác", status=SubtaskStatus.PENDING, note=None),))
+        sender.fail_on = None
+        clock = Clock(_START + timedelta(seconds=1))
+        second = await _go(store, sender, model, clock, 43, "/next", plans=plans)
+        assert second is Outcome.Done
+        assert sender.parts == [(_CHAT, text)]
+        assert model.calls == []
+        sender.parts.clear()
+        clock.moment = _START + timedelta(seconds=2)
+        third = await _go(store, sender, model, clock, 43, "/next", plans=plans)
+        assert third is Outcome.Done
+        assert sender.parts == []
+        assert model.calls == []
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("text", ["/start", "/next hôm nay", "/next@bot"])
+def test_plain_texts_still_enter_the_model_turn(text: str) -> None:
+    from api.telegram_update import Outcome
+
+    async def scenario() -> None:
+        store = MemoryTelegramChannel()
+        sender = RecordingSender()
+        model = ScriptModel([_reply("trả lời thường", "end_turn")])
+        done = await _go(store, sender, model, Clock(_START), 44, text, plans=BoomPlans())
+        assert done is Outcome.Done
+        assert len(model.calls) == 1
+        assert _texts(model.calls[0])[-1] == ("user", text)
+        assert sender.parts == [(_CHAT, "trả lời thường")]
 
     asyncio.run(scenario())
