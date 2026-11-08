@@ -1,0 +1,4 @@
+src/core/system_prompt.py
+tests/test_llm_turn.py
+docs/PRODUCT.md
+docs/2026-11-08-goal-title-allowed-files.txt

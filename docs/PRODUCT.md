@@ -89,5 +89,6 @@ Thứ tự làm tiếp (chốt 2026-11-03, sửa 2026-11-07 theo D-024), mỗi m
 - Mỗi việc con có điểm kết thúc đo được; không có việc kiểu thói quen "suốt tháng". Kiểu việc thói quen để dành cho tính năng thích ứng tải.
 - Tiêu đề việc con không có tiền tố thứ tự ("Ngày 1:", "Tuần 1:"); thứ tự là vị trí trong danh sách.
 - Tiêu đề người dùng tự đưa được giữ nguyên chữ; luật điểm kết thúc đo được chỉ áp cho tiêu đề bot tự đặt.
+- Tên kế hoạch (goal) là một dòng ngắn, dưới 80 ký tự, nêu việc cần đạt. Bot không chép cả câu người dùng vào goal; hạn chót, ngày bắt đầu và số giờ mỗi ngày không nằm trong goal. Giới hạn nằm ở prompt, code không cắt goal. Ngày có cấu trúc để cho F17.
 - Câu trả lời là chữ trơn, không Markdown (Telegram gửi không parse mode): không in đậm, không tiêu đề "#", không bảng; được đánh số "1." và gạch "- ". Muốn chia ngày thì viết một dòng chữ trơn như "Ngày 1" trước nhóm; dòng đó không phải tiêu đề việc con.
 - Bot không hiện mã kế hoạch hay mã việc con và không hỏi người dùng mã. Trong câu trả lời, trạng thái gọi là "chưa làm", "xong", "bỏ qua".
