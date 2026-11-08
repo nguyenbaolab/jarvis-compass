@@ -426,3 +426,35 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Trade-off:** Digest vòng đầu yếu vì chưa có ngày. Sức S, M, L thô nên cảnh báo có thể lệch; mốc 8 giờ cố định bỏ qua ngày nhẹ hay nặng. Form và lịch lùi sau nhiều vòng so với D-020.
 
 **Phương án đã bỏ:** đi thẳng F17 rồi F18 như D-020 (lịch hiển thị chưa đủ dữ liệu để xếp việc); nhét việc hằng ngày vào việc con; để mô hình tự tính tải hoặc tự dời việc; tự động tính ngày lễ; `/today` ở vòng đầu của F10.
+
+## D-025 — Digest sáng: mã âm theo ngày Helsinki, 08:00 tính ở code, ba cron UTC
+
+**Date:** 2026-11-08
+**Status:** Accepted
+
+**Bối cảnh:** F10 vòng đầu (D-024) vào `main` ngày 2026-11-07 khi đường `scheduled` chưa chạy lần nào trên Worker thật. Cron đầu chạy sáng 2026-11-08. Đã quan sát: Trigger events của Worker liệt kê ba cron 05:00, 06:00 và 07:00 (UTC), mỗi cái có lần chạy kế tiếp vào 2026-11-08. Supabase có đúng một hàng `telegram_updates` với `update_id` âm là `-20261108`, bắt đầu 08:00:52 giờ Helsinki, có `reply` dài 284 ký tự và có `sent_at`, cùng đúng một hàng `telegram_context_messages` vai `assistant` cho mã đó. Độ dài khớp chữ bản tin Starter nhận. Chưa quan sát: dòng log `before_eight` của cron 05:00 UTC và dòng `already_sent` của cron 07:00 UTC (hai outcome này không ghi hàng DB); việc không có tin thứ hai lúc 09:00 Helsinki; đường nhiều phần của `split_utf16` trên cloud (chữ chỉ 284 ký tự); `Worker Startup Time` và dung lượng bundle sau khi thêm `tzdata`.
+
+**Quyết định:**
+1. Bản tin của một ngày là một hàng `telegram_updates` có `update_id` âm `-(năm*10000 + tháng*100 + ngày)` theo ngày Helsinki, cùng một hàng `telegram_context_messages` vai `assistant`. Dùng lại bốn RPC của kênh: `claim_telegram_update`, `save_telegram_reply`, `append_telegram_context`, `mark_telegram_sent`. `sent_at` khác null nghĩa là ngày đó đã gửi. Không migration.
+2. `chat_id` của bản tin là số nguyên của `TELEGRAM_OWNER_ID`, đúng nguyên văn (`str(n) == raw`, không cắt khoảng trắng). Sai thì lần chạy `deferred`. Không thêm biến cấu hình.
+3. Cổng 08:00 giờ Helsinki nằm ở code: `zoneinfo` với `Europe/Helsinki` và gói `tzdata`, vì Pyodide không kèm dữ liệu múi giờ. `ZoneInfo` dựng lười ở lần gọi đầu, không ở mức module, để thiếu dữ liệu không làm hỏng import của webhook. Trước 08:00 không claim, không gửi, chỉ ghi dòng log `before_eight`.
+4. Ba cron UTC: `0 5 * * *`, `0 6 * * *`, `0 7 * * *`. Mùa đông (UTC+2): 05:00 UTC là 07:00 Helsinki (`before_eight`), 06:00 UTC gửi, 07:00 UTC thử lại nếu lần trước `deferred`, nếu không thì `already_sent`. Mùa hè (UTC+3): cả ba từ 08:00 trở đi, lần đầu gửi, hai lần sau dư.
+5. Lần chạy `deferred` không `mark_sent`. Lần sau trong ngày gửi lại đúng chữ đã lưu nếu `reply` đã có, và chỉ dựng lại khi `reply` còn null. Bản tin dùng `decide_digest`, không dùng `decide_receive`, nên không bao giờ ghi hay gửi câu `Chưa chắc tin này đã được xử lý.`: quá 90 giây mà `reply` còn null thì dựng lại.
+6. Chỉ đọc boolean của `save_reply_if_absent`: `false` thì không gửi chữ vừa dựng và lần chạy `deferred`. `append_once` và `mark_sent` trả `None`, chỉ xét có ném lỗi hay không. Nếu `mark_sent` ném lỗi sau khi gửi thì `sent_at` còn null và lần sau gửi lại: chấp nhận tin tới hơn một lần. D-023 giữ nguyên.
+7. Lịch sử gửi mô hình không chuẩn hóa vai. Bản tin vào ngữ cảnh như một tin `assistant` thường, nên lịch sử có thể bắt đầu bằng `assistant` hoặc có hai `assistant` liền nhau. Đo ngày 2026-11-07 với `claude-haiku-5-5`, mỗi dạng một lần: dạng bắt đầu bằng `assistant`, dạng hai `assistant` liền nhau và dạng đối chiếu đều trả HTTP 200.
+8. Bản tin không gọi mô hình. `src/scheduler/morning.py` không import `anthropic` và không mở `run_turn`; chữ do hàm thuần `render_digest` dựng.
+
+**Lý do:**
+- Mã update thật của Telegram là số dương tăng dần, nên dải âm không đụng mã thật, và bảng cùng khóa ngoại sẵn có đủ cho hành vi này nên không cần schema mới. Ngữ cảnh tham chiếu `telegram_updates(update_id)` và lượt sau đọc ngữ cảnh theo `chat_id` và `saved_at`, nên bản tin vẫn nằm trong cửa sổ 20 tin, 24 giờ của D-022.
+- Cron của Cloudflare chạy theo UTC và không theo giờ mùa, nên giờ Helsinki do code quyết định. Giờ đổi lúc 01:00 UTC (2026-03-29 và 2026-10-25), trước cả ba cron, và 08:00 Helsinki không rơi vào giờ bị nhảy, nên bảng mùa ở mục 4 đúng cả ngày chuyển mùa.
+- Ba mốc cho phép một lần lỗi được thử lại trong cùng ngày ở cả hai mùa. Một cron duy nhất lúc 06:00 UTC, hoặc bộ 04, 05, 06 UTC, chỉ cho mùa đông một lần từ 08:00.
+- Đọc boolean của `mark_sent` và `append_once` không thêm thông tin: `append_once` không ném lỗi thì dòng đã có, `mark_sent` không ném lỗi thì mốc đã ghi. Muốn đọc phải sửa `src/core/telegram_channel.py`, `src/db/client.py`, `src/db/telegram_channel_store.py` và đồ giả của test, mà spec 014 cấm sửa.
+
+**Trade-off:**
+- Tin có thể tới hơn một lần khi `mark_sent` ném lỗi.
+- Bản tin phụ thuộc gói `tzdata` ghim trong `pyproject.toml`, `uv.lock` và `pylock.toml`. Thiếu dữ liệu thì `helsinki_clock` ném `ZoneInfoNotFoundError` ngoài mọi `try` của `run_morning`: lần chạy `scheduled` lỗi, không có dòng `morning_digest` và không có hàng DB.
+- Độ lệch +2 của mùa đông trên cloud mới được suy từ việc không có hàng nào bắt đầu trước 08:00; dòng `before_eight` với `local_time` `07:00` chưa được đọc.
+- `claim`, `append_once` và `mark_sent` nhận cùng một `instant`, nên mốc thời gian trong DB không cho thấy thứ tự ghi ngữ cảnh trước khi gửi (D-022). Thứ tự đó chỉ có test `test_digest_writes_one_assistant_row_before_send` bảo đảm.
+- Hình dạng lịch sử mỗi dạng đo một lần, chỉ cho `claude-haiku-5-5`. Đổi model thì đo lại trước khi deploy.
+
+**Phương án đã bỏ:** bảng riêng cho ngày bản tin kèm đổi khóa ngoại của `telegram_context_messages` (đụng bảng đang chạy và cần RPC mới cho cùng một hành vi); dải mã dương dành riêng (mã update thật chỉ được biết là số dương, không có trần để chọn dải an toàn); bảng lệch UTC tự viết thay `tzdata` (ngày chuyển mùa đổi theo năm); cờ "bỏ qua 90 giây" trong `decide_receive` (cờ dùng chung dễ làm update thường mất câu chưa chắc); gộp vai cùng loại hoặc chèn tin `user` giả vào lịch sử (thêm mã mà API không đòi).
