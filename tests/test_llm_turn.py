@@ -567,8 +567,8 @@ def test_duration_ms_uses_clock_around_complete(monkeypatch: pytest.MonkeyPatch)
     assert json.loads(logs[0])["duration_ms"] == 1500
 
 
-def test_system_prompt_has_six_laws() -> None:
-    assert PROMPT_VERSION == 2
+def test_system_prompt_has_seven_laws() -> None:
+    assert PROMPT_VERSION == 3
     assert "get_plan_detail" not in SYSTEM_PROMPT
     assert "Friday" not in SYSTEM_PROMPT
     assert SYSTEM_PROMPT.count("trợ lý lập kế hoạch") == 1
@@ -592,6 +592,11 @@ def test_system_prompt_has_six_laws() -> None:
     assert "Khớp đúng một việc thì cập nhật ngay, không hỏi xác nhận." in SYSTEM_PROMPT
     assert "Không khớp hoặc khớp nhiều việc thì hỏi lại." in SYSTEM_PROMPT
     assert "Không đòi bằng chứng." in SYSTEM_PROMPT
+    assert "Khi gọi create_plan, goal là tên ngắn của kế hoạch" in SYSTEM_PROMPT
+    assert "một dòng, dưới 80 ký tự" in SYSTEM_PROMPT
+    assert "Không chép cả câu người dùng vào goal." in SYSTEM_PROMPT
+    assert "Không đưa hạn chót, ngày bắt đầu hay số giờ mỗi ngày vào goal." in SYSTEM_PROMPT
+    assert "Luật giữ nguyên từng chữ ở trên chỉ áp cho tiêu đề việc con." in SYSTEM_PROMPT
 
 
 def test_hung_store_returns_turn_inside_budget(monkeypatch: pytest.MonkeyPatch) -> None:
