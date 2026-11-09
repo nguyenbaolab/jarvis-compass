@@ -70,7 +70,7 @@ Thứ tự làm tiếp (chốt 2026-11-03, sửa 2026-11-07 theo D-024), mỗi m
 1. F11 Telegram bot chạy thật: logic kênh (spec 013) đã xong, đã chạy thật trên `pywrangler dev` và trên cloud (2026-11-05: Workers Paid, migration đã áp, deploy, `setWebhook`, thử thật qua Telegram). Còn mở: Q2-17, Q2-18 và Q2-19 trong `docs/reviews/2026-11-05-repo-review.md`, số đo bộ nhớ và số subrequest trực tiếp.
 2. F10 nhắc việc chủ động, làm trước lịch (D-020). Vòng đầu: digest sáng 08:00 giờ Helsinki và lệnh `/next` (D-024).
 3. F17 mở rộng: ngày, ưu tiên, sức, lịch sử dời việc (D-024).
-4. Việc hằng ngày và sự kiện đột xuất (D-024).
+4. Việc hằng ngày và sự kiện đột xuất (D-024). Mục (a) chuyển sang D-027: không làm trong compass.
 5. Quét tải (D-024).
 6. Form nhập kế hoạch cùng F18 Telegram Mini App có lịch (D-019, D-024). F18 cần F17.
 7. Xếp lịch thích nghi (D-024).
@@ -80,7 +80,7 @@ Thứ tự làm tiếp (chốt 2026-11-03, sửa 2026-11-07 theo D-024), mỗi m
 - Tên tool cụ thể trong jarvis-desktop tool_router (`manage_plan` hoặc tên khác) — cần viết prompt implement riêng cho jarvis-desktop sau khi jarvis-compass có hình hài cơ bản
 - Phiên bản của F17 và F18 (v0.2.0 hay trước đó), và F16 chuyển sang phiên bản nào
 - F01, F02, F09 thuộc MVP nhưng chưa xếp vào thứ tự làm tiếp ở §7
-- Số F cho ưu tiên, việc hằng ngày, sự kiện đột xuất, quét tải, form nhập kế hoạch và xếp lịch thích nghi: cấp khi mở spec của từng mục (D-024)
+- Số F cho ưu tiên, việc hằng ngày, sự kiện đột xuất, quét tải, form nhập kế hoạch và xếp lịch thích nghi: cấp khi mở spec của từng mục (D-024). Việc hằng ngày và sự kiện đột xuất chuyển sang D-027, không cấp số F trong compass; các mục còn lại của dòng này vẫn thuộc compass.
 
 ## §9 Hành vi đã chốt
 
