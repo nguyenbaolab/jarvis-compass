@@ -2,12 +2,13 @@
 
 import asyncio
 import json
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from core.plans import Plan, PlanDomainError, Subtask, SubtaskStatus
 from tests.fakes.memory_plan_store import MemoryPlanStore
-from tools.base import WriteEffect
+from tools.base import TurnContext, WriteEffect
 from tools.plan_tools import create_plan, get_plans
 from tools.saved_reply import REJECTED_SENTENCE
 from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
@@ -75,17 +76,19 @@ class BoomStore(MemoryPlanStore):
         return await super().get(plan_id)
 
 
-def _run(name: object, tool_input: object, store: MemoryPlanStore):
+def _run(name: object, tool_input: object, store: MemoryPlanStore, turn=None):
     """Một lần gọi, đúng một dòng log, rồi trả kết quả, dòng thô, và object."""
 
     lines: list[str] = []
-    result = asyncio.run(execute_tool(name, tool_input, store=store, log=lines.append))
+    result = asyncio.run(
+        execute_tool(name, tool_input, store=store, log=lines.append, turn=turn)
+    )
     assert len(lines) == 1
     assert "\n" not in lines[0]
     assert isinstance(lines[0], str)
     logged = json.loads(lines[0])
     assert list(logged) == _LOG_KEYS
-    assert logged["definitions_version"] == 2
+    assert logged["definitions_version"] == DEFINITIONS_VERSION
     assert isinstance(logged["definitions_version"], int)
     assert isinstance(logged["duration_ms"], int)
     assert logged["duration_ms"] >= 0
@@ -96,7 +99,7 @@ def _run(name: object, tool_input: object, store: MemoryPlanStore):
 
 
 def test_catalog_matches_contract() -> None:
-    assert DEFINITIONS_VERSION == 2
+    assert DEFINITIONS_VERSION == 3
     assert isinstance(DEFINITIONS_VERSION, int)
     assert list(TOOL_DEFINITIONS) == [
         "create_plan",
@@ -105,14 +108,20 @@ def test_catalog_matches_contract() -> None:
         "update_subtask",
         "add_subtask",
         "set_subtask_note",
+        "set_plan_priority",
+        "set_subtask_effort",
+        "reschedule_subtasks",
     ]
     descriptions = {
-        "create_plan": "Tạo một kế hoạch mới từ mục tiêu và danh sách việc con.",
+        "create_plan": "Tạo một kế hoạch mới từ mục tiêu và danh sách việc con. priority là high, medium hoặc low, chỉ đặt khi người dùng nói rõ. Mỗi việc có thể có scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ.",
         "get_plans": "Liệt kê kế hoạch đang có, mới hơn đứng trước, có thể lọc theo từ khóa trong mục tiêu hoặc tiêu đề việc con.",
         "get_plan_detail": "Mở một kế hoạch theo danh tính.",
         "update_subtask": "Đặt trạng thái một việc con thành pending, done hoặc skipped.",
-        "add_subtask": "Thêm một việc con vào cuối một kế hoạch.",
+        "add_subtask": "Thêm một việc con vào cuối một kế hoạch. scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ.",
         "set_subtask_note": "Đặt hoặc xóa ghi chú của một việc con.",
+        "set_plan_priority": "Đặt ưu tiên của một kế hoạch thành high, medium hoặc low, hoặc null để xóa.",
+        "set_subtask_effort": "Đặt sức của một việc con thành S, M hoặc L, hoặc null để xóa.",
+        "reschedule_subtasks": "Đặt hoặc dời ngày của các việc trong một kế hoạch. scheduled_on dạng YYYY-MM-DD, hoặc null để bỏ ngày. Thấy trùng hạn một kế hoạch khác thì chưa ghi; chỉ đặt confirm là true ở lượt sau, khi chủ bot đã đồng ý.",
     }
     for name, description in descriptions.items():
         entry = TOOL_DEFINITIONS[name]
@@ -121,10 +130,49 @@ def test_catalog_matches_contract() -> None:
         assert schema["type"] == "object"
         assert schema["additionalProperties"] is False
     assert TOOL_DEFINITIONS["create_plan"]["input_schema"]["required"] == ["goal"]
-    assert list(TOOL_DEFINITIONS["create_plan"]["input_schema"]["properties"]) == ["goal", "subtasks"]
-    subtasks = TOOL_DEFINITIONS["create_plan"]["input_schema"]["properties"]["subtasks"]
+    assert list(TOOL_DEFINITIONS["create_plan"]["input_schema"]["properties"]) == [
+        "goal",
+        "priority",
+        "subtasks",
+    ]
+    create_fields = TOOL_DEFINITIONS["create_plan"]["input_schema"]["properties"]
+    subtasks = create_fields["subtasks"]
     assert subtasks["type"] == "array"
-    assert subtasks["items"]["type"] == "string"
+    assert subtasks["description"] == (
+        "Mảng các đối tượng. Mỗi đối tượng có title; scheduled_on và effort không bắt buộc."
+    )
+    assert create_fields["priority"]["description"] == (
+        "high, medium hoặc low. Chỉ đặt khi người dùng nói rõ."
+    )
+    assert subtasks["items"]["type"] == "object"
+    assert subtasks["items"]["required"] == ["title"]
+    item_fields = subtasks["items"]["properties"]
+    assert item_fields["scheduled_on"]["description"] == "Ngày YYYY-MM-DD, hoặc null."
+    assert item_fields["effort"]["description"] == "S, M hoặc L. Chỉ đặt khi người dùng nói rõ."
+    add_fields = TOOL_DEFINITIONS["add_subtask"]["input_schema"]["properties"]
+    assert add_fields["scheduled_on"]["description"] == "Ngày YYYY-MM-DD, hoặc null."
+    assert add_fields["effort"]["description"] == "S, M hoặc L. Chỉ đặt khi người dùng nói rõ."
+    assert (
+        TOOL_DEFINITIONS["set_plan_priority"]["input_schema"]["properties"]["priority"][
+            "description"
+        ]
+        == "high, medium hoặc low, hoặc null để xóa."
+    )
+    assert (
+        TOOL_DEFINITIONS["set_subtask_effort"]["input_schema"]["properties"]["effort"][
+            "description"
+        ]
+        == "S, M hoặc L. Chỉ đặt khi người dùng nói rõ."
+    )
+    move_fields = TOOL_DEFINITIONS["reschedule_subtasks"]["input_schema"]["properties"]
+    assert (
+        move_fields["changes"]["items"]["properties"]["scheduled_on"]["description"]
+        == "Ngày YYYY-MM-DD, hoặc null."
+    )
+    assert move_fields["confirm"]["description"] == (
+        "true chỉ khi chủ bot vừa đồng ý tiếp tục dời sau khi bạn báo trùng hạn. "
+        "Mặc định false."
+    )
     assert TOOL_DEFINITIONS["get_plans"]["input_schema"]["required"] == []
     assert list(TOOL_DEFINITIONS["get_plans"]["input_schema"]["properties"]) == ["keyword"]
     assert "enum" not in TOOL_DEFINITIONS["update_subtask"]["input_schema"]["properties"]["status"]
@@ -153,8 +201,8 @@ def test_input_must_be_object(tool_input: object) -> None:
 
 def test_each_tool_has_wrong_type_and_missing_or_extra() -> None:
     cases = [
-        ("create_plan", {"goal": "Học", "subtasks": ["Học hiragana", None]}, "Một phần tử của trường subtasks sai kiểu."),
-        ("create_plan", {"subtasks": ["Học hiragana"]}, "Đầu vào thiếu trường goal."),
+        ("create_plan", {"goal": "Học", "subtasks": [{"title": "Học hiragana"}, None]}, "Một phần tử của trường subtasks sai kiểu."),
+        ("create_plan", {"subtasks": [{"title": "Học hiragana"}]}, "Đầu vào thiếu trường goal."),
         ("get_plans", {"keyword": 1}, "Trường keyword sai kiểu."),
         ("get_plans", {"limit": 1}, "Đầu vào thừa trường limit."),
         ("get_plan_detail", {"plan_id": 1}, "Trường plan_id sai kiểu."),
@@ -266,7 +314,7 @@ def test_valid_calls_dispatch_each_tool() -> None:
     store = MemoryPlanStore()
     created_result, line, _logged = _run(
         "create_plan",
-        {"goal": "Học tiếng Nhật", "subtasks": ["Học hiragana"]},
+        {"goal": "Học tiếng Nhật", "subtasks": [{"title": "Học hiragana"}]},
         store,
     )
     assert "Học tiếng Nhật" in line
@@ -432,7 +480,7 @@ def test_subtasks_not_list() -> None:
     store = GuardStore()
     result, _line, _logged = _run(
         "create_plan",
-        {"goal": "Học", "subtasks": ("Một",)},
+        {"goal": "Học", "subtasks": ({"title": "Một"},)},
         store,
     )
     assert result.output == "Trường subtasks sai kiểu."
@@ -519,11 +567,11 @@ def test_keyword_filters_newest_first_and_two_subtasks() -> None:
     asyncio.run(create_plan("Nấu cơm", store=store))
     created, _line, logged = _run(
         "create_plan",
-        {"goal": "Học tiếng Nhật", "subtasks": ["Hiragana", "Katakana"]},
+        {"goal": "Học tiếng Nhật", "subtasks": [{"title": "Hiragana"}, {"title": "Katakana"}]},
         store,
     )
     assert created.success is True
-    assert logged["input"] == {"goal": "Học tiếng Nhật", "subtasks": ["Hiragana", "Katakana"]}
+    assert logged["input"] == {"goal": "Học tiếng Nhật", "subtasks": [{"title": "Hiragana"}, {"title": "Katakana"}]}
     assert logged["error_type"] is None
     assert logged["detail"] is None
     assert [item["title"] for item in json.loads(created.output)["subtasks"]] == [
@@ -578,7 +626,7 @@ def test_base_exception_escapes_without_log(error: BaseException) -> None:
 
 def test_log_input_matches_sent_object() -> None:
     store = MemoryPlanStore()
-    payload = {"goal": "Học tiếng Nhật", "subtasks": ["Hiragana", "Katakana"]}
+    payload = {"goal": "Học tiếng Nhật", "subtasks": [{"title": "Hiragana"}, {"title": "Katakana"}]}
     result, _line, logged = _run("create_plan", payload, store)
     assert result.success is True
     assert logged["input"] == payload
@@ -760,3 +808,251 @@ def test_broken_catalog_is_unexpected(monkeypatch: pytest.MonkeyPatch) -> None:
     assert result.output == _UNEXPECTED
     assert logged["error_type"] == "unexpected"
     assert store.calls == []
+
+
+_TURN = TurnContext(instant=datetime(2026, 11, 6, 8, 0, tzinfo=timezone(timedelta(hours=2))))
+
+
+def test_each_of_nine_tools_reaches_its_handler() -> None:
+    store = MemoryPlanStore()
+    created = json.loads(
+        asyncio.run(
+            create_plan(
+                "Học tiếng Nhật",
+                [{"title": "Học hiragana", "scheduled_on": "2026-11-06"}],
+                store=store,
+            )
+        ).output
+    )
+    plan_id = created["id"]
+    subtask_id = created["subtasks"][0]["id"]
+    calls = (
+        ("create_plan", {"goal": "Viết báo cáo"}),
+        ("get_plans", {}),
+        ("get_plan_detail", {"plan_id": plan_id}),
+        ("update_subtask", {"plan_id": plan_id, "subtask_id": subtask_id, "status": "pending"}),
+        ("add_subtask", {"plan_id": plan_id, "title": "Mua vở"}),
+        ("set_subtask_note", {"plan_id": plan_id, "subtask_id": subtask_id, "note": "Đợi sách"}),
+        ("set_plan_priority", {"plan_id": plan_id, "priority": "high"}),
+        ("set_subtask_effort", {"plan_id": plan_id, "subtask_id": subtask_id, "effort": "S"}),
+        (
+            "reschedule_subtasks",
+            {
+                "plan_id": plan_id,
+                "changes": [{"subtask_id": subtask_id, "scheduled_on": "2026-11-07"}],
+            },
+        ),
+    )
+    assert len(calls) == 9
+    for name, payload in calls:
+        result, _line, logged = _run(name, payload, store, turn=_TURN)
+        assert result.success is True
+        assert logged["ok"] is True
+
+
+def test_boolean_confirm_is_accepted() -> None:
+    store = MemoryPlanStore()
+    created = json.loads(
+        asyncio.run(
+            create_plan("Học", [{"title": "Học hiragana", "scheduled_on": "2026-11-06"}], store=store)
+        ).output
+    )
+    result, _line, logged = _run(
+        "reschedule_subtasks",
+        {
+            "plan_id": created["id"],
+            "changes": [{"subtask_id": created["subtasks"][0]["id"], "scheduled_on": "2026-11-07"}],
+            "confirm": True,
+        },
+        store,
+        turn=_TURN,
+    )
+    assert result.success is True
+    assert logged["error_type"] is None
+
+
+def test_null_priority_is_accepted() -> None:
+    store = MemoryPlanStore()
+    created = json.loads(asyncio.run(create_plan("Học", store=store)).output)
+    result, _line, logged = _run(
+        "set_plan_priority",
+        {"plan_id": created["id"], "priority": None},
+        store,
+    )
+    assert result.success is True
+    assert logged["error_type"] is None
+    assert json.loads(result.output)["priority"] is None
+
+
+def test_array_of_objects_is_accepted() -> None:
+    store = MemoryPlanStore()
+    result, _line, logged = _run(
+        "create_plan",
+        {"goal": "Học", "subtasks": [{"title": "Học hiragana", "effort": "M"}]},
+        store,
+    )
+    assert result.success is True
+    assert logged["error_type"] is None
+    assert json.loads(result.output)["subtasks"][0]["effort"] == "M"
+
+
+def test_nested_unknown_key_is_invalid_input() -> None:
+    store = GuardStore()
+    payloads = (
+        ("create_plan", {"goal": "Học", "subtasks": [{"title": "Học hiragana", "extra": 1}]}),
+        (
+            "reschedule_subtasks",
+            {
+                "plan_id": "00000000-0000-4000-8000-000000000001",
+                "changes": [
+                    {
+                        "subtask_id": "00000000-0000-4000-8000-000000000002",
+                        "scheduled_on": "2026-11-06",
+                        "extra": 1,
+                    }
+                ],
+            },
+        ),
+    )
+    for name, payload in payloads:
+        result, _line, logged = _run(name, payload, store, turn=_TURN)
+        assert result.success is False
+        assert logged["error_type"] == "invalid_input"
+        assert "extra" in result.output
+    assert store.calls == []
+
+
+def test_update_subtask_rejects_scheduled_on() -> None:
+    store = GuardStore()
+    result, _line, logged = _run(
+        "update_subtask",
+        {
+            "plan_id": "00000000-0000-4000-8000-000000000001",
+            "subtask_id": "00000000-0000-4000-8000-000000000002",
+            "status": "done",
+            "scheduled_on": "2026-11-06",
+        },
+        store,
+    )
+    assert result.success is False
+    assert logged["error_type"] == "invalid_input"
+    assert store.calls == []
+
+
+def test_update_subtask_rejects_effort() -> None:
+    store = GuardStore()
+    result, _line, logged = _run(
+        "update_subtask",
+        {
+            "plan_id": "00000000-0000-4000-8000-000000000001",
+            "subtask_id": "00000000-0000-4000-8000-000000000002",
+            "status": "done",
+            "effort": "S",
+        },
+        store,
+    )
+    assert result.success is False
+    assert logged["error_type"] == "invalid_input"
+    assert store.calls == []
+
+
+def test_update_subtask_rejects_priority() -> None:
+    store = GuardStore()
+    result, _line, logged = _run(
+        "update_subtask",
+        {
+            "plan_id": "00000000-0000-4000-8000-000000000001",
+            "subtask_id": "00000000-0000-4000-8000-000000000002",
+            "status": "done",
+            "priority": "high",
+        },
+        store,
+    )
+    assert result.success is False
+    assert logged["error_type"] == "invalid_input"
+    assert store.calls == []
+
+
+def test_stringified_subtasks_array_is_accepted() -> None:
+    store = MemoryPlanStore()
+    result, _line, logged = _run(
+        "create_plan",
+        {"goal": "Ôn thi", "subtasks": ' [{"title": "Làm đề"}]'},
+        store,
+    )
+    assert result.success is True
+    created = json.loads(result.output)
+    assert len(created["subtasks"]) == 1
+    plans = asyncio.run(store.list_newest_first())
+    assert len(plans) == 1
+    assert logged["input"]["subtasks"] == [{"title": "Làm đề"}]
+
+
+def test_stringified_changes_array_is_accepted() -> None:
+    store = MemoryPlanStore()
+    created = json.loads(
+        asyncio.run(create_plan("Học", [{"title": "Học hiragana"}], store=store)).output
+    )
+    changes = json.dumps(
+        [{"subtask_id": created["subtasks"][0]["id"], "scheduled_on": "2026-11-07"}],
+        ensure_ascii=False,
+    )
+    result, _line, logged = _run(
+        "reschedule_subtasks",
+        {"plan_id": created["id"], "changes": f" {changes}"},
+        store,
+        turn=_TURN,
+    )
+    assert result.success is True
+    assert logged["input"]["changes"] == [
+        {"subtask_id": created["subtasks"][0]["id"], "scheduled_on": "2026-11-07"}
+    ]
+
+
+def test_stringified_array_with_bad_json_is_invalid_input() -> None:
+    store = GuardStore()
+    result, _line, logged = _run(
+        "create_plan",
+        {"goal": "Ôn thi", "subtasks": "[not json"},
+        store,
+    )
+    assert result.success is False
+    assert logged["error_type"] == "invalid_input"
+    assert result.output == "Trường subtasks sai kiểu."
+    assert store.calls == []
+
+
+def test_stringified_non_array_json_is_invalid_input() -> None:
+    store = GuardStore()
+    result, _line, logged = _run(
+        "create_plan",
+        {"goal": "Ôn thi", "subtasks": "{}"},
+        store,
+    )
+    assert result.success is False
+    assert logged["error_type"] == "invalid_input"
+    assert result.output == "Trường subtasks sai kiểu."
+    assert store.calls == []
+
+
+def test_plain_string_subtasks_is_still_invalid_input() -> None:
+    store = GuardStore()
+    result, _line, logged = _run(
+        "create_plan",
+        {"goal": "Ôn thi", "subtasks": "Học bài"},
+        store,
+    )
+    assert result.success is False
+    assert logged["error_type"] == "invalid_input"
+    assert result.output == "Trường subtasks sai kiểu."
+    assert store.calls == []
+
+
+def test_real_array_is_unchanged() -> None:
+    store = MemoryPlanStore()
+    items = [{"title": "Học hiragana"}]
+    payload = {"goal": "Ôn thi", "subtasks": items}
+    result, _line, logged = _run("create_plan", payload, store)
+    assert result.success is True
+    assert payload["subtasks"] is items
+    assert logged["input"]["subtasks"] == items

@@ -1,0 +1,19 @@
+{
+  "name": "trung_han",
+  "plans": [
+    {
+      "goal": "Ôn thi vật lý",
+      "subtasks": [
+        {"title": "Đọc xong tài liệu chương 1", "status": "done", "note": null, "scheduled_on": "2026-11-13"},
+        {"title": "Làm xong bài tập chương 1", "status": "pending", "note": null, "scheduled_on": "2026-11-11"},
+        {"title": "Làm xong đề thi thử", "status": "pending", "note": null, "scheduled_on": "2026-11-13"}
+      ]
+    },
+    {
+      "goal": "Nộp luận văn",
+      "subtasks": [
+        {"title": "Nộp bản cuối cho giáo viên", "status": "pending", "note": null, "scheduled_on": "2026-11-14"}
+      ]
+    }
+  ]
+}

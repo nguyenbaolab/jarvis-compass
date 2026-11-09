@@ -37,3 +37,4 @@
 - Dòng lịch sử chỉ sinh khi một việc đổi từ một ngày sang một ngày khác. Lần đặt ngày đầu và lần bỏ ngày không sinh dòng.
 - Digest và `/next` thêm đoạn ngày do code dựng từ trường ngày. Vòng này sửa `specs/014-morning-digest/spec.md`, `specs/014-morning-digest/contracts/digest-text.md` và `tests/test_morning_text.py`.
 - Sẵn sàng cho `/speckit-plan`.
+- Lần 3, 2026-11-09, trước T036: tình huống hạn tương đối của bộ v2 là năm ca (ba ca bắt buộc và hai ca FR-019, V2-04 và V2-05). 16/16 vẫn đạt. Không còn marker `[NEEDS CLARIFICATION]`. SC-008 có 100% cho hai ca mới.

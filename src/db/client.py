@@ -25,6 +25,10 @@ class StoredPlanConflict(Exception):
     """RPC trả plan_version_conflict. Không chứa câu người dùng."""
 
 
+class StoredMovedAtRequired(Exception):
+    """RPC trả moved_at_required khi đổi từ ngày sang ngày mà thiếu mốc."""
+
+
 # Bằng ngân sách của lượt. Trần từng pha HTTP, không bảo đảm FR-001.
 _HTTP_CEILING_SECONDS = 20.0
 
@@ -45,8 +49,9 @@ def postgrest_client(url: str, key: str) -> AsyncPostgrestClient:
 
 
 _PLAN_COLUMNS = (
-    "id,goal,created_order,version,"
-    "subtasks(id,title,status,note,position,created_at,status_changed_at)"
+    "id,goal,created_order,version,priority,"
+    "subtasks(id,title,status,note,position,created_at,status_changed_at,"
+    "scheduled_on,effort)"
 )
 
 
@@ -62,10 +67,18 @@ def _rpc_object(data: object) -> dict:
     raise ValueError("RPC không trả object kế hoạch.")
 
 
-async def add_plan(client: AsyncPostgrestClient, goal: str, subtasks: list[dict]) -> dict:
-    """Một RPC add_plan. subtasks là mảng JSON, không phải chuỗi."""
+async def add_plan(
+    client: AsyncPostgrestClient,
+    goal: str,
+    subtasks: list[dict],
+    priority: str | None = None,
+) -> dict:
+    """Một RPC add_plan. subtasks là mảng JSON. Ưu tiên trống thành JSON null."""
 
-    response = await client.rpc("add_plan", {"goal": goal, "subtasks": subtasks}).execute()
+    response = await client.rpc(
+        "add_plan",
+        {"goal": goal, "subtasks": subtasks, "priority": priority},
+    ).execute()
     return _rpc_object(response.data)
 
 
@@ -106,8 +119,11 @@ async def replace_plan(
     goal: str,
     subtasks: list[dict],
     expected_version: int,
+    plan_fields: dict | None = None,
+    move_reason: str | None = None,
+    moved_at: datetime | None = None,
 ) -> None:
-    """Một RPC replace_plan. Hàm SQL trả boolean; giá trị không được đọc, lỗi đi qua APIError."""
+    """Một RPC replace_plan. Hàm SQL trả boolean; giá trị không được đọc."""
 
     try:
         await client.rpc(
@@ -117,6 +133,9 @@ async def replace_plan(
                 "goal": goal,
                 "subtasks": subtasks,
                 "expected_version": expected_version,
+                "plan_fields": plan_fields,
+                "move_reason": move_reason,
+                "moved_at": None if moved_at is None else moved_at.isoformat(),
             },
         ).execute()
     except APIError as error:
@@ -124,6 +143,8 @@ async def replace_plan(
             raise StoredPlanMissing from None
         if error.message == "plan_version_conflict":
             raise StoredPlanConflict from None
+        if error.message == "moved_at_required":
+            raise StoredMovedAtRequired from None
         raise
 
 

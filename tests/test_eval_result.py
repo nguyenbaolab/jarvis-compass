@@ -547,3 +547,73 @@ def test_result_file_records_scorer_version(tmp_path: Path) -> None:
     path = write_result(tmp_path, _DAY, (record,), cases_version=1, api_key="")
     body = json.loads(path.read_text(encoding="utf-8"))
     assert body["scorer_version"] == SCORER_VERSION
+
+
+def test_observed_kind_is_out_of_the_rate() -> None:
+    """Kind observed không vào mẫu số và không tăng run_errors."""
+
+    report = summarize(
+        (
+            RunRecord(
+                case_id="a",
+                group="ghi nhận",
+                index=1,
+                kind="observed",
+                reply="Mình nghe.",
+                lines=(),
+                rounds=0,
+                laws=None,
+            ),
+        )
+    )
+    assert report.by_case[0].rate is None
+    assert report.by_case[0].run_errors == 0
+    assert report.by_group[0].rate is None
+
+
+def test_v1_result_shape_is_unchanged(tmp_path: Path) -> None:
+    """Một lần chạy v1 giữ đúng khóa và kiểu cũ."""
+
+    record = RunRecord(
+        case_id="a",
+        group="chỉ kể việc",
+        index=1,
+        kind="scored",
+        reply="Mình nghe.",
+        lines=(_eight(),),
+        rounds=0,
+        laws=_laws(),
+    )
+    path = write_result(tmp_path, _DAY, (record,), cases_version=1, api_key="")
+    body = json.loads(path.read_text(encoding="utf-8"))
+    run = body["runs"][0]
+    assert set(run) == {"id", "index", "kind", "reply", "lines", "rounds", "laws", "manual_titles"}
+    assert isinstance(run["reply"], str)
+    assert isinstance(run["lines"], list)
+    assert isinstance(run["laws"], dict)
+    assert isinstance(run["kind"], str)
+
+
+def test_result_file_stores_both_turns_and_final_store(tmp_path: Path) -> None:
+    """Ca v2 ghi câu và log của hai lượt cùng ảnh kho cuối."""
+
+    record = RunRecord(
+        case_id="V2-14",
+        group="ghi nhận",
+        index=1,
+        kind="observed",
+        reply="lượt hai",
+        lines=(_eight(),),
+        rounds=0,
+        laws=None,
+        earlier_reply="lượt một",
+        earlier_lines=(_eight(),),
+        store_after=(("Học", None, (("Hiragana", "pending", None, None, None),)),),
+    )
+    path = write_result(tmp_path, _DAY, (record,), cases_version=2, api_key="")
+    run = json.loads(path.read_text(encoding="utf-8"))["runs"][0]
+    assert run["reply"] == "lượt hai"
+    assert run["lines"] == [_eight()]
+    assert run["earlier_reply"] == "lượt một"
+    assert run["earlier_lines"] == [_eight()]
+    assert run["store_after"][0][0] == "Học"

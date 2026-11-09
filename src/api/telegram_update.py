@@ -313,6 +313,7 @@ async def handle_update(
         reply = await run_turn(
             inbound.text,
             history,
+            instant=now,
             store=plans,
             api_key=api_key,
             client=client,

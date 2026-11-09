@@ -1,13 +1,26 @@
 """Luật chữ của bản tin sáng. Không đồng hồ, không kênh, không mô hình."""
 
+from datetime import date
+
 from core.morning import is_next_command, render_digest
 from core.plans import Plan, Subtask, SubtaskStatus
 
 _EMPTY = "Không còn việc chưa làm."
 
 
-def _subtask(title: str, status: SubtaskStatus, note: str | None = None) -> Subtask:
-    return Subtask(id=title, title=title, status=status, note=note)
+def _subtask(
+    title: str,
+    status: SubtaskStatus,
+    note: str | None = None,
+    scheduled_on: date | None = None,
+) -> Subtask:
+    return Subtask(
+        id=title,
+        title=title,
+        status=status,
+        note=note,
+        scheduled_on=scheduled_on,
+    )
 
 
 def _plan(order: int, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
@@ -119,3 +132,45 @@ def test_text_has_no_greeting_closing_ids_or_status_names() -> None:
     assert text == "Mục\nViệc"
     for extra in ("Chào", "Xin chào", "pending", "done", "skipped", "plan-9"):
         assert extra not in text
+
+
+def test_dated_pending_title_ends_with_friday_suffix() -> None:
+    plan = _plan(
+        1,
+        "Mục",
+        (_subtask("Nộp bài", SubtaskStatus.PENDING, scheduled_on=date(2026, 11, 6)),),
+    )
+    assert render_digest((plan,)).endswith(" (thứ Sáu 06/11)")
+
+
+def test_sunday_suffix_has_no_thu() -> None:
+    plan = _plan(
+        1,
+        "Mục",
+        (_subtask("Nghỉ", SubtaskStatus.PENDING, scheduled_on=date(2026, 11, 8)),),
+    )
+    text = render_digest((plan,))
+    assert text.endswith(" (Chủ nhật 08/11)")
+    assert "thứ" not in text
+
+
+def test_undated_pending_title_has_no_suffix() -> None:
+    plan = _plan(1, "Mục", (_subtask("Nộp bài", SubtaskStatus.PENDING),))
+    assert render_digest((plan,)) == "Mục\nNộp bài"
+
+
+def test_title_date_text_stays_verbatim_when_field_empty() -> None:
+    title = "Nộp bài (thứ Sáu 06/11)"
+    plan = _plan(1, "Mục", (_subtask(title, SubtaskStatus.PENDING),))
+    assert render_digest((plan,)) == f"Mục\n{title}"
+
+
+def test_past_date_has_no_overdue_word() -> None:
+    plan = _plan(
+        1,
+        "Mục",
+        (_subtask("Nộp bài", SubtaskStatus.PENDING, scheduled_on=date(2026, 11, 1)),),
+    )
+    text = render_digest((plan,))
+    assert "quá hạn" not in text
+    assert text.endswith(" (Chủ nhật 01/11)")

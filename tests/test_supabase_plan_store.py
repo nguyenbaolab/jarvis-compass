@@ -266,3 +266,418 @@ async def _concurrent_replace_keeps_exactly_one() -> None:
     assert [item.title for item in opened.subtasks] == (
         ["Trái"] if opened.goal == "Bản trái" else ["Phải"]
     )
+
+
+def _task(subtask_id: str, **extra: object) -> dict[str, object]:
+    body: dict[str, object] = {
+        "id": subtask_id,
+        "title": "Việc",
+        "status": "pending",
+        "note": "ghi",
+    }
+    body.update(extra)
+    return body
+
+
+async def _rpc(source: dict[str, str], name: str, args: dict[str, object]) -> object:
+    from db.client import postgrest_client
+
+    async with postgrest_client(source["SUPABASE_URL"], source["SUPABASE_KEY"]) as client:
+        response = await client.rpc(name, args).execute()
+    return response.data
+
+
+async def _value(source: dict[str, str], table: str, row_id: str, column: str) -> object:
+    from db.client import postgrest_client
+
+    async with postgrest_client(source["SUPABASE_URL"], source["SUPABASE_KEY"]) as client:
+        response = await (
+            client.from_(table).select(column).eq("id", row_id).maybe_single().execute()
+        )
+    if response is None or not isinstance(response.data, dict):
+        raise AssertionError("không đọc được dòng")
+    return response.data.get(column)
+
+
+async def _seed(source: dict[str, str], task: dict[str, object], priority: str | None) -> str:
+    data = await _rpc(
+        source,
+        "add_plan",
+        {"goal": "Mục tiêu", "subtasks": [task], "priority": priority},
+    )
+    plan_id = data["id"] if isinstance(data, dict) else data[0]["id"]
+    if not isinstance(plan_id, str):
+        raise AssertionError("add_plan không trả id")
+    return plan_id
+
+
+def test_add_plan_two_args_is_not_ambiguous() -> None:
+    asyncio.run(_add_plan_two_args_is_not_ambiguous())
+
+
+async def _add_plan_two_args_is_not_ambiguous() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    await _rpc(
+        source,
+        "add_plan",
+        {"goal": "Hai tham số", "subtasks": [_task(subtask_id)]},
+    )
+    assert await _value(source, "subtasks", subtask_id, "title") == "Việc"
+
+
+def test_replace_plan_four_args_runs() -> None:
+    asyncio.run(_replace_plan_four_args_runs())
+
+
+async def _replace_plan_four_args_runs() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id), None)
+    renamed = _task(subtask_id)
+    renamed["title"] = "Đã sửa"
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [renamed],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", subtask_id, "title") == "Đã sửa"
+
+
+def test_missing_scheduled_on_keeps_stored_date() -> None:
+    asyncio.run(_missing_scheduled_on_keeps_stored_date())
+
+
+async def _missing_scheduled_on_keeps_stored_date() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id, scheduled_on="2026-11-06"), None)
+    kept = _task(subtask_id, effort="S")
+    kept["title"] = "Đã sửa"
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [kept],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", subtask_id, "scheduled_on") == "2026-11-06"
+
+
+def test_missing_effort_keeps_stored_effort() -> None:
+    asyncio.run(_missing_effort_keeps_stored_effort())
+
+
+async def _missing_effort_keeps_stored_effort() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id, effort="M"), None)
+    kept = _task(subtask_id, scheduled_on="2026-11-06")
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [kept],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", subtask_id, "effort") == "M"
+
+
+def test_missing_plan_fields_keeps_priority() -> None:
+    asyncio.run(_missing_plan_fields_keeps_priority())
+
+
+async def _missing_plan_fields_keeps_priority() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id), "high")
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu mới",
+            "subtasks": [_task(subtask_id)],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "plans", plan_id, "priority") == "high"
+
+
+def test_json_null_clears_scheduled_on() -> None:
+    asyncio.run(_json_null_clears_scheduled_on())
+
+
+async def _json_null_clears_scheduled_on() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id, scheduled_on="2026-11-06"), None)
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [_task(subtask_id, scheduled_on=None)],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", subtask_id, "scheduled_on") is None
+
+
+def test_json_null_clears_effort() -> None:
+    asyncio.run(_json_null_clears_effort())
+
+
+async def _json_null_clears_effort() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id, effort="L"), None)
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [_task(subtask_id, effort=None)],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", subtask_id, "effort") is None
+
+
+def test_json_null_clears_priority() -> None:
+    asyncio.run(_json_null_clears_priority())
+
+
+async def _json_null_clears_priority() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id), "low")
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [_task(subtask_id)],
+            "expected_version": 0,
+            "plan_fields": {"priority": None},
+        },
+    )
+    assert await _value(source, "plans", plan_id, "priority") is None
+
+
+def test_missing_note_becomes_null() -> None:
+    asyncio.run(_missing_note_becomes_null())
+
+
+async def _missing_note_becomes_null() -> None:
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id), None)
+    body = _task(subtask_id)
+    del body["note"]
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [body],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", subtask_id, "note") is None
+
+
+def test_add_plan_stores_priority() -> None:
+    asyncio.run(_add_plan_stores_priority())
+
+
+async def _add_plan_stores_priority() -> None:
+    source = await prepare_local_source()
+    plan_id = await _seed(source, _task(str(uuid.uuid4())), "medium")
+    assert await _value(source, "plans", plan_id, "priority") == "medium"
+
+
+def test_clocks_stay_when_status_unchanged() -> None:
+    asyncio.run(_clocks_stay_when_status_unchanged())
+
+
+async def _clocks_stay_when_status_unchanged() -> None:
+    from tests.supabase_plan_db import read_subtask_clocks
+
+    source = await prepare_local_source()
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id), None)
+    created_at, status_changed_at = await read_subtask_clocks(
+        source["SUPABASE_URL"], source["SUPABASE_KEY"], subtask_id
+    )
+    dated = _task(subtask_id, scheduled_on="2026-11-06", effort="S")
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [dated],
+            "expected_version": 0,
+            "plan_fields": {"priority": "high"},
+        },
+    )
+    same_created, same_status = await read_subtask_clocks(
+        source["SUPABASE_URL"], source["SUPABASE_KEY"], subtask_id
+    )
+    assert same_created == created_at
+    assert same_status == status_changed_at
+    done = dict(dated)
+    done["status"] = "done"
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [done],
+            "expected_version": 1,
+            "plan_fields": {"priority": "high"},
+        },
+    )
+    kept_created, moved_status = await read_subtask_clocks(
+        source["SUPABASE_URL"], source["SUPABASE_KEY"], subtask_id
+    )
+    assert kept_created == created_at
+    assert moved_status != status_changed_at
+
+
+async def _one_move(source: dict[str, str]) -> str:
+    subtask_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(subtask_id, scheduled_on="2026-11-06"), None)
+    moved = _task(subtask_id, scheduled_on="2026-11-07")
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [moved],
+            "expected_version": 0,
+            "moved_at": "2026-11-06T08:00:00+02:00",
+        },
+    )
+    from db.client import postgrest_client
+
+    async with postgrest_client(source["SUPABASE_URL"], source["SUPABASE_KEY"]) as client:
+        response = await (
+            client.from_("subtask_date_moves")
+            .select("id")
+            .eq("plan_id", plan_id)
+            .eq("subtask_id", subtask_id)
+            .execute()
+        )
+    rows = response.data
+    if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict):
+        raise AssertionError("không có đúng một dòng lịch sử")
+    move_id = rows[0]["id"]
+    if not isinstance(move_id, str):
+        raise AssertionError("dòng lịch sử thiếu id")
+    return move_id
+
+
+def test_history_trigger_blocks_update() -> None:
+    asyncio.run(_history_trigger_blocks_update())
+
+
+async def _history_trigger_blocks_update() -> None:
+    from postgrest.exceptions import APIError
+
+    from db.client import postgrest_client
+
+    source = await prepare_local_source()
+    move_id = await _one_move(source)
+    with pytest.raises(APIError):
+        async with postgrest_client(source["SUPABASE_URL"], source["SUPABASE_KEY"]) as client:
+            await (
+                client.from_("subtask_date_moves")
+                .update({"reason": "đổi"})
+                .eq("id", move_id)
+                .execute()
+            )
+    assert await _value(source, "subtask_date_moves", move_id, "reason") is None
+
+
+def test_history_trigger_blocks_delete() -> None:
+    asyncio.run(_history_trigger_blocks_delete())
+
+
+async def _history_trigger_blocks_delete() -> None:
+    from postgrest.exceptions import APIError
+
+    from db.client import postgrest_client
+
+    source = await prepare_local_source()
+    move_id = await _one_move(source)
+    with pytest.raises(APIError):
+        async with postgrest_client(source["SUPABASE_URL"], source["SUPABASE_KEY"]) as client:
+            await client.from_("subtask_date_moves").delete().eq("id", move_id).execute()
+    assert await _value(source, "subtask_date_moves", move_id, "to_date") == "2026-11-07"
+
+
+def test_new_subtask_via_replace_plan_keeps_date_and_effort() -> None:
+    asyncio.run(_new_subtask_via_replace_plan_keeps_date_and_effort())
+
+
+async def _new_subtask_via_replace_plan_keeps_date_and_effort() -> None:
+    source = await prepare_local_source()
+    existing_id = str(uuid.uuid4())
+    added_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(existing_id), None)
+    added = _task(added_id, scheduled_on="2026-11-06", effort="M")
+    added["title"] = "Mới"
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [_task(existing_id), added],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", added_id, "scheduled_on") == "2026-11-06"
+    assert await _value(source, "subtasks", added_id, "effort") == "M"
+
+
+def test_new_subtask_without_keys_has_null_date_and_effort() -> None:
+    asyncio.run(_new_subtask_without_keys_has_null_date_and_effort())
+
+
+async def _new_subtask_without_keys_has_null_date_and_effort() -> None:
+    source = await prepare_local_source()
+    existing_id = str(uuid.uuid4())
+    added_id = str(uuid.uuid4())
+    plan_id = await _seed(source, _task(existing_id, scheduled_on="2026-11-06"), None)
+    await _rpc(
+        source,
+        "replace_plan",
+        {
+            "plan_id": plan_id,
+            "goal": "Mục tiêu",
+            "subtasks": [_task(existing_id, scheduled_on="2026-11-06"), _task(added_id)],
+            "expected_version": 0,
+        },
+    )
+    assert await _value(source, "subtasks", added_id, "scheduled_on") is None
+    assert await _value(source, "subtasks", added_id, "effort") is None

@@ -53,7 +53,7 @@ Bộ v1, so với p3-d2 (732.676 token vào, 150 lần). Cách chấm không đ�
 uv run python -m evals.runner evals/cases/v1.json
 ```
 
-Bộ v2. Mỗi ca có mốc riêng. Ca trùng có `follow_up`: lượt hai dùng cùng kho, lịch sử chỉ là tin chủ bot, câu trả lời, rồi tin thứ hai.
+Bộ v2. Mỗi ca có mốc riêng. Ca trùng có `follow_up`: lượt hai dùng cùng kho. History của lượt hai gồm hai tin chữ của lượt một, tin chủ bot rồi câu trả lời của bot. `follow_up` là tin của lượt hai.
 
 ```text
 uv run python -m evals.runner evals/cases/v2.json

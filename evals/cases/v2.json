@@ -1,0 +1,169 @@
+{
+  "cases_version": 2,
+  "cases": [
+    {
+      "id": "V2-01",
+      "group": "hạn tương đối: lưu ngày",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Lập kế hoạch giúp mình ôn thi giải tích, xong trước cuối tuần này.",
+      "dataset": "",
+      "expectation": {"kind": "create_with_deadline", "deadline": "2026-11-15"}
+    },
+    {
+      "id": "V2-02",
+      "group": "hạn tương đối: hỏi lại",
+      "instant": "2026-11-13T10:00:00+02:00",
+      "user_message": "Lập kế hoạch giúp mình ôn thi giải tích, xong trước thứ Sáu.",
+      "dataset": "",
+      "expectation": {"kind": "ask_back_no_write"}
+    },
+    {
+      "id": "V2-03",
+      "group": "hạn tương đối: lưu ngày",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Lập kế hoạch giúp mình ôn thi giải tích, xong vào tuần sau.",
+      "dataset": "",
+      "expectation": {"kind": "create_with_deadline", "deadline": "2026-11-22"}
+    },
+    {
+      "id": "V2-04",
+      "group": "hạn tương đối: lưu ngày",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Lập kế hoạch giúp mình ôn thi giải tích, hạn là thứ Hai.",
+      "dataset": "",
+      "expectation": {"kind": "create_with_deadline", "deadline": "2026-11-16"}
+    },
+    {
+      "id": "V2-05",
+      "group": "hạn tương đối: lưu ngày",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Lập kế hoạch giúp mình ôn thi giải tích, xong trước thứ Sáu tuần sau.",
+      "dataset": "",
+      "expectation": {"kind": "create_with_deadline", "deadline": "2026-11-20"}
+    },
+    {
+      "id": "V2-06",
+      "group": "hạn cả kế hoạch",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Kế hoạch Chạy được 10km phải xong trước ngày 20/11.",
+      "dataset": "ke_hoach_khong_ngay",
+      "expectation": {"kind": "set_deadline_existing", "goal": "Chạy được 10km", "deadline": "2026-11-20"}
+    },
+    {
+      "id": "V2-07",
+      "group": "dời hạn trùng",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Cho kế hoạch Ôn thi vật lý thêm một ngày nữa nhé.",
+      "follow_up": "Ừ, cứ dời đi.",
+      "dataset": "trung_han",
+      "expectation": {
+        "kind": "clash_two_turn",
+        "goal": "Ôn thi vật lý",
+        "other_goal": "Nộp luận văn",
+        "dates": [
+          ["Đọc xong tài liệu chương 1", "2026-11-13"],
+          ["Làm xong bài tập chương 1", "2026-11-11"],
+          ["Làm xong đề thi thử", "2026-11-14"]
+        ],
+        "history_moves": 1
+      }
+    },
+    {
+      "id": "V2-08",
+      "group": "dời ngày không cần xác nhận",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Dời việc Làm xong bài tập chương 1 của kế hoạch Ôn thi vật lý sang ngày 12/11.",
+      "dataset": "trung_han_san",
+      "expectation": {
+        "kind": "reschedule_no_confirm",
+        "goal": "Ôn thi vật lý",
+        "dates": [
+          ["Làm xong bài tập chương 1", "2026-11-12"],
+          ["Làm xong đề thi thử", "2026-11-14"]
+        ],
+        "history_moves": 1
+      }
+    },
+    {
+      "id": "V2-09",
+      "group": "tin dài có ngày",
+      "instant": "2026-11-06T08:00:00+02:00",
+      "user_message": "Mình cần học xong learning path Get started with AI applications and agents on Azure trước hết ngày Chủ nhật 08/11/2026, bắt đầu từ thứ Sáu 06/11, khoảng 8 tiếng mỗi ngày. Lập kế hoạch giúp mình.",
+      "dataset": "",
+      "expectation": {"kind": "long_message_goal"}
+    },
+    {
+      "id": "V2-10",
+      "group": "tin dài có ngày",
+      "instant": "2026-11-09T09:00:00+02:00",
+      "user_message": "Mình cần ôn xong AZ-900 để thi vào ngày 20/11, bắt đầu từ ngày mai, mỗi ngày khoảng 2 tiếng. Lập kế hoạch giúp mình.",
+      "dataset": "",
+      "expectation": {"kind": "long_message_goal"}
+    },
+    {
+      "id": "V2-11",
+      "group": "liệt kê tiêu đề",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Lập kế hoạch học tiếng Nhật với các việc: Học thuộc bảng Hiragana, Học thuộc bảng Katakana, Học 50 chữ Kanji đầu tiên.",
+      "dataset": "",
+      "expectation": {
+        "kind": "verbatim_titles",
+        "titles": ["Học thuộc bảng Hiragana", "Học thuộc bảng Katakana", "Học 50 chữ Kanji đầu tiên"]
+      }
+    },
+    {
+      "id": "V2-12",
+      "group": "nhóm việc mơ hồ",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Mình học xong bảng chữ cái rồi.",
+      "dataset": "bang_chu_cai_tach",
+      "expectation": {"kind": "ask_back_no_write"}
+    },
+    {
+      "id": "V2-13",
+      "group": "ghi nhận",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Mình học xong bảng chữ cái rồi.",
+      "dataset": "bang_chu_cai_gop",
+      "expectation": {"kind": "observe"}
+    },
+    {
+      "id": "V2-14",
+      "group": "ghi nhận",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Mình học xong bảng chữ cái rồi.",
+      "follow_up": "À không, mình mới học xong Hiragana thôi.",
+      "dataset": "bang_chu_cai_gop",
+      "expectation": {"kind": "observe"}
+    },
+    {
+      "id": "V2-15",
+      "group": "ưu tiên do người dùng nêu",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Lập kế hoạch giúp mình ôn thi giải tích, ưu tiên cao.",
+      "dataset": "",
+      "expectation": {"kind": "create_with_priority", "priority": "high"}
+    },
+    {
+      "id": "V2-16",
+      "group": "đặt ưu tiên",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Đặt ưu tiên thấp cho kế hoạch Chạy được 10km.",
+      "dataset": "ke_hoach_khong_ngay",
+      "expectation": {"kind": "set_priority_existing", "goal": "Chạy được 10km", "priority": "low"}
+    },
+    {
+      "id": "V2-17",
+      "group": "đặt sức",
+      "instant": "2026-11-11T10:00:00+02:00",
+      "user_message": "Việc Chạy 10km không nghỉ của kế hoạch Chạy được 10km là việc nặng, ghi sức L giúp mình.",
+      "dataset": "ke_hoach_khong_ngay",
+      "expectation": {
+        "kind": "set_effort_existing",
+        "goal": "Chạy được 10km",
+        "title": "Chạy 10km không nghỉ",
+        "effort": "L"
+      }
+    }
+  ]
+}

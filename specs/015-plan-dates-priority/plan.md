@@ -8,7 +8,7 @@
 
 ## Summary
 
-Kế hoạch có ưu tiên. Việc con có ngày lịch và sức. Hạn của kế hoạch là ngày muộn nhất trong các việc chưa làm có ngày. Đổi từ một ngày sang một ngày khác thì có một dòng lịch sử, do SQL chèn trong `replace_plan`. Ưu tiên ghi lúc tạo qua `add_plan`, và lúc sửa qua `plan_fields` của `replace_plan`. Mô hình nhận ngày hôm nay qua một dòng ghép vào lời hướng dẫn. Mốc nằm trên ngữ cảnh của một lần `run_turn`, cùng chỗ với cờ đã báo trùng. Chín tool. Lời hướng dẫn bản 4. Digest và `/next` thêm đoạn ngày do code dựng. Eval có bộ câu v2, ca trùng chạy hai lượt, và vẫn chạy bộ v1 để so với p3-d2.
+Kế hoạch có ưu tiên. Việc con có ngày lịch và sức. Hạn của kế hoạch là ngày muộn nhất trong các việc chưa làm có ngày. Đổi từ một ngày sang một ngày khác thì có một dòng lịch sử, do SQL chèn trong `replace_plan`. Ưu tiên ghi lúc tạo qua `add_plan`, và lúc sửa qua `plan_fields` của `replace_plan`. Mô hình nhận ngày hôm nay qua một dòng ghép vào lời hướng dẫn. Mốc nằm trên ngữ cảnh của một lần `run_turn`, cùng chỗ với cờ đã báo trùng. Chín tool. Lời hướng dẫn bản 7. Digest và `/next` thêm đoạn ngày do code dựng. Eval có bộ câu v2, ca trùng chạy hai lượt, và vẫn chạy bộ v1 để so với p3-d2.
 
 Lựa chọn và lý do ở [research.md](./research.md). Cột và RPC ở [data-model.md](./data-model.md).
 
@@ -38,7 +38,7 @@ Lựa chọn và lý do ở [research.md](./research.md). Cột và RPC ở [dat
 
 ### Trước Phase 0
 
-- **I. Một nhân vật**: lời hướng dẫn bản 4 giữ câu JARVIS. Không persona mới. Đạt.
+- **I. Một nhân vật**: lời hướng dẫn bản 7 giữ câu JARVIS. Không persona mới. Đạt.
 - **II. Worker không giữ trạng thái**: ngày, ưu tiên, sức và lịch sử ở Supabase. `TurnContext`, gồm mốc và cờ đã báo trùng, chỉ sống trong một lần gọi `run_turn` và mất khi request xong. Đạt.
 - **III. PostgREST**: ghi và đọc kế hoạch vẫn qua `src/db/client.py`. Test đọc bảng lịch sử bằng PostgREST trong `tests/`. Không driver TCP. Đạt.
 - **IV. LLM qua cổng**: không thêm SDK. `run_turn` vẫn gọi `ModelClient`. Đạt.

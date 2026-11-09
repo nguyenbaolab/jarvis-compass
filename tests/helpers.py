@@ -39,11 +39,11 @@ def listed_plans(store: MemoryPlanStore) -> list[dict]:
 def pending_or_done_plan(result: ToolResult) -> dict:
     assert result.success is True
     data = json.loads(result.output)
-    assert set(data) == {"id", "goal", "subtasks"}
+    assert set(data) == {"id", "goal", "priority", "subtasks"}
     assert _UUID.fullmatch(data["id"])
     seen: set[str] = set()
     for item in data["subtasks"]:
-        assert list(item) == ["id", "title", "status", "note"]
+        assert list(item) == ["id", "title", "status", "note", "scheduled_on", "effort"]
         assert isinstance(item["title"], str)
         assert item["status"] in {"pending", "done"}
         assert _UUID.fullmatch(item["id"])
@@ -56,11 +56,11 @@ def pending_or_done_plan(result: ToolResult) -> dict:
 def pending_plan(result: ToolResult) -> dict:
     assert result.success is True
     data = json.loads(result.output)
-    assert set(data) == {"id", "goal", "subtasks"}
+    assert set(data) == {"id", "goal", "priority", "subtasks"}
     assert _UUID.fullmatch(data["id"])
     seen: set[str] = set()
     for item in data["subtasks"]:
-        assert list(item) == ["id", "title", "status", "note"]
+        assert list(item) == ["id", "title", "status", "note", "scheduled_on", "effort"]
         assert isinstance(item["title"], str)
         assert item["status"] == "pending"
         assert _UUID.fullmatch(item["id"])

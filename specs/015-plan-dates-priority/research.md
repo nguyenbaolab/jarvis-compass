@@ -183,22 +183,13 @@ Sửa đúng ba file FR-016: `specs/014-morning-digest/spec.md`, `specs/014-morn
 
 `SCORER_VERSION = 2`. Ca `cases_version == 1` đi đúng hàm chấm bản 1, không đọc ngày, sức, ưu tiên hay lịch sử. Một test trong `tests/test_eval_score.py` lấy một ca v1 và chứng minh kết quả luật trùng với bản chấm 1 trên cùng fixture. Ca v2 đọc ngày, sức, ưu tiên và dòng lịch sử trên `MemoryPlanStore`. Seed ca trùng có sẵn một kế hoạch khác với hạn đã biết.
 
-`Case` thêm `follow_up: str | None = None`. Chỉ ca cần lượt thứ hai, tình huống 2 của User Story 8 và SC-008, đặt chữ này. Đó là tin thứ hai của chủ bot, câu đồng ý trong kịch bản. `run_once` hôm nay gọi một `run_turn` với lịch sử rỗng, nên nó không có lượt chủ bot trả lời. Khi `follow_up` có chữ, runner chạy lượt một trên kho của ca, lấy câu trả lời của bot, chụp kho, rồi chạy lượt hai trên cùng một kho. Lịch sử lượt hai chỉ gồm ba tin chữ: tin chủ bot của lượt một, câu trả lời của bot, rồi tin lượt hai. Không có khối kết quả tool. Đúng sản phẩm: D-022 mục 3 nói ngữ cảnh hội thoại là tin chữ của chủ bot và câu trả lời của bot. Kết quả tool chỉ sống trong một lượt, không đi sang lượt sau. Mỗi lượt là một `run_turn`, nên mỗi lượt có một `TurnContext` riêng. Cờ trùng của lượt một không còn ở lượt hai.
+`Case` thêm `follow_up: str | None = None`. Chỉ ca cần lượt thứ hai, tình huống 2 của User Story 8 và SC-008, đặt chữ này. Đó là tin thứ hai của chủ bot, câu đồng ý trong kịch bản. `run_once` hôm nay gọi một `run_turn` với lịch sử rỗng, nên nó không có lượt chủ bot trả lời. Khi `follow_up` có chữ, runner chạy lượt một trên kho của ca, lấy câu trả lời của bot, chụp kho, rồi chạy lượt hai trên cùng một kho. Hình history, các trường Outcome của ca hai lượt và cách chấm ca trùng nằm ở mục 10a. Không có khối kết quả tool. Đúng sản phẩm: D-022 mục 3 nói ngữ cảnh hội thoại là tin chữ của chủ bot và câu trả lời của bot. Kết quả tool chỉ sống trong một lượt, không đi sang lượt sau. Mỗi lượt là một `run_turn`, nên mỗi lượt có một `TurnContext` riêng. Cờ trùng của lượt một không còn ở lượt hai.
 
 `Outcome` của ca một lượt giữ năm trường đang có trong `evals/turn.py`: `kind`, `reply`, `lines`, `rounds`, `laws`. `lines` là log của đúng lượt đó. Ca v1 không có `follow_up`, nên hình này không đổi và test "chấm giống bản 1" vẫn đọc `laws`.
 
-Ca hai lượt dùng cùng class, thêm hai trường mặc định trống:
-
-- `earlier: TurnLog | None`. `TurnLog` có `kind`, `reply`, `lines`, `rounds` của lượt một. `lines` chỉ chứa dòng log của lượt một.
-- `opening_store: StoreSnapshot | None`. Ảnh kho sau lượt một, trước lượt hai: ngày từng việc và các dòng lịch sử của các `plan_id` trong seed. Ảnh này là bản chép, vì `MemoryPlanStore` bị lượt hai sửa tại chỗ.
-
-Năm trường gốc của ca hai lượt là lượt hai. `laws` là `None` nếu `kind` của một trong hai lượt nằm trong `ERROR_KINDS`. Lượt một lỗi thì không gọi mô hình cho lượt hai. Khi đó `earlier` và `opening_store` để trống, năm trường gốc là lượt một, và `laws` là `None`.
-
-Bộ chấm ca trùng đọc `opening_store` và `earlier.lines`: kho không đổi so với seed, và không có lần gọi `reschedule_subtasks` với `confirm` true. Rồi đọc kho sau lượt hai: chỉ các việc chưa làm đang mang đúng ngày hạn dịch một ngày lịch, mỗi việc đó một dòng lịch sử mới. Việc khác giữ ngày. Bộ chấm không lấy giá trị cờ làm bằng chứng chủ bot đã đồng ý.
-
 Tên file kết quả giữ công thức hiện có: `p{prompt}-d{definitions}-{model}-{ngày}.json`. Lần chạy v1 ra `p4-d3-<model>-<ngày>.json`. Lần chạy v2 cùng ngày ra cùng gốc với hậu tố `-2`, vì `evals/result.py` đã tăng số khi trùng tên. Trường `cases_version` trong file phân biệt hai lần. Chạy v1 trước để file không hậu tố là lần so với p3-d2.
 
-Ước lượng chi phí: bộ v1 là 150 lần gọi mô hình, cùng cỡ p3-d2. Bộ v2 là bảy tình huống, trong đó tình huống 1 có ba ca, tình huống 6 có ca chấm và ca chỉ ghi, tình huống 7 chỉ ghi, mỗi ca ba lần (`RUNS_PER_CASE`). Cỡ khoảng 15 ca. Ca trùng là một ca hai lượt. Số lượt `run_turn` khoảng 14 ca một lượt nhân 3, cộng 1 ca hai lượt nhân 3, tức khoảng 48 lượt. Một lượt có thể gọi mô hình hơn một lần vì vòng tool, trần `TOOL_ROUND_CAP` là 3. Ước lượng thô số lần gọi mô hình của bộ v2 là khoảng 50 đến 70, vẫn nhỏ hơn một nửa lần chạy v1. Cộng thêm token ở mục 11. Không đổi giá đô la ở plan này. Hai lần chạy là hai lần gọi API thật, không phải pytest.
+Ước lượng chi phí: bộ v1 là 150 lần gọi mô hình, cùng cỡ p3-d2. Bộ v2 đúng 14 ca, hai ca hai lượt. Số lượt `run_turn` là 12 ca một lượt nhân 3, cộng 2 ca hai lượt nhân 2 lượt nhân 3, tức 48 lượt. Một lượt có thể gọi mô hình hơn một lần vì vòng tool, trần `TOOL_ROUND_CAP` là 3. Ước lượng thô số lần gọi mô hình của bộ v2 là khoảng 50 đến 70, vẫn nhỏ hơn một nửa lần chạy v1. Cộng thêm token ở mục 11. Không đổi giá đô la ở plan này. Hai lần chạy là hai lần gọi API thật, không phải pytest.
 
 Ca một việc gộp và ca sửa lời có mặt trong báo cáo và không có đạt hay trượt, đúng câu 11.
 
@@ -206,22 +197,107 @@ Ca một việc gộp và ca sửa lời có mặt trong báo cáo và không c�
 
 **Alternatives considered:** Một lệnh chạy cả hai bộ — bỏ, vì spec nói một lần chạy mỗi bộ và hai file kết quả. Nhét `cases_version` vào tên file — bỏ, vì công thức tên đang có và trường trong JSON đã phân biệt. Sửa cách chấm v1 cho đủ chín tool — bỏ, vì câu 10 bắt giữ cách chấm để so với p3-d2. Việc chọn tool đo bằng log, không bằng cách đổi điểm luật cũ. Nhét kết quả tool của lượt một vào lịch sử lượt hai — bỏ, vì D-022 chỉ đưa tin chữ sang lượt sau, và eval sẽ không còn giống sản phẩm. Gộp log hai lượt thành một `lines` — bỏ, vì số vòng tool được tính trong một lượt, và ca lỗi cần biết lượt nào gãy.
 
+## 10a. Mô hình kỳ vọng của eval v2 (chat chốt ở T037, 2026-11-09)
+
+Nguyên tắc: không thêm tên luật. LAW_NAMES và các khóa by_case, by_rule, by_group giữ nguyên. summary.py và result.py chỉ thêm xử lý kind observed, lượt hai và ảnh kho cuối ca. Hành vi mới của v2 nằm trong luật tool và luật store của các nhóm mới. Một ca v2 đạt khi không luật nào là fail, như v1.
+
+### Ca và bộ dữ liệu
+- Case thêm instant (chuỗi ISO 8601 có độ lệch múi giờ, ví dụ 2026-11-11T10:00:00+02:00, đọc thành datetime có múi giờ; thiếu thì None) và follow_up (tin thứ hai; thiếu thì None). Bộ có cases_version 2: loader từ chối khi một ca thiếu instant. Ca v1 không có hai khóa; runner dùng mốc v1 cố định.
+- SubtaskSeed thêm scheduled_on (ngày ISO hoặc None) và effort (S, M, L hoặc None). PlanSeed thêm priority (high, medium, low hoặc None). Khóa vắng là None, nên file v1 không phải viết lại. build_store đưa chúng vào Subtask và Plan.
+- Năm file mới trong evals/datasets/: trung_han.json, trung_han_san.json, ke_hoach_khong_ngay.json, bang_chu_cai_tach.json, bang_chu_cai_gop.json. Nội dung ở mục Seed.
+
+### Nhóm và loại kỳ vọng mới
+Thêm vào Group và vào _KIND của evals/load.py, mỗi nhóm đúng một loại:
+- "hạn tương đối: lưu ngày" -> create_with_deadline. Trường: deadline (ngày ISO).
+- "hạn tương đối: hỏi lại" -> ask_back_no_write. Không trường.
+- "nhóm việc mơ hồ" -> ask_back_no_write. Không trường.
+- "hạn cả kế hoạch" -> set_deadline_existing. Trường: goal, deadline.
+- "dời hạn trùng" -> clash_two_turn. Trường: goal, other_goal, dates, history_moves. Ca bắt buộc có follow_up và bộ dữ liệu.
+- "dời ngày không cần xác nhận" -> reschedule_no_confirm. Trường: goal, dates, history_moves.
+- "tin dài có ngày" -> long_message_goal. Không trường.
+- "liệt kê tiêu đề" -> verbatim_titles. Trường: titles (danh sách chuỗi).
+- "ghi nhận" -> observe. Không trường.
+- "ưu tiên do người dùng nêu" -> create_with_priority. Trường: priority.
+- "đặt ưu tiên" -> set_priority_existing. Trường: goal, priority.
+- "đặt sức" -> set_effort_existing. Trường: goal, title, effort.
+Expectation thêm: deadline (str hoặc None), titles (tuple[str, ...] hoặc None), other_goal (str hoặc None), dates (tuple các cặp (tiêu đề, ngày ISO) hoặc None), history_moves (int hoặc None), priority (high, medium, low hoặc None) và effort (S, M, L hoặc None). Loader kiểm: trường bắt buộc theo loại; ngày ISO hợp lệ; goal, other_goal và mọi tiêu đề trong dates có trong bộ dữ liệu của ca; clash_two_turn có follow_up và bộ dữ liệu.
+
+### Luật tool (names là tên tool theo thứ tự gọi của mọi lượt của ca; READ là get_plans và get_plan_detail)
+- create_with_deadline, long_message_goal, verbatim_titles: names bằng đúng ["create_plan"], như nhóm "nhờ lập kế hoạch" của v1.
+- create_with_priority: names bằng đúng ["create_plan"].
+- set_priority_existing: names là tập con của READ cộng set_plan_priority, và có ít nhất một set_plan_priority.
+- set_effort_existing: names là tập con của READ cộng set_subtask_effort, và có ít nhất một set_subtask_effort.
+- ask_back_no_write: names là tập con của READ (rỗng cũng được).
+- set_deadline_existing: names là tập con của READ cộng reschedule_subtasks, và có ít nhất một reschedule_subtasks.
+- reschedule_no_confirm: như set_deadline_existing, và không lần gọi reschedule_subtasks nào có confirm bằng true.
+- clash_two_turn: lượt 1: names là tập con của READ cộng reschedule_subtasks, có ít nhất một reschedule_subtasks, không lần gọi nào có confirm true. Lượt 2: names là tập con của READ cộng reschedule_subtasks, và có ít nhất một reschedule_subtasks với confirm true.
+- create_plan_count: bằng 1 với create_with_deadline, long_message_goal, verbatim_titles và create_with_priority, bằng 0 với mọi nhóm v2 khác.
+- required, prefix, markdown, self_name: như v1. markdown và self_name chấm cả hai câu trả lời của ca hai lượt.
+
+### Luật store
+Ảnh kho là tuple các kế hoạch, mỗi kế hoạch gồm goal, priority và từng việc (title, status, note, scheduled_on, effort) theo thứ tự; hai ảnh so bằng ==. Lịch sử đọc từ date_moves của kho.
+- create_with_deadline: kho có đúng một kế hoạch; plan_deadline của nó bằng deadline; việc mang ngày đó là việc chưa làm đứng cuối; priority trống và mọi effort trống.
+- long_message_goal: kho có đúng một kế hoạch; goal chỉ một dòng, dưới 80 ký tự, không có mẫu ngày hay giờ; tiêu đề các việc không có mẫu ngày; priority trống và mọi effort trống. Mẫu ngày: dd/mm hoặc dd/mm/yyyy, yyyy-mm-dd; thứ viết hoa từ thứ Hai đến thứ Bảy; thứ viết thường chỉ khi đứng sau vào, trước, đến, hết, hạn hoặc sau; chủ nhật, hôm nay, ngày mai, tuần này, tuần sau và cuối tuần không phân biệt hoa thường. "thứ hai" và "thứ ba" dùng như số thứ tự không phải mẫu ngày. Mẫu giờ: một số liền trước "giờ" hoặc "tiếng", hoặc "h" sát số.
+- verbatim_titles: kho có đúng một kế hoạch; mỗi tiêu đề trong titles có mặt trong kế hoạch đó đúng từng chữ (NFC, bỏ khoảng trắng hai đầu); priority trống và mọi effort trống.
+- create_with_priority: kho có đúng một kế hoạch; priority bằng giá trị kỳ vọng; mọi effort trống.
+- set_priority_existing: ưu tiên của kế hoạch goal bằng giá trị kỳ vọng; ngày, sức, tiêu đề, trạng thái và các kế hoạch khác giống ảnh lúc mở.
+- set_effort_existing: effort của việc title bằng giá trị kỳ vọng; mọi thứ khác giống ảnh lúc mở.
+- ask_back_no_write: ảnh kho sau ca bằng ảnh lúc mở; không có dòng lịch sử.
+- set_deadline_existing: số kế hoạch không đổi; kế hoạch goal có việc chưa làm đứng cuối với scheduled_on bằng deadline; mọi việc khác giữ scheduled_on lúc mở; goal và tiêu đề các việc không đổi.
+- reschedule_no_confirm: scheduled_on của từng việc trong kế hoạch goal bằng dates; kế hoạch khác không đổi; số dòng lịch sử bằng history_moves.
+- clash_two_turn: ảnh sau lượt 1 bằng ảnh lúc mở; sau lượt 2: scheduled_on của từng việc trong kế hoạch goal bằng dates (việc xong và việc có ngày sớm hơn giữ nguyên), kế hoạch other_goal không đổi, số dòng lịch sử bằng history_moves.
+- observe: không chấm.
+
+### Ca ghi nhận
+Ca observe không có đạt hay trượt. Outcome.kind là "observed" và laws là None. evals/summary.py loại kind observed khỏi _scored và khỏi run_errors, nên tỉ lệ của nhóm là None. Báo cáo và file kết quả vẫn ghi câu trả lời của từng lượt, dòng log của từng lượt, và ảnh kho cuối ca ở dạng JSON, để đọc được hành vi.
+
+### Ca hai lượt
+Nếu follow_up khác None: chạy lượt 1; nếu kind là kind lỗi thì dừng và báo kind đó; nếu không thì chạy lượt 2 với user_message là follow_up và history chỉ gồm chữ (tin chủ bot của lượt 1 và câu trả lời của bot ở lượt 1, không có khối tool). Cùng một kho và cùng mốc instant của ca. Outcome thêm earlier (Outcome của lượt 1), opening (ảnh kho lúc mở) và after_first (ảnh kho sau lượt 1). Outcome chính là lượt 2. Luật tool và luật store của clash_two_turn đọc cả hai lượt.
+
+### Seed (nội dung chính xác)
+- trung_han: kế hoạch "Ôn thi vật lý": "Đọc xong tài liệu chương 1" (done, 2026-11-13); "Làm xong bài tập chương 1" (pending, 2026-11-11); "Làm xong đề thi thử" (pending, 2026-11-13). Kế hoạch "Nộp luận văn": "Nộp bản cuối cho giáo viên" (pending, 2026-11-14).
+- trung_han_san: "Ôn thi vật lý": "Làm xong bài tập chương 1" (pending, 2026-11-11); "Làm xong đề thi thử" (pending, 2026-11-14). "Nộp luận văn": "Nộp bản cuối cho giáo viên" (pending, 2026-11-14).
+- ke_hoach_khong_ngay: "Chạy được 10km": "Chạy 6km không nghỉ", "Chạy 8km không nghỉ", "Chạy 10km không nghỉ" (cả ba pending, không ngày).
+- bang_chu_cai_tach: "Học tiếng Nhật cơ bản": "Học thuộc bảng Hiragana", "Học thuộc bảng Katakana" (pending).
+- bang_chu_cai_gop: "Học tiếng Nhật cơ bản": "Học thuộc bảng Hiragana và Katakana", "Học 50 chữ Kanji đầu tiên" (pending).
+
+### Ca của bộ v2
+V2-01 | hạn tương đối: lưu ngày | 2026-11-11T10:00:00+02:00 | "Lập kế hoạch giúp mình ôn thi giải tích, xong trước cuối tuần này." | deadline 2026-11-15.
+V2-02 | hạn tương đối: hỏi lại | 2026-11-13T10:00:00+02:00 | "Lập kế hoạch giúp mình ôn thi giải tích, xong trước thứ Sáu."
+V2-03 | hạn tương đối: lưu ngày | 2026-11-11T10:00:00+02:00 | "Lập kế hoạch giúp mình ôn thi giải tích, xong vào tuần sau." | deadline 2026-11-22.
+V2-04 | hạn tương đối: lưu ngày | 2026-11-11T10:00:00+02:00 | "Lập kế hoạch giúp mình ôn thi giải tích, hạn là thứ Hai." | deadline 2026-11-16.
+V2-05 | hạn tương đối: lưu ngày | 2026-11-11T10:00:00+02:00 | "Lập kế hoạch giúp mình ôn thi giải tích, xong trước thứ Sáu tuần sau." | deadline 2026-11-20.
+V2-06 | hạn cả kế hoạch | 2026-11-11T10:00:00+02:00 | dataset ke_hoach_khong_ngay | "Kế hoạch Chạy được 10km phải xong trước ngày 20/11." | goal "Chạy được 10km", deadline 2026-11-20.
+V2-07 | dời hạn trùng | 2026-11-11T10:00:00+02:00 | dataset trung_han | "Cho kế hoạch Ôn thi vật lý thêm một ngày nữa nhé." | follow_up "Ừ, cứ dời đi." | goal "Ôn thi vật lý", other_goal "Nộp luận văn", dates: "Đọc xong tài liệu chương 1" 2026-11-13, "Làm xong bài tập chương 1" 2026-11-11, "Làm xong đề thi thử" 2026-11-14; history_moves 1.
+V2-08 | dời ngày không cần xác nhận | 2026-11-11T10:00:00+02:00 | dataset trung_han_san | "Dời việc Làm xong bài tập chương 1 của kế hoạch Ôn thi vật lý sang ngày 12/11." | goal "Ôn thi vật lý", dates: "Làm xong bài tập chương 1" 2026-11-12, "Làm xong đề thi thử" 2026-11-14; history_moves 1.
+V2-09 | tin dài có ngày | 2026-11-06T08:00:00+02:00 | "Mình cần học xong learning path Get started with AI applications and agents on Azure trước hết ngày Chủ nhật 08/11/2026, bắt đầu từ thứ Sáu 06/11, khoảng 8 tiếng mỗi ngày. Lập kế hoạch giúp mình."
+V2-10 | tin dài có ngày | 2026-11-09T09:00:00+02:00 | "Mình cần ôn xong AZ-900 để thi vào ngày 20/11, bắt đầu từ ngày mai, mỗi ngày khoảng 2 tiếng. Lập kế hoạch giúp mình."
+V2-11 | liệt kê tiêu đề | 2026-11-11T10:00:00+02:00 | "Lập kế hoạch học tiếng Nhật với các việc: Học thuộc bảng Hiragana, Học thuộc bảng Katakana, Học 50 chữ Kanji đầu tiên." | titles: ba tiêu đề đó.
+V2-12 | nhóm việc mơ hồ | 2026-11-11T10:00:00+02:00 | dataset bang_chu_cai_tach | "Mình học xong bảng chữ cái rồi."
+V2-13 | ghi nhận | 2026-11-11T10:00:00+02:00 | dataset bang_chu_cai_gop | "Mình học xong bảng chữ cái rồi."
+V2-14 | ghi nhận | 2026-11-11T10:00:00+02:00 | dataset bang_chu_cai_gop | "Mình học xong bảng chữ cái rồi." | follow_up "À không, mình mới học xong Hiragana thôi."
+V2-15 | ưu tiên do người dùng nêu | 2026-11-11T10:00:00+02:00 | "Lập kế hoạch giúp mình ôn thi giải tích, ưu tiên cao." | priority high.
+V2-16 | đặt ưu tiên | 2026-11-11T10:00:00+02:00 | dataset ke_hoach_khong_ngay | "Đặt ưu tiên thấp cho kế hoạch Chạy được 10km." | goal "Chạy được 10km", priority low.
+V2-17 | đặt sức | 2026-11-11T10:00:00+02:00 | dataset ke_hoach_khong_ngay | "Việc Chạy 10km không nghỉ của kế hoạch Chạy được 10km là việc nặng, ghi sức L giúp mình." | goal "Chạy được 10km", title "Chạy 10km không nghỉ", effort L.
+Mười bảy ca, mỗi ca chạy ba lần; V2-07 và V2-14 là hai lượt.
+
+### Phần sửa mà mục này kéo theo
+evals/summary.py (kind observed), evals/model.py, evals/load.py, evals/store.py, evals/turn.py, evals/score.py, evals/runner.py, năm file evals/datasets/, evals/cases/v2.json. evals/result.py chỉ sửa khi bắt buộc và nêu lý do. Test: mỗi nhóm mới có một hàm đạt và một hàm trượt cho luật tool và cho luật store; loader từ chối ca v2 thiếu instant, thiếu trường bắt buộc theo loại, goal hay tiêu đề không có trong bộ dữ liệu; hai lượt (lịch sử chỉ chữ, lượt 1 lỗi thì bỏ lượt 2, Outcome có earlier, opening, after_first); summary không đếm observed vào tỉ lệ; mỗi seed nạp được.
+
 ## 11. Chi phí token
 
-**Decision:** Nền p3-d2 là 732.676 token vào cho 150 lần gọi, trung bình khoảng 4.885 token vào mỗi lần. Ba schema tool mới được gửi ở mọi lần gọi. Ước lượng thô phần schema thêm là 500 đến 900 token mỗi lần gọi, tức khoảng +10% đến +20% trên 732.676 cho riêng catalog, ra khoảng 810.000 đến 880.000 token vào cho 150 lần nếu phần còn lại giữ nguyên. Phần trả về của `get_plans` và `get_plan_detail` thêm vài khóa mỗi kế hoạch và mỗi việc. Với một chủ bot và ít kế hoạch, phần này nhỏ hơn phần catalog. Đây là ước lượng theo bề rộng schema, không phải số đo.
+**Decision:** Lần đo p4-d3 ghi 1.199.053 token vào cho 150 lượt bộ v1, so với 732.676 của p3-d2. Cộng khoảng 1.630 token vào mỗi lần gọi, 64% trên bộ v1. Lần đo đó dùng lời hướng dẫn bản 4 và catalog bản 3. Bộ v2 không dùng làm nền, vì số ca khác 150.
 
-Lần đo là lần chạy bộ v1 với lời hướng dẫn bản 4 và catalog bản 3. So tổng `input_tokens` của file `p4-d3-...` với 732.676. Bộ v2 không dùng làm nền, vì số ca khác 150.
+**Rationale:** Số đo thật thay cho ước lượng theo bề rộng schema. Catalog, lời hướng dẫn và khối ngày đi vào mọi lần gọi.
 
-**Rationale:** Catalog đi vào mọi lần gọi, nên nó là khoản thêm chắc. Số đo thật chỉ có sau lần chạy eval, và spec đã bắt lần chạy đó.
-
-**Alternatives considered:** Không ước lượng — bỏ, vì chat cần biết bậc độ lớn trước khi chạy. Coi lần v2 là lần đo token — bỏ, vì không cùng số lần gọi với p3-d2.
+**Alternatives considered:** Giữ ước lượng 500 đến 900 token mỗi lần gọi — bỏ, vì p4-d3 đã có số đo. Coi lần v2 là lần đo token — bỏ, vì không cùng số lần gọi với p3-d2.
 
 ## 12. Docs khi implement
 
 **Decision:** Bước plan không sửa `docs/`. Implement sửa:
 
 - `docs/PRODUCT.md` §3 hàng F17: không còn chỉ "ngày dự kiến cho việc con". Nêu ngày, ưu tiên kế hoạch, sức, lịch sử dời, và xác nhận khi hạn sau lần dời trùng hạn kế hoạch khác. §9: ngày nằm ở trường ngày, không ở tiêu đề mới. Tiêu đề cũ giữ nguyên. Trùng hạn thì báo và chưa ghi cho đến khi chủ bot đồng ý. Khớp đúng một tên vẫn cập nhật ngay.
-- `docs/ARCHITECTURE.md` §2: chín tool, `DEFINITIONS_VERSION` 3, `PROMPT_VERSION` 4, 11 mẫu dòng trong `saved_reply.py`.
+- `docs/ARCHITECTURE.md` §2: chín tool, `DEFINITIONS_VERSION` 3, `PROMPT_VERSION` 5, 11 mẫu dòng trong `saved_reply.py`.
 
 Chat viết một mục D-026 trong `docs/DECISIONS.md`. Cursor chỉ chép chữ chat đã duyệt, không tự viết quyết định. Các điểm đáng vào D-026:
 
@@ -229,7 +305,7 @@ Chat viết một mục D-026 trong `docs/DECISIONS.md`. Cursor chỉ chép ch�
 2. `Plan.priority`, `Subtask.scheduled_on`, `Subtask.effort`, mặc định trống. Hạn và trùng là hàm thuần. `PlanStore.add` nhận ưu tiên keyword, mặc định trống.
 3. Dòng lịch sử do SQL trong `replace_plan` chèn khi ngày đổi từ một ngày sang một ngày khác. Không khóa ngoại. Trigger chặn sửa và xóa. Không `now()` trong SQL.
 4. Tham số RPC mới có `DEFAULT NULL`, gồm `add_plan.priority` và `replace_plan.plan_fields`. Chữ ký cũ bị `drop` rồi tạo lại, nếu không lời gọi cũ không đi vào hàm mới. Khóa vắng không xóa ngày, sức hay ưu tiên đang lưu. JSON null là xóa.
-5. Chín tool, catalog bản 3, lời hướng dẫn bản 4.
+5. Chín tool, catalog bản 3, lời hướng dẫn bản 5.
 6. Kết quả trùng không vào bản ghép D-021. Cờ xác nhận không phải sự đồng ý. Tool dời ngày tự đặt cờ trên ngữ cảnh của lượt. `run_turn` không đọc tên tool. Cờ trong cùng lượt sau một lần báo trùng thì từ chối. Ca eval trùng có lượt thứ hai, lịch sử chỉ là tin chữ.
 7. Digest thêm đoạn ngày do code dựng, không nhận thời điểm hiện tại. Rollback được hỗ trợ là Worker cũ trên schema mới. Gỡ migration không được hỗ trợ.
 
@@ -238,3 +314,18 @@ Diagram trong `docs/architecture/` không sửa, theo D-016.
 **Rationale:** Constitution bắt sửa doc nào trở thành sai trong cùng thay đổi implement. Plan chỉ liệt kê, không viết doc đó. D-026 là quyết định, nên chữ thuộc về chat.
 
 **Alternatives considered:** Viết D-026 ngay trong plan — bỏ, vì người dùng đã tách: chat viết, Cursor chép. Sửa PRODUCT ở bước plan — bỏ, vì bước này chỉ tạo tài liệu trong thư mục spec 015.
+
+## Kết quả p5-d3
+
+v1: tool 134/150, create_plan_count 149/150, nhóm nhờ lập kế hoạch 0,967, tự đặt ưu tiên 1/30 và sức 3/209, token vào 1.440.734. v2: các nhóm hạn tương đối, tin dài và hạn trùng chưa đạt, nguyên nhân là bốn điểm bản 6 sửa.
+
+## Kết quả p6-d3
+
+v1: tool 135/150, create_plan_count 150/150, nhóm nhờ lập kế hoạch 1,000, create_plan invalid_input 0, tự đặt sức 0, ưu tiên tự đặt 4/54. v2: V2-05, V2-06, V2-09 đạt 1,0; V2-07 đạt 2/3 với luồng xác nhận hoạt động; còn V2-03, V2-04, V2-10, V2-01 như đã nêu. Token vào v1 1.650.032 và v2 700.997.
+
+## Kết quả p7-d3 và việc còn mở
+
+Bản được chọn: lời hướng dẫn bản 7, catalog bản 3 (p7-d3, 2026-11-09). Các bản 4, 5, 6 chỉ dùng cho p4-d3, p5-d3, p6-d3.
+v1 (150 lượt): tool 136/150, create_plan_count 150/150, required, prefix, markdown, self_name 150/150, store 45/45; nhóm nhờ lập kế hoạch 1,000; 14 lượt tool trượt còn lại là nhóm xem chi tiết (có từ p3-d2) và một lượt M02; token vào 1.684.520 (p3-d2: 732.676).
+v2 (51 lượt): hạn tương đối: hỏi lại 1,0, lưu ngày 0,833; hạn cả kế hoạch 1,0; dời ngày không cần xác nhận 1,0; liệt kê tiêu đề 1,0; nhóm việc mơ hồ 1,0; ưu tiên nêu rõ, đặt ưu tiên, đặt sức 1,0; dời hạn trùng 0,333; tin dài có ngày 0,667; ghi nhận không chấm. create_plan invalid_input 0; sức tự đặt 0; ưu tiên tự đặt ngoài V2-15 là 3 trên 51 lần tạo.
+Việc còn mở: (1) hạn trùng: mô hình có lượt hỏi trước khi gọi tool, rồi gửi confirm true ở lượt sau mà chủ bot chưa được báo trùng (cờ không là bằng chứng, D-026 mục 6); (2) ở một lượt V2-04 hạn không được lưu lúc tạo dù câu trả lời nói đã đặt, kèm đoạn tiếng Anh ở đầu; (3) ưu tiên tự đặt cho kế hoạch kiểu phỏng vấn, kỳ thi (3 trên 51), hiện chưa nơi nào đọc ưu tiên; (4) get_plans lọc từ khóa nguyên chữ nên "bảng chữ cái" không khớp tên việc (V2-13, V2-14); (5) nhóm xem chi tiết 0/15 từ p3-d2: mô hình dùng get_plans thay get_plan_detail; (6) token vào mỗi lượt gấp khoảng 2,3 lần p3-d2; prompt caching phần cố định (lời hướng dẫn và catalog) là hướng giảm chi phí.

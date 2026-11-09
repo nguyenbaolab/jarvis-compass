@@ -6,9 +6,9 @@ Chữ, thứ tự đoạn, câu khi không có đoạn, và luật khớp `/next
 
 Đặt trong `src/core/morning.py`. Chỉ thư viện chuẩn, gồm `zoneinfo`. Không import `tzdata`, `fastapi`, `pydantic`, `tools`, `db`.
 
-- `render_digest(plans) -> str`. Nhận tuple `Plan`. Tự sắp `created_order` tăng dần. Không gọi mạng, không đọc đồng hồ hệ thống.
+- `render_digest(plans) -> str`. Nhận tuple `Plan`. Tự sắp `created_order` tăng dần. Không gọi mạng, không đọc đồng hồ hệ thống. Việc chưa làm đầu có ngày thì cuối dòng tiêu đề thêm một dấu cách và `(<tên thứ> DD/MM)` dựng từ trường ngày. Không năm, không múi giờ, không chữ quá hạn. Không ngày thì không thêm. Tiêu đề đã lưu giữ nguyên từng chữ.
 - `is_next_command(text) -> bool`. `strip()` rồi `casefold()` bằng `"/next"`. Chỉ nhận `str`.
-- `helsinki_clock(instant) -> (date, time)`. `instant` phải aware, quy về UTC trước khi đổi sang `Europe/Helsinki`.
+- `helsinki_clock(instant) -> (date, time)` định nghĩa ở `src/core/clock.py`. `core.morning` vẫn export. `instant` phải aware, quy về UTC trước khi đổi sang `Europe/Helsinki`.
 - `digest_update_id(day) -> int`. Công thức ở [data-model.md](../data-model.md).
 - `decide_digest(view) -> DigestDecision`. Ba giá trị: xong, gửi lại, dựng. Không nhận đồng hồ. Không có giá trị SaveUncertain.
 

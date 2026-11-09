@@ -1,4 +1,4 @@
-"""Điều phối sáu tool: kiểm đầu vào, gọi tool, ghi một dòng nhật ký."""
+"""Điều phối chín tool: kiểm đầu vào, gọi tool, ghi một dòng nhật ký."""
 
 import json
 import time
@@ -6,13 +6,16 @@ from collections.abc import Awaitable, Callable
 
 from core.log_line import default_log, duration_ms, write_json_line
 from core.plans import PlanDomainError, PlanStore
-from tools.base import Remaining, ToolError, ToolResult, WriteEffect
+from tools.base import Remaining, ToolError, ToolResult, TurnContext, WriteEffect
 from tools.saved_reply import UNAVAILABLE_SENTENCE
 from tools.plan_tools import (
     add_subtask,
     create_plan,
     get_plan_detail,
     get_plans,
+    reschedule_subtasks,
+    set_plan_priority,
+    set_subtask_effort,
     set_subtask_note,
     update_subtask,
 )
@@ -32,7 +35,10 @@ _LOG_KEYS = (
     "detail",
 )
 
-_Handler = Callable[[dict[str, object], PlanStore, Remaining], Awaitable[ToolResult]]
+_Handler = Callable[
+    [dict[str, object], PlanStore, Remaining, TurnContext | None],
+    Awaitable[ToolResult],
+]
 
 
 def _now() -> float:
@@ -68,26 +74,28 @@ async def _create(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
-    """create_plan. Bỏ subtasks khi khóa không có."""
+    """create_plan. Chuyển ưu tiên, ngày và sức khi khóa có mặt."""
 
+    del turn
+    kwargs: dict[str, object] = {}
+    if "priority" in tool_input:
+        kwargs["priority"] = tool_input["priority"]
     if "subtasks" in tool_input:
-        return await create_plan(
-            tool_input["goal"],
-            subtasks=tool_input["subtasks"],
-            store=store,
-            remaining=remaining,
-        )
-    return await create_plan(tool_input["goal"], store=store, remaining=remaining)
+        kwargs["subtasks"] = tool_input["subtasks"]
+    return await create_plan(tool_input["goal"], store=store, remaining=remaining, **kwargs)
 
 
 async def _list(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
     """get_plans. Bỏ keyword khi khóa không có."""
 
+    del turn
     if "keyword" in tool_input:
         return await get_plans(keyword=tool_input["keyword"], store=store, remaining=remaining)
     return await get_plans(store=store, remaining=remaining)
@@ -97,7 +105,9 @@ async def _detail(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
+    del turn
     return await get_plan_detail(tool_input["plan_id"], store=store, remaining=remaining)
 
 
@@ -105,7 +115,9 @@ async def _update(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
+    del turn
     return await update_subtask(
         tool_input["plan_id"],
         tool_input["subtask_id"],
@@ -119,12 +131,20 @@ async def _add(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
+    del turn
+    kwargs: dict[str, object] = {}
+    if "scheduled_on" in tool_input:
+        kwargs["scheduled_on"] = tool_input["scheduled_on"]
+    if "effort" in tool_input:
+        kwargs["effort"] = tool_input["effort"]
     return await add_subtask(
         tool_input["plan_id"],
         tool_input["title"],
         store=store,
         remaining=remaining,
+        **kwargs,
     )
 
 
@@ -132,13 +152,67 @@ async def _note(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
+    del turn
     return await set_subtask_note(
         tool_input["plan_id"],
         tool_input["subtask_id"],
         tool_input["note"],
         store=store,
         remaining=remaining,
+    )
+
+
+async def _priority(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+    turn: TurnContext | None,
+) -> ToolResult:
+    del turn
+    return await set_plan_priority(
+        tool_input["plan_id"],
+        tool_input["priority"],
+        store=store,
+        remaining=remaining,
+    )
+
+
+async def _effort(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+    turn: TurnContext | None,
+) -> ToolResult:
+    del turn
+    return await set_subtask_effort(
+        tool_input["plan_id"],
+        tool_input["subtask_id"],
+        tool_input["effort"],
+        store=store,
+        remaining=remaining,
+    )
+
+
+async def _reschedule(
+    tool_input: dict[str, object],
+    store: PlanStore,
+    remaining: Remaining,
+    turn: TurnContext | None,
+) -> ToolResult:
+    kwargs: dict[str, object] = {}
+    if "reason" in tool_input:
+        kwargs["reason"] = tool_input["reason"]
+    if "confirm" in tool_input:
+        kwargs["confirm"] = tool_input["confirm"]
+    return await reschedule_subtasks(
+        tool_input["plan_id"],
+        tool_input["changes"],
+        store=store,
+        remaining=remaining,
+        turn=turn,
+        **kwargs,
     )
 
 
@@ -149,6 +223,9 @@ _DISPATCH: dict[str, _Handler] = {
     "update_subtask": _update,
     "add_subtask": _add,
     "set_subtask_note": _note,
+    "set_plan_priority": _priority,
+    "set_subtask_effort": _effort,
+    "reschedule_subtasks": _reschedule,
 }
 
 
@@ -156,18 +233,103 @@ def _type_error(name: str, value: object, spec: dict[str, object]) -> str | None
     """Câu sai kiểu của một trường, hoặc None khi đúng kiểu. Schema lạ thì ném."""
 
     kind = spec["type"]
+    if isinstance(kind, list):
+        if value is None and "null" in kind:
+            return None
+        for option in kind:
+            if option == "null":
+                continue
+            if _type_error(name, value, {**spec, "type": option}) is None:
+                return None
+        return _wrong_type(name)
     if kind == "string":
         if isinstance(value, str):
             return None
         return _wrong_type(name)
+    if kind == "boolean":
+        if isinstance(value, bool):
+            return None
+        return _wrong_type(name)
+    if kind == "null":
+        if value is None:
+            return None
+        return _wrong_type(name)
+    if kind == "object":
+        if not isinstance(value, dict):
+            return _wrong_type(name)
+        return _object_error(value, spec)
     if kind == "array":
         if not isinstance(value, list):
             return _wrong_type(name)
+        item_spec = spec.get("items")
+        if not isinstance(item_spec, dict):
+            raise TypeError("Mảng trong catalog thiếu mô tả phần tử.")
+        item_kind = item_spec.get("type")
         for item in value:
-            if not isinstance(item, str):
-                return _wrong_item(name)
+            if item_kind == "string":
+                if not isinstance(item, str):
+                    return _wrong_item(name)
+                continue
+            if item_kind == "object":
+                if not isinstance(item, dict):
+                    return _wrong_item(name)
+                message = _object_error(item, item_spec)
+                if message is not None:
+                    return message
+                continue
+            raise TypeError("Kiểu phần tử trong catalog không được hỗ trợ.")
         return None
     raise TypeError("Kiểu trong catalog không được hỗ trợ.")
+
+
+def _object_error(value: dict[str, object], spec: dict[str, object]) -> str | None:
+    """Khóa lạ và kiểu của object lồng. additionalProperties false thì khóa lạ là lỗi."""
+
+    properties = spec.get("properties", {})
+    required = spec.get("required", [])
+    if not isinstance(properties, dict) or not isinstance(required, list):
+        raise TypeError("Schema object thiếu properties hoặc required.")
+    if spec.get("additionalProperties") is False:
+        for key in value:
+            if key not in properties:
+                return f"Đầu vào thừa trường {key}."
+    for key in required:
+        if not isinstance(key, str):
+            raise TypeError("Tên trường bắt buộc không phải chuỗi.")
+        if key not in value:
+            return f"Đầu vào thiếu trường {key}."
+    for key, field in properties.items():
+        if key not in value:
+            continue
+        if not isinstance(field, dict):
+            raise TypeError("Mô tả trường không phải object.")
+        message = _type_error(str(key), value[key], field)
+        if message is not None:
+            return message
+    return None
+
+
+def _coerce_string_arrays(name: str, tool_input: dict[str, object]) -> None:
+    """Mảng gửi thành chuỗi JSON thì đổi thành list. Chỉ thuộc tính cấp cao nhất."""
+
+    schema = TOOL_DEFINITIONS[name]["input_schema"]
+    if not isinstance(schema, dict):
+        return
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        return
+    for key, spec in properties.items():
+        if key not in tool_input or not isinstance(spec, dict) or spec.get("type") != "array":
+            continue
+        value = tool_input[key]
+        if not isinstance(value, str) or not value.strip().startswith("["):
+            continue
+        try:
+            parsed = json.loads(value.strip())
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, list):
+            tool_input[key] = parsed
 
 
 def _invalid_input(name: str, tool_input: dict[str, object]) -> str | None:
@@ -206,10 +368,11 @@ async def _invoke(
     tool_input: dict[str, object],
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> ToolResult:
-    """Gọi hàm trong bảng tên. Bỏ khóa tùy chọn khi object không có."""
+    """Gọi hàm trong bảng tên. Mọi handler nhận cùng ngữ cảnh lượt."""
 
-    return await _DISPATCH[name](tool_input, store, remaining)
+    return await _DISPATCH[name](tool_input, store, remaining, turn)
 
 
 def _log_tool(name: object) -> object:
@@ -259,6 +422,7 @@ async def _run(
     tool_input: object,
     store: PlanStore,
     remaining: Remaining,
+    turn: TurnContext | None,
 ) -> tuple[ToolResult, str | None, str | None]:
     """Phân loại. BaseException không bị bắt ở đây. Catalog hỏng là unexpected."""
 
@@ -266,6 +430,7 @@ async def _run(
         return _failure(_UNKNOWN, "unknown_tool")
     if not isinstance(tool_input, dict):
         return _failure(_NOT_OBJECT, "invalid_input")
+    _coerce_string_arrays(name, tool_input)
     try:
         message = _invalid_input(name, tool_input)
     except Exception as error:
@@ -273,7 +438,7 @@ async def _run(
     if message is not None:
         return _failure(message, "invalid_input")
     try:
-        result = await _invoke(name, tool_input, store, remaining)
+        result = await _invoke(name, tool_input, store, remaining, turn)
     except (ToolError, PlanDomainError) as error:
         effect = error.effect if isinstance(error, ToolError) else None
         return _failure(str(error), "domain", effect=effect)
@@ -289,10 +454,11 @@ async def execute_tool(
     store: PlanStore,
     log: Callable[[str], None] | None = None,
     remaining: Remaining = None,
+    turn: TurnContext | None = None,
 ) -> ToolResult:
     """Chạy một tool trên kho được truyền vào và ghi đúng một dòng khi có kết quả."""
 
     started = _now()
-    result, error_type, detail = await _run(name, tool_input, store, remaining)
+    result, error_type, detail = await _run(name, tool_input, store, remaining, turn)
     _write_log(name, tool_input, result, error_type, detail, started, log)
     return result

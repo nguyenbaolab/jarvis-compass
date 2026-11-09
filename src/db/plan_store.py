@@ -2,9 +2,22 @@
 
 import uuid
 
-from core.plans import Plan, PlanConflictError, PlanDomainError, Subtask, SubtaskStatus
+from datetime import datetime
+
+from core.plans import (
+    Plan,
+    PlanConflictError,
+    PlanDomainError,
+    Priority,
+    Subtask,
+    SubtaskStatus,
+    normalize_effort,
+    normalize_priority,
+    normalize_scheduled_on,
+)
 from config.settings import require_supabase
 from db.client import (
+    StoredMovedAtRequired,
     StoredPlanConflict,
     StoredPlanMissing,
     add_plan,
@@ -17,6 +30,7 @@ from db.models import PlanRow
 
 _BAD_STATUS = "Trạng thái việc con đã lưu không hợp lệ."
 _MISSING_PLAN = "Không có kế hoạch với danh tính này."
+_MOVED_AT_REQUIRED = "Cần mốc khi đổi từ ngày sang ngày."
 _KNOWN_STATUS = frozenset({"pending", "done", "skipped"})
 
 
@@ -61,6 +75,7 @@ def plan_from_row(data: object) -> Plan:
             "goal": data["goal"],
             "created_order": int(data["created_order"]),
             "version": int(data["version"]),
+            "priority": data.get("priority"),
             "subtasks": normalized_subtasks,
         }
     )
@@ -76,6 +91,8 @@ def plan_from_row(data: object) -> Plan:
                 title=item.title,
                 status=SubtaskStatus(item.status),
                 note=note,
+                scheduled_on=normalize_scheduled_on(item.scheduled_on),
+                effort=normalize_effort(item.effort),
             )
         )
     return Plan(
@@ -84,6 +101,7 @@ def plan_from_row(data: object) -> Plan:
         subtasks=tuple(built),
         created_order=row.created_order,
         version=row.version,
+        priority=normalize_priority(row.priority),
     )
 
 
@@ -94,6 +112,8 @@ def _subtask_payload(subtasks: tuple[Subtask, ...]) -> list[dict]:
             "title": item.title,
             "status": item.status.value,
             "note": item.note,
+            "scheduled_on": None if item.scheduled_on is None else item.scheduled_on.isoformat(),
+            "effort": None if item.effort is None else item.effort.value,
         }
         for item in subtasks
     ]
@@ -105,9 +125,20 @@ class SupabasePlanStore:
     def __init__(self, source: object) -> None:
         self._url, self._key = require_supabase(source)
 
-    async def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
+    async def add(
+        self,
+        goal: str,
+        subtasks: tuple[Subtask, ...],
+        *,
+        priority: Priority | None = None,
+    ) -> Plan:
         async with postgrest_client(self._url, self._key) as client:
-            data = await add_plan(client, goal, _subtask_payload(subtasks))
+            data = await add_plan(
+                client,
+                goal,
+                _subtask_payload(subtasks),
+                None if priority is None else priority.value,
+            )
         return plan_from_row(data)
 
     async def list_newest_first(self) -> tuple[Plan, ...]:
@@ -124,9 +155,16 @@ class SupabasePlanStore:
             return None
         return plan_from_row(row)
 
-    async def replace(self, plan: Plan) -> None:
+    async def replace(
+        self,
+        plan: Plan,
+        *,
+        move_reason: str | None = None,
+        moved_at: datetime | None = None,
+    ) -> None:
         if canonical_plan_id(plan.id) is None:
             raise PlanDomainError(_MISSING_PLAN)
+        priority = None if plan.priority is None else plan.priority.value
         try:
             async with postgrest_client(self._url, self._key) as client:
                 await replace_plan(
@@ -135,8 +173,13 @@ class SupabasePlanStore:
                     plan.goal,
                     _subtask_payload(plan.subtasks),
                     plan.version,
+                    {"priority": priority},
+                    move_reason,
+                    moved_at,
                 )
         except StoredPlanMissing:
             raise PlanDomainError(_MISSING_PLAN) from None
         except StoredPlanConflict:
             raise PlanConflictError() from None
+        except StoredMovedAtRequired:
+            raise PlanDomainError(_MOVED_AT_REQUIRED) from None

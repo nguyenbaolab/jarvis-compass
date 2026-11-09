@@ -3,9 +3,11 @@
 import asyncio
 import json
 import time
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from core.clock import turn_date_line
 from core.llm import ModelError, ModelResponse, TextMessage, ToolRequest
 from core.plans import Plan, PlanConflictError, Subtask, SubtaskStatus
 from core.system_prompt import PROMPT_VERSION, SYSTEM_PROMPT
@@ -15,6 +17,7 @@ from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 from turns.llm_turn import run_turn
 
 _MODEL_ERROR = "Chưa liên lạc được để trả lời lúc này."
+_INSTANT = datetime(2026, 11, 6, 8, 0, tzinfo=timezone(timedelta(hours=2)))
 _NO_REPLY = "Mình chưa có câu trả lời cho tin này."
 _CUT = "Câu trả lời bị cắt vì quá dài."
 _CAP = "Chưa trả lời xong yêu cầu này."
@@ -97,6 +100,7 @@ def _run(
         run_turn(
             message,
             history,
+            instant=_INSTANT,
             store=store,
             api_key=api_key,
             client=client,
@@ -119,7 +123,9 @@ def test_text_reply_does_not_call_store(monkeypatch: pytest.MonkeyPatch) -> None
         store: object,
         log: object = None,
         remaining: object = None,
+        turn: object = None,
     ) -> object:
+        del turn
         calls.append(name)
         return type("Result", (), {"success": True, "output": ""})()
 
@@ -350,6 +356,7 @@ def test_log_failure_still_returns_text() -> None:
         run_turn(
             "xin chào",
             [],
+            instant=_INSTANT,
             store=BoomIfCalled(),
             api_key="caller-key",
             client=client,
@@ -369,10 +376,10 @@ def test_each_call_sends_prompt_and_catalog() -> None:
     _run("xem", [], client, MemoryPlanStore(), "caller-key", [])
     assert len(client.calls) == 2
     for request, _key, _timeout in client.calls:
-        assert request.system == SYSTEM_PROMPT
+        assert request.system == SYSTEM_PROMPT + "\n\n" + turn_date_line(_INSTANT)
         assert request.tools is TOOL_DEFINITIONS
         assert "revise_plan" not in request.tools
-        assert len(request.tools) == 6
+        assert len(request.tools) == 9
 
 
 def _patch_clock(monkeypatch: pytest.MonkeyPatch, marks: tuple[float, ...]) -> None:
@@ -391,7 +398,9 @@ def test_budget_stops_second_tool(monkeypatch: pytest.MonkeyPatch) -> None:
         store: object,
         log: object = None,
         remaining: object = None,
+        turn: object = None,
     ) -> object:
+        del turn
         ran.append(name)
         return type("Result", (), {"success": True, "output": "ok"})()
 
@@ -450,7 +459,9 @@ def test_same_log_object_is_passed_to_execute_tool(
         store: object,
         log: object = None,
         remaining: object = None,
+        turn: object = None,
     ) -> object:
+        del turn
         received.append(log)
         assert log is not None
         log("DÒNG-TOOL-GIẢ")
@@ -471,6 +482,7 @@ def test_same_log_object_is_passed_to_execute_tool(
         run_turn(
             "xem",
             [],
+            instant=_INSTANT,
             store=MemoryPlanStore(),
             api_key="caller-key",
             client=client,
@@ -489,6 +501,7 @@ def test_same_log_object_is_passed_to_execute_tool(
         run_turn(
             "xem",
             [],
+            instant=_INSTANT,
             store=MemoryPlanStore(),
             api_key="caller-key",
             client=client,
@@ -518,6 +531,7 @@ def test_log_cancelled_propagates_and_oserror_keeps_model_error() -> None:
             run_turn(
                 "xin chào",
                 [],
+                instant=_INSTANT,
                 store=MemoryPlanStore(),
                 api_key="caller-key",
                 client=client,
@@ -533,6 +547,7 @@ def test_log_cancelled_propagates_and_oserror_keeps_model_error() -> None:
         run_turn(
             "xin chào",
             [],
+            instant=_INSTANT,
             store=MemoryPlanStore(),
             api_key="caller-key",
             client=client,
@@ -549,6 +564,7 @@ def test_error_log_keeps_model_characters() -> None:
         run_turn(
             "xin chào",
             [],
+            instant=_INSTANT,
             store=MemoryPlanStore(),
             api_key="caller-key",
             client=client,
@@ -567,8 +583,8 @@ def test_duration_ms_uses_clock_around_complete(monkeypatch: pytest.MonkeyPatch)
     assert json.loads(logs[0])["duration_ms"] == 1500
 
 
-def test_system_prompt_has_seven_laws() -> None:
-    assert PROMPT_VERSION == 3
+def test_system_prompt_has_version_seven_laws() -> None:
+    assert PROMPT_VERSION == 7
     assert "get_plan_detail" not in SYSTEM_PROMPT
     assert "Friday" not in SYSTEM_PROMPT
     assert SYSTEM_PROMPT.count("trợ lý lập kế hoạch") == 1
@@ -597,6 +613,66 @@ def test_system_prompt_has_seven_laws() -> None:
     assert "Không chép cả câu người dùng vào goal." in SYSTEM_PROMPT
     assert "Không đưa hạn chót, ngày bắt đầu hay số giờ mỗi ngày vào goal." in SYSTEM_PROMPT
     assert "Luật giữ nguyên từng chữ ở trên chỉ áp cho tiêu đề việc con." in SYSTEM_PROMPT
+    assert "Ngày của việc con đặt vào trường ngày, không viết ngày vào tiêu đề." in SYSTEM_PROMPT
+    assert "Goal không chứa bất kỳ ngày nào, kể cả ngày thi hay ngày nộp." in SYSTEM_PROMPT
+    assert (
+        "Ngày, sức và ưu tiên đi vào tham số của tool, không đi vào tiêu đề. "
+        "Chỉ đặt priority hoặc effort khi người dùng nói rõ mức hoặc nhờ ước lượng. "
+        "Không tự đoán và không hỏi người dùng về chúng. "
+        "Mã của chúng nằm trong mô tả tool. "
+        "Số giờ mỗi ngày người dùng nói không phải sức của từng việc: không đặt effort từ đó. "
+        "Phỏng vấn, kỳ thi hay hạn gần không phải lý do để đặt priority."
+    ) in SYSTEM_PROMPT
+    assert "Không tự đoán và không hỏi người dùng về chúng" in SYSTEM_PROMPT
+    assert (
+        "Người dùng nhờ lập kế hoạch thì gọi create_plan ngay, không gọi get_plans trước. "
+        "Không hỏi thêm về ưu tiên, sức, số buổi hay thời gian mỗi ngày. "
+        "Thiếu thông tin thì tự chọn hợp lý và nói giả định sau khi tạo. "
+        "Chỉ hỏi lại khi luật hạn tương đối bên dưới bảo hỏi lại."
+    ) in SYSTEM_PROMPT
+    assert (
+        "Khi người dùng nêu hạn cho cả kế hoạch, việc chưa làm đứng cuối của kế hoạch "
+        "phải có scheduled_on đúng ngày hạn đó. Khi tạo kế hoạch, mỗi việc là một đối tượng "
+        "có title, và việc cuối có thêm scheduled_on; ví dụ hạn 2026-11-16 thì việc cuối "
+        "có scheduled_on 2026-11-16. Không đặt ngày hạn lên việc đã xong hay bỏ qua. "
+        "Không đưa hạn vào goal hay tiêu đề. Với kế hoạch đã có, gọi reschedule_subtasks ngay, "
+        "không hỏi xác nhận trước."
+    ) in SYSTEM_PROMPT
+    assert (
+        "Dời hạn thêm một ngày nghĩa là chỉ dời sang hôm sau các việc chưa làm đang mang đúng ngày hạn. "
+        "Việc có ngày sớm hơn, việc đã xong và việc bỏ qua giữ nguyên. "
+        "Ví dụ hạn là 13/11, việc A ngày 11/11 và việc B ngày 13/11: chỉ B sang 14/11. "
+        "Người dùng xin dời ngày thì gọi reschedule_subtasks ngay, không hỏi trước. "
+        "Đặt ngày cho việc đã có, hoặc dời ngày, đều dùng reschedule_subtasks."
+    ) in SYSTEM_PROMPT
+    assert (
+        'Hạn tương đối tra theo bảng ngày ở cuối lời hướng dẫn, không tự tính. '
+        '"Cuối tuần này" là Chủ nhật của tuần này. Nếu hôm nay là Chủ nhật thì ngày đó là hôm nay. '
+        "Tên một thứ khi hôm nay chính là thứ đó: hỏi lại và không ghi. "
+        '"Tuần sau" không kèm thứ là Chủ nhật của tuần sau: lưu ngày đó và nói ngày đã chọn. '
+        'Tên một thứ vào ngày khác, khi câu không kèm "tuần sau", là lần tới của thứ đó trong bảng. '
+        '"Thứ X tuần sau" là thứ X ở dòng tuần sau. Khi đã chọn ngày thì nói ngày đó. '
+        "Trường hợp hỏi lại ở trên là ngoại lệ duy nhất của việc tạo ngay: "
+        "không gọi create_plan, chỉ hỏi một câu ngắn xin ngày cụ thể. "
+        'Ví dụ: người dùng nói "xong trước thứ Sáu" khi thứ Sáu là hôm nay: '
+        'hỏi "Ý bạn là hôm nay hay thứ Sáu tuần sau?" và không tạo kế hoạch.'
+    ) in SYSTEM_PROMPT
+    assert (
+        "Khi tool báo trùng hạn một kế hoạch khác: nói kế hoạch kia và hạn của nó, "
+        "hỏi chủ bot có tiếp tục không, không ghi. "
+        "Chủ bot đồng ý ở lượt sau: gọi get_plans để lấy mã, rồi gọi lại reschedule_subtasks "
+        "với đúng các thay đổi đó và confirm true. "
+        'Ví dụ: sau khi bạn báo trùng, chủ bot nói "ừ, cứ dời đi": gọi lại reschedule_subtasks '
+        "với đúng các thay đổi lần trước và confirm true. Không gọi lại mà thiếu confirm."
+    ) in SYSTEM_PROMPT
+    assert "Europe/Helsinki" not in SYSTEM_PROMPT
+    assert "Hôm nay là thứ" not in SYSTEM_PROMPT
+    assert '"Tuần sau" không kèm thứ: hỏi lại và không ghi.' not in SYSTEM_PROMPT
+    assert (
+        '"Tuần sau" không kèm thứ là Chủ nhật của tuần sau: lưu ngày đó và nói ngày đã chọn.'
+        in SYSTEM_PROMPT
+    )
+    assert "Phỏng vấn, kỳ thi hay hạn gần không phải lý do để đặt priority." in SYSTEM_PROMPT
 
 
 def test_hung_store_returns_turn_inside_budget(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -626,6 +702,7 @@ def test_hung_store_returns_turn_inside_budget(monkeypatch: pytest.MonkeyPatch) 
         return await run_turn(
             "lập kế hoạch",
             [],
+            instant=_INSTANT,
             store=_HangAdd(),
             api_key="caller-key",
             client=client,
@@ -658,7 +735,7 @@ class _StepClient:
 def _create(goal: str, titles: list[str] | None = None) -> ModelResponse:
     tool_input: dict[str, object] = {"goal": goal}
     if titles is not None:
-        tool_input["subtasks"] = titles
+        tool_input["subtasks"] = [{"title": title} for title in titles]
     return _reply("", "tool_use", (_tool("t-create", "create_plan", tool_input),))
 
 
@@ -668,6 +745,7 @@ def _turn(steps: list[object], store: MemoryPlanStore | None = None) -> str:
         run_turn(
             "lập",
             [],
+            instant=_INSTANT,
             store=MemoryPlanStore() if store is None else store,
             api_key="caller-key",
             client=client,
@@ -797,6 +875,7 @@ def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch)
             run_turn(
                 "lập",
                 [],
+                instant=_INSTANT,
                 store=_HangAdd(),
                 api_key="caller-key",
                 client=_StepClient([_create("Học tiếng Nhật"), RuntimeError("model down")]),
@@ -848,6 +927,7 @@ def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch)
                 run_turn(
                     "lập",
                     [],
+                    instant=_INSTANT,
                     store=_HangAdd(),
                     api_key="caller-key",
                     client=_StepClient([_create("Học tiếng Nhật"), _reply(blank, "end_turn")]),
@@ -908,6 +988,7 @@ def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch)
             run_turn(
                 "lập",
                 [],
+                instant=_INSTANT,
                 store=_HangReplace(),
                 api_key="caller-key",
                 client=_StepClient([_create("Học tiếng Nhật"), _add, RuntimeError("model down")]),
@@ -925,6 +1006,7 @@ def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch)
             run_turn(
                 "lập",
                 [],
+                instant=_INSTANT,
                 store=_HangReplace(),
                 api_key="caller-key",
                 client=_StepClient([_create("Học tiếng Nhật"), _add, _reply("", "end_turn")]),
@@ -976,6 +1058,7 @@ def test_compose_order_saved_uncertain_rejected(monkeypatch: pytest.MonkeyPatch)
             run_turn(
                 "lập",
                 [],
+                instant=_INSTANT,
                 store=_HangThenConflict(),
                 api_key="caller-key",
                 client=_StepClient(
@@ -1040,6 +1123,7 @@ def test_model_text_and_tool_message_stay_exact(monkeypatch: pytest.MonkeyPatch)
             run_turn(
                 "lập",
                 [],
+                instant=_INSTANT,
                 store=_HangAdd(),
                 api_key="caller-key",
                 client=client,
@@ -1096,6 +1180,7 @@ def test_rejected_sentence_reaches_the_next_model_round() -> None:
         run_turn(
             "lập",
             [],
+            instant=_INSTANT,
             store=store,
             api_key="caller-key",
             client=client,
@@ -1111,4 +1196,100 @@ def test_rejected_sentence_reaches_the_next_model_round() -> None:
 def test_cancel_after_saved_write_propagates() -> None:
     with pytest.raises(asyncio.CancelledError):
         _turn([_create("Học tiếng Nhật"), asyncio.CancelledError()])
+
+
+def test_run_turn_without_instant_is_type_error() -> None:
+    with pytest.raises(TypeError):
+        asyncio.run(
+            run_turn(
+                "xin chào",
+                [],
+                store=MemoryPlanStore(),
+                api_key="caller-key",
+                client=FakeClient([_reply("ok", "end_turn")]),
+            )
+        )
+
+
+def test_date_line_winter() -> None:
+    client = FakeClient([_reply("ok", "end_turn")])
+    _run("xin chào", [], client, MemoryPlanStore(), "caller-key", [])
+    assert "Hôm nay là thứ Sáu 06/11/2026 (2026-11-06), múi giờ Europe/Helsinki." in client.calls[0][0].system
+
+
+def test_date_line_summer() -> None:
+    client = FakeClient([_reply("ok", "end_turn")])
+    asyncio.run(
+        run_turn(
+            "xin chào",
+            [],
+            instant=datetime(2026, 7, 1, 8, 0, tzinfo=timezone(timedelta(hours=3))),
+            store=MemoryPlanStore(),
+            api_key="caller-key",
+            client=client,
+        )
+    )
+    assert "Hôm nay là thứ Tư 01/07/2026 (2026-07-01), múi giờ Europe/Helsinki." in client.calls[0][0].system
+
+
+def test_sunday_name_is_chu_nhat() -> None:
+    client = FakeClient([_reply("ok", "end_turn")])
+    asyncio.run(
+        run_turn(
+            "xin chào",
+            [],
+            instant=datetime(2026, 11, 8, 8, 0, tzinfo=timezone(timedelta(hours=2))),
+            store=MemoryPlanStore(),
+            api_key="caller-key",
+            client=client,
+        )
+    )
+    system = client.calls[0][0].system
+    assert "Chủ nhật 08/11/2026 (2026-11-08)" in system
+    assert "thứ Chủ nhật" not in system
+
+
+def test_turn_date_block_lists_both_weeks() -> None:
+    text = turn_date_line(datetime(2026, 11, 6, 8, 0, tzinfo=timezone(timedelta(hours=2))))
+    lines = text.split("\n")
+    assert lines[0] == "Hôm nay là thứ Sáu 06/11/2026 (2026-11-06), múi giờ Europe/Helsinki."
+    assert lines[1].startswith("Tuần này: ")
+    assert "thứ Hai 2026-11-02" in lines[1]
+    assert lines[1].endswith("Chủ nhật 2026-11-08.")
+    assert lines[2].startswith("Tuần sau: ")
+    assert "thứ Hai 2026-11-09" in lines[2]
+    assert lines[2].endswith("Chủ nhật 2026-11-15.")
+
+
+def test_turn_date_block_on_sunday() -> None:
+    text = turn_date_line(datetime(2026, 11, 8, 8, 0, tzinfo=timezone(timedelta(hours=2))))
+    lines = text.split("\n")
+    assert lines[0].startswith("Hôm nay là Chủ nhật 08/11/2026")
+    assert "thứ Hai 2026-11-02" in lines[1]
+    assert lines[1].endswith("Chủ nhật 2026-11-08.")
+    assert "thứ Hai 2026-11-09" in lines[2]
+
+
+def test_turn_date_block_across_year_end() -> None:
+    text = turn_date_line(datetime(2026, 12, 31, 10, 0, tzinfo=timezone(timedelta(hours=2))))
+    lines = text.split("\n")
+    assert lines[0].startswith("Hôm nay là thứ Năm 31/12/2026 (2026-12-31)")
+    assert "thứ Hai 2026-12-28" in lines[1]
+    assert lines[1].endswith("Chủ nhật 2027-01-03.")
+    assert "thứ Hai 2027-01-04" in lines[2]
+    assert lines[2].endswith("Chủ nhật 2027-01-10.")
+
+
+def test_turn_date_line_ignores_a_later_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+    days = iter(
+        (
+            (datetime(2026, 11, 6).date(), datetime(2026, 11, 6, 8, 0).time()),
+            (datetime(2026, 11, 7).date(), datetime(2026, 11, 7, 8, 0).time()),
+        )
+    )
+    monkeypatch.setattr("core.clock.helsinki_clock", lambda _instant: next(days))
+    client = FakeClient([_reply("", "tool_use", (_tool("t", "get_plans", {}),)), _reply("xong", "end_turn")])
+    _run("xin chào", [], client, MemoryPlanStore(), "caller-key", [])
+    assert "thứ Sáu 06/11/2026" in client.calls[0][0].system
+    assert "thứ Sáu 06/11/2026" in client.calls[1][0].system
 

@@ -1,10 +1,12 @@
 """User Story 1: create_plan lưu kế hoạch hoặc từ chối cả yêu cầu."""
 
 import asyncio
+import json
 import unicodedata
 
 import pytest
 
+from core.plans import Priority
 from tests.fakes.memory_plan_store import MemoryPlanStore
 from tests.helpers import pending_plan
 from tools.base import ToolError
@@ -107,3 +109,50 @@ def test_create_plan_rejects_none_title() -> None:
     stored = asyncio.run(store.list_newest_first())
     assert len(stored) == 1
     assert stored[0].goal == "Đã có"
+
+
+class _RecordingAdd(MemoryPlanStore):
+    """Ghi kwargs của add. Không nhận tham số vị trí thứ ba."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.kwargs: list[dict[str, object]] = []
+
+    async def add(self, goal: str, subtasks: tuple, **kwargs: object):  # type: ignore[override]
+        self.kwargs.append(kwargs)
+        if kwargs:
+            return await super().add(goal, subtasks, **kwargs)  # type: ignore[arg-type]
+        return await super().add(goal, subtasks)
+
+
+def test_create_plan_stores_date_effort_and_priority() -> None:
+    store = MemoryPlanStore()
+    data = json.loads(
+        asyncio.run(
+            create_plan(
+                "Học tiếng Nhật",
+                [{"title": "Học hiragana", "scheduled_on": "2026-11-06", "effort": "M"}],
+                priority="high",
+                store=store,
+            )
+        ).output
+    )
+    assert data["priority"] == "high"
+    assert data["subtasks"][0]["scheduled_on"] == "2026-11-06"
+    assert data["subtasks"][0]["effort"] == "M"
+    stored = asyncio.run(store.list_newest_first())
+    assert stored[0].priority is Priority.HIGH
+    assert stored[0].subtasks[0].scheduled_on.isoformat() == "2026-11-06"
+    assert stored[0].subtasks[0].effort.value == "M"
+
+
+def test_create_plan_without_priority_calls_add_with_two_arguments() -> None:
+    store = _RecordingAdd()
+    asyncio.run(create_plan("Học tiếng Nhật", ["Học hiragana"], store=store))
+    assert store.kwargs == [{}]
+
+
+def test_create_plan_with_priority_passes_it_to_add() -> None:
+    store = _RecordingAdd()
+    asyncio.run(create_plan("Học tiếng Nhật", store=store, priority="low"))
+    assert store.kwargs == [{"priority": Priority.LOW}]

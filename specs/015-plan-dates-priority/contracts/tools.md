@@ -8,7 +8,9 @@ Dòng log tool và dòng log mô hình không thêm khóa. Chỉ số phiên b�
 
 ## `create_plan`
 
-`goal` bắt buộc, chuỗi. `priority` không bắt buộc, `high`, `medium`, hoặc `low`. `subtasks` không bắt buộc. Khi có, đó là mảng object, không còn mảng chuỗi.
+Mô tả: `Tạo một kế hoạch mới từ mục tiêu và danh sách việc con. priority là high, medium hoặc low, chỉ đặt khi người dùng nói rõ. Mỗi việc có thể có scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ.`
+
+`goal` bắt buộc, chuỗi. `priority` không bắt buộc, `high`, `medium`, hoặc `low`. `subtasks` không bắt buộc. Khi có, đó là mảng object, không còn mảng chuỗi. Mô tả của `subtasks`: `Mảng các đối tượng. Mỗi đối tượng có title; scheduled_on và effort không bắt buộc.` Mô tả của `priority`: `high, medium hoặc low. Chỉ đặt khi người dùng nói rõ.` Mô tả của `scheduled_on` trong phần tử: `Ngày YYYY-MM-DD, hoặc null.` Mô tả của `effort` trong phần tử: `S, M hoặc L. Chỉ đặt khi người dùng nói rõ.`
 
 Mỗi phần tử:
 
@@ -34,6 +36,8 @@ Giữ `plan_id`, `subtask_id`, `status`. Không nhận ngày, sức, hay ưu ti�
 
 ## `add_subtask`
 
+Mô tả: `Thêm một việc con vào cuối một kế hoạch. scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ.`
+
 | Khóa | Bắt buộc | Kiểu |
 |---|---|---|
 | `plan_id` | có | chuỗi |
@@ -41,7 +45,7 @@ Giữ `plan_id`, `subtask_id`, `status`. Không nhận ngày, sức, hay ưu ti�
 | `scheduled_on` | không | chuỗi `YYYY-MM-DD` |
 | `effort` | không | `S`, `M`, hoặc `L` |
 
-Không kiểm trùng. Không sinh dòng lịch sử.
+Không kiểm trùng. Không sinh dòng lịch sử. Mô tả của `scheduled_on`: `Ngày YYYY-MM-DD, hoặc null.` Mô tả của `effort`: `S, M hoặc L. Chỉ đặt khi người dùng nói rõ.`
 
 ## `set_subtask_note`
 
@@ -49,14 +53,18 @@ Giữ nguyên. Không nhận ngày, sức, hay ưu tiên.
 
 ## `set_plan_priority`
 
+Mô tả: `Đặt ưu tiên của một kế hoạch thành high, medium hoặc low, hoặc null để xóa.`
+
 | Khóa | Bắt buộc | Kiểu |
 |---|---|---|
 | `plan_id` | có | chuỗi |
 | `priority` | có | `high`, `medium`, `low`, hoặc null |
 
-Null là xóa ưu tiên. Lần ghi đi qua `replace`, và `plan_fields` luôn có khóa `priority`. JSON null xóa cột. Không đặt sức hay ngày. Không sinh dòng lịch sử.
+Null là xóa ưu tiên. Lần ghi đi qua `replace`, và `plan_fields` luôn có khóa `priority`. JSON null xóa cột. Không đặt sức hay ngày. Không sinh dòng lịch sử. Mô tả của `priority`: `high, medium hoặc low, hoặc null để xóa.`
 
 ## `set_subtask_effort`
+
+Mô tả: `Đặt sức của một việc con thành S, M hoặc L, hoặc null để xóa.`
 
 | Khóa | Bắt buộc | Kiểu |
 |---|---|---|
@@ -64,9 +72,11 @@ Null là xóa ưu tiên. Lần ghi đi qua `replace`, và `plan_fields` luôn c�
 | `subtask_id` | có | chuỗi |
 | `effort` | có | `S`, `M`, `L`, hoặc null |
 
-Null là xóa sức. Không đặt ưu tiên hay ngày.
+Null là xóa sức. Không đặt ưu tiên hay ngày. Mô tả của `effort`: `S, M hoặc L. Chỉ đặt khi người dùng nói rõ.`
 
 ## `reschedule_subtasks`
+
+Mô tả: `Đặt hoặc dời ngày của các việc trong một kế hoạch. scheduled_on dạng YYYY-MM-DD, hoặc null để bỏ ngày. Thấy trùng hạn một kế hoạch khác thì chưa ghi; chỉ đặt confirm là true ở lượt sau, khi chủ bot đã đồng ý.`
 
 | Khóa | Bắt buộc | Kiểu |
 |---|---|---|
@@ -82,7 +92,7 @@ Mỗi phần tử của `changes`:
 | `subtask_id` | có | chuỗi |
 | `scheduled_on` | có | chuỗi `YYYY-MM-DD`, hoặc null |
 
-`additionalProperties` false ở tool và ở từng phần tử. `confirm` vắng được hiểu là false.
+`additionalProperties` false ở tool và ở từng phần tử. `confirm` vắng được hiểu là false. Mô tả của `scheduled_on` trong `changes`: `Ngày YYYY-MM-DD, hoặc null.` Mô tả của `confirm`: `true chỉ khi chủ bot vừa đồng ý tiếp tục dời sau khi bạn báo trùng hạn. Mặc định false.`
 
 Tool đọc `TurnContext` do `execute_tool` nhận. Không có ngữ cảnh thì lỗi tool, không đoán mốc, không ghi. `moved_at` là `instant` của ngữ cảnh đó.
 

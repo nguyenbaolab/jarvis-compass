@@ -2,14 +2,15 @@
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
-from core.llm import ModelClient
+from core.llm import ModelClient, TextMessage
 from core.plans import PlanStore
 from turns.llm_turn import MissingKeyError, run_turn
 
 from evals.log_lines import parse_log_rows
 from evals.model import Case, Dataset, Expectation
-from evals.score import StoreExpectation, law_results
+from evals.score import StoreExpectation, law_results, store_image
 from evals.store import build_store
 from evals.summary import ERROR_KINDS
 
@@ -17,6 +18,7 @@ from evals.summary import ERROR_KINDS
 RUNS_PER_CASE = 3
 # Phải bằng _MAX_ROUNDS ở src/turns/llm_turn.py; test cap ở tests/test_eval_run.py đỏ nếu lệch.
 TOOL_ROUND_CAP = 3
+_V1_INSTANT = datetime(2026, 11, 6, 8, 0, tzinfo=timezone(timedelta(hours=2)))
 
 __all__ = [
     "ERROR_KINDS",
@@ -38,6 +40,10 @@ class Outcome:
     lines: tuple[str, ...]
     rounds: int
     laws: dict[str, str] | None
+    earlier: "Outcome | None" = None
+    opening: tuple[object, ...] | None = None
+    after_first: tuple[object, ...] | None = None
+    closing: tuple[object, ...] | None = None
 
 
 def _rounds_before(rows: list[dict[str, object]], index: int) -> int:
@@ -104,35 +110,133 @@ async def run_once(
     api_key: str | None,
     *,
     dataset_titles: frozenset[str] = frozenset(),
+    cases_version: int = 1,
 ) -> Outcome:
-    """Một lần run_turn trên kho được truyền."""
+    """Một ca. follow_up khác None thì hai lượt trên cùng kho và cùng mốc."""
+
+    instant = case.instant if case.instant is not None else _V1_INSTANT
+    opening = store_image(await store.list_newest_first())
+    first = await _one_turn(
+        case,
+        store,
+        client,
+        api_key,
+        case.user_message,
+        (),
+        instant,
+        dataset_titles,
+        cases_version,
+        opening=opening,
+    )
+    if case.follow_up is None or first.kind in ERROR_KINDS:
+        return first
+    after_first = store_image(await store.list_newest_first())
+    history = (
+        TextMessage(role="user", text=case.user_message),
+        TextMessage(role="assistant", text=first.reply),
+    )
+    return await _one_turn(
+        case,
+        store,
+        client,
+        api_key,
+        case.follow_up,
+        history,
+        instant,
+        dataset_titles,
+        cases_version,
+        opening=opening,
+        after_first=after_first,
+        earlier=first,
+    )
+
+
+async def _one_turn(
+    case: Case,
+    store: PlanStore,
+    client: ModelClient,
+    api_key: str | None,
+    message: str,
+    history: tuple[TextMessage, ...],
+    instant: datetime,
+    dataset_titles: frozenset[str],
+    cases_version: int,
+    *,
+    opening: tuple[object, ...] | None,
+    after_first: tuple[object, ...] | None = None,
+    earlier: Outcome | None = None,
+) -> Outcome:
+    """Một lượt. Kind scored của nhóm observe trở thành observed và không chấm."""
 
     lines: list[str] = []
     try:
         reply = await run_turn(
-            case.user_message,
-            [],
+            message,
+            history,
+            instant=instant,
             store=store,
             api_key=api_key,
             client=client,
             log=lines.append,
         )
     except MissingKeyError:
-        return Outcome(kind="missing_key", reply="", lines=(), rounds=0, laws=None)
+        return Outcome(kind="missing_key", reply="", lines=(), rounds=0, laws=None, opening=opening, closing=opening)
     kind = _kind_of(lines)
     rows = parse_log_rows(lines)
     rounds = _rounds_before(rows, len(rows))
+    closing = store_image(await store.list_newest_first())
     if kind in ERROR_KINDS:
-        return Outcome(kind=kind, reply=reply, lines=tuple(lines), rounds=rounds, laws=None)
+        return Outcome(
+            kind=kind,
+            reply=reply,
+            lines=tuple(lines),
+            rounds=rounds,
+            laws=None,
+            opening=opening,
+            closing=closing,
+        )
+    if case.expectation.kind == "observe":
+        shown = "observed" if kind == "scored" else kind
+        return Outcome(
+            kind=shown,
+            reply=reply,
+            lines=tuple(lines),
+            rounds=rounds,
+            laws=None,
+            earlier=earlier,
+            opening=opening,
+            after_first=after_first,
+            closing=closing,
+        )
+    closing = store_image(await store.list_newest_first())
+    moves = len(getattr(store, "date_moves", ()))
     laws = await law_results(
         case.group.value,
         reply,
         lines,
         store=store,
-        expectation=_store_expectation(case.expectation),
+        expectation=_store_expectation(case.expectation) if cases_version < 2 else None,
         dataset_titles=dataset_titles,
+        cases_version=cases_version,
+        detail=case.expectation if cases_version >= 2 else None,
+        opening=opening,
+        after_first=after_first,
+        closing=closing,
+        earlier_lines=None if earlier is None else list(earlier.lines),
+        earlier_reply=None if earlier is None else earlier.reply,
+        history_count=moves,
     )
-    return Outcome(kind=kind, reply=reply, lines=tuple(lines), rounds=rounds, laws=laws)
+    return Outcome(
+        kind=kind,
+        reply=reply,
+        lines=tuple(lines),
+        rounds=rounds,
+        laws=laws,
+        earlier=earlier,
+        opening=opening,
+        after_first=after_first,
+        closing=closing,
+    )
 
 
 async def run_cases(
@@ -141,6 +245,7 @@ async def run_cases(
     api_key: str | None,
     *,
     datasets: dict[str, Dataset],
+    cases_version: int = 1,
     on_case_done: Callable[[int, int, str, tuple[str, ...]], None] | None = None,
 ) -> list[list[Outcome]]:
     """Mỗi câu RUNS_PER_CASE lần. Một lỗi chạy không chặn câu sau.
@@ -162,6 +267,7 @@ async def run_cases(
                     client,
                     api_key,
                     dataset_titles=_titles(dataset),
+                    cases_version=cases_version,
                 )
             )
         batches.append(runs)

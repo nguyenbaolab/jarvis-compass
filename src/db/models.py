@@ -13,6 +13,8 @@ class SubtaskRow(BaseModel):
     position: int
     created_at: str
     status_changed_at: str
+    scheduled_on: str | None = None
+    effort: str | None = None
 
 
 class PlanRow(BaseModel):
@@ -22,4 +24,5 @@ class PlanRow(BaseModel):
     goal: str
     created_order: int
     version: int
+    priority: str | None = None
     subtasks: list[SubtaskRow]

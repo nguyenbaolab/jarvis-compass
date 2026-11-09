@@ -38,6 +38,9 @@ class RunRecord:
     rounds: int
     laws: dict[str, str] | None
     dataset_titles: frozenset[str] = frozenset()
+    earlier_reply: str | None = None
+    earlier_lines: tuple[str, ...] | None = None
+    store_after: tuple[object, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -82,7 +85,7 @@ class Summary:
 
 
 def _scored(runs: Sequence[RunRecord]) -> list[RunRecord]:
-    return [run for run in runs if run.kind not in ERROR_KINDS]
+    return [run for run in runs if run.kind not in ERROR_KINDS and run.kind != "observed"]
 
 
 def _rate(runs: Sequence[RunRecord]) -> float | None:
@@ -97,12 +100,18 @@ def _tokens(runs: Sequence[RunRecord]) -> tuple[int, int]:
     incoming = 0
     outgoing = 0
     for run in runs:
-        for row in parse_log_rows(run.lines):
+        for row in parse_log_rows(_lines_of(run)):
             if "model" not in row:
                 continue
             incoming += int(row["input_tokens"] or 0)
             outgoing += int(row["output_tokens"] or 0)
     return incoming, outgoing
+
+
+def _lines_of(run: RunRecord) -> tuple[str, ...]:
+    if run.earlier_lines:
+        return run.earlier_lines + run.lines
+    return run.lines
 
 
 def summarize(runs: Sequence[RunRecord]) -> Summary:

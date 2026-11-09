@@ -35,7 +35,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F14 | HTTP API cho jarvis-desktop client | Endpoint để jarvis-desktop gọi sang khi cần lập kế hoạch, qua tool mới trong tool_router |
 | F15 | One-way sync to Google Tasks (display only) | Đồng bộ một chiều database → Google Tasks để xem cho tiện, không phải core kiến trúc, không phải MVP |
 | F16 | App Android riêng với hardware-key trigger | Giai đoạn 2, làm sau F18 và dùng lại cùng API. Accessibility Service, Power + Volume Up trigger overlay, nhận push qua FCM |
-| F17 | Ngày dự kiến cho việc con | Mỗi việc con có trường ngày dự kiến, để bot đặt ngày thay vì nhét ngày hay tuần vào tiêu đề |
+| F17 | Ngày, ưu tiên, sức và lịch sử dời | Mỗi việc con có ngày và sức. Mỗi kế hoạch có ưu tiên. Lịch sử dời chỉ thêm khi ngày đổi sang một ngày khác. Hạn sau lần dời trùng hạn kế hoạch khác thì bot báo và chưa ghi cho đến khi chủ bot đồng ý |
 | F18 | Telegram Mini App có lịch | Trang web mở trong Telegram, xem việc con theo lịch ngày (cần F17). Worker của F11 phục vụ, xác thực bằng initData của Telegram. Là bản đầu của jarvis-android, dùng chung API với app Android riêng (F16) |
 | F19 | Nhận tin voice qua Telegram | Nhận tin voice của chủ bot, phiên âm thành chữ rồi chạy như tin chữ. Cách phiên âm chưa chọn: cần kiểm Bot API có gửi sẵn bản chữ cho bot không, nếu không thì cần một cách phiên âm riêng. Làm sau F11, chưa xếp vào thứ tự ở §7 |
 
@@ -89,6 +89,6 @@ Thứ tự làm tiếp (chốt 2026-11-03, sửa 2026-11-07 theo D-024), mỗi m
 - Mỗi việc con có điểm kết thúc đo được; không có việc kiểu thói quen "suốt tháng". Kiểu việc thói quen để dành cho tính năng thích ứng tải.
 - Tiêu đề việc con không có tiền tố thứ tự ("Ngày 1:", "Tuần 1:"); thứ tự là vị trí trong danh sách.
 - Tiêu đề người dùng tự đưa được giữ nguyên chữ; luật điểm kết thúc đo được chỉ áp cho tiêu đề bot tự đặt.
-- Tên kế hoạch (goal) là một dòng ngắn, dưới 80 ký tự, nêu việc cần đạt. Bot không chép cả câu người dùng vào goal; hạn chót, ngày bắt đầu và số giờ mỗi ngày không nằm trong goal. Giới hạn nằm ở prompt, code không cắt goal. Ngày có cấu trúc để cho F17.
+- Tên kế hoạch (goal) là một dòng ngắn, dưới 80 ký tự, nêu việc cần đạt. Bot không chép cả câu người dùng vào goal; hạn chót, ngày bắt đầu và số giờ mỗi ngày không nằm trong goal. Giới hạn nằm ở prompt, code không cắt goal. Ngày nằm ở trường ngày của việc con. Tiêu đề cũ giữ nguyên từng chữ. Trùng hạn thì bot báo và chưa ghi cho đến khi chủ bot đồng ý. Khớp đúng một tên vẫn cập nhật ngay.
 - Câu trả lời là chữ trơn, không Markdown (Telegram gửi không parse mode): không in đậm, không tiêu đề "#", không bảng; được đánh số "1." và gạch "- ". Muốn chia ngày thì viết một dòng chữ trơn như "Ngày 1" trước nhóm; dòng đó không phải tiêu đề việc con.
 - Bot không hiện mã kế hoạch hay mã việc con và không hỏi người dùng mã. Trong câu trả lời, trạng thái gọi là "chưa làm", "xong", "bỏ qua".

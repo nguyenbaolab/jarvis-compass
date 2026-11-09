@@ -58,6 +58,9 @@ def _record(case_id: str, group: str, index: int, outcome: Outcome, titles: froz
         rounds=outcome.rounds,
         laws=outcome.laws,
         dataset_titles=titles,
+        earlier_reply=None if outcome.earlier is None else outcome.earlier.reply,
+        earlier_lines=None if outcome.earlier is None else outcome.earlier.lines,
+        store_after=outcome.closing,
     )
 
 
@@ -111,6 +114,7 @@ def run_suite(
                 client,
                 key,
                 datasets=suite.datasets,
+                cases_version=suite.cases_version,
                 on_case_done=_print_progress,
             )
         )
@@ -136,7 +140,7 @@ def main() -> None:
         AnthropicModel(),
         Path("evals/results"),
         date.today(),
-        Path("evals/cases/v1.json"),
+        Path(sys.argv[1]) if len(sys.argv) > 1 else Path("evals/cases/v1.json"),
         Path("evals/datasets"),
     )
     raise SystemExit(code)
