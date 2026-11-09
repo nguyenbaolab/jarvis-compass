@@ -427,6 +427,8 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 
 **Phương án đã bỏ:** đi thẳng F17 rồi F18 như D-020 (lịch hiển thị chưa đủ dữ liệu để xếp việc); nhét việc hằng ngày vào việc con; để mô hình tự tính tải hoặc tự dời việc; tự động tính ngày lễ; `/today` ở vòng đầu của F10.
 
+**Cập nhật 2026-11-09:** Mục (a) việc hằng ngày và sự kiện đột xuất chuyển sang D-027.
+
 ## D-025 — Digest sáng: mã âm theo ngày Helsinki, 08:00 tính ở code, ba cron UTC
 
 **Date:** 2026-11-08
@@ -496,3 +498,26 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 - Digest mất chữ ngày ở tiêu đề mới và chỉ hiện ngày qua trường ngày; kế hoạch cũ giữ ngày trong tiêu đề và trường ngày trống.
 
 **Phương án đã bỏ:** cột hạn riêng trên kế hoạch (hai nguồn sự thật, gia hạn không có lịch sử); core tính danh sách việc đổi ngày rồi store ghi lịch sử bằng RPC thứ hai (đường gọi `replace_plan` khác sẽ mất dòng); khóa ngoại `ON DELETE CASCADE` (xóa lịch sử) hoặc `RESTRICT` (chặn lần ghi hợp lệ); coi khóa ngày vắng là xóa (Worker cũ sẽ xóa ngày); `run_turn` tự nhớ tên tool và chữ kết quả để chốt cờ; nhét ngày vào tin người dùng (vào ngữ cảnh hội thoại như lời chủ bot); phân tích hạn tương đối bằng code; ưu tiên riêng của việc con ngay vòng này.
+
+## D-027 — Việc hằng ngày tách khỏi jarvis-compass; thời gian biểu một ngày do bộ ghép ở backend Mini App dựng
+
+**Date:** 2026-11-09
+**Status:** Accepted
+
+**Bối cảnh:** D-024 xếp mục (a), việc hằng ngày và sự kiện đột xuất, là spec kế của compass. Starter muốn compass chỉ lo việc dài có kế hoạch.
+
+**Starter chốt:**
+1. Mục (a) của D-024 không làm trong compass. Hoãn có chủ ý; chat sau không tự mở lại (a) trong compass.
+2. Việc hằng ngày do một bot riêng quản lý (tên tạm jarvis-routine). Có cả khối giờ cố định lẫn việc linh hoạt chỉ có thời lượng; có thói quen chỉ kéo dài khoảng một tuần.
+3. Hai quỹ giờ mỗi ngày: 8 giờ (quỹ của compass) và 4 giờ ngoài đó. Starter tự nói mỗi việc thuộc quỹ nào; đa số thuộc quỹ 4 giờ.
+4. Bộ ghép (xếp việc của compass vào khoảng trống của routine, ra thời gian biểu một ngày) nằm ở backend của Mini App (F18). Backend này dự kiến dùng chung cho jarvis-android và jarvis-desktop sau này. Đây là hướng, chưa spec.
+
+**Đề xuất của chat (chưa xác nhận rõ):**
+5. Hai bot không gọi nhau và không hội thoại; giao tiếp qua dữ liệu. Bộ ghép là code thuần, không LLM, và là bộ xếp lịch của D-024 (d): một bộ, không build hai.
+6. Mỗi việc của routine có kiểu (khối cố định hoặc linh hoạt), quỹ (4 giờ hoặc 8 giờ, mặc định 4 giờ), ngày bắt đầu và ngày kết thúc (có thể trống; hết hạn thì rời thời gian biểu). Ngày nghỉ là một việc quỹ 8 giờ dài 8 giờ.
+7. LLM của routine chỉ ở khâu nhập (một lượt, không tool loop). Cảnh báo mềm nếu tổng việc quỹ 4 giờ của một ngày vượt 4 giờ.
+8. Spec quét tải (D-024 b) nhận capacity(ngày) làm tham số, mặc định 8; routine cấp số thật sau. compass không gọi routine.
+
+**Thứ tự:** compass (b) trước. Routine và Mini App sau; thứ tự giữa hai cái đó chưa chốt.
+
+**Chưa quyết:** cách bộ ghép đọc dữ liệu từ hai bot; routine dùng token Telegram riêng hay chung; tin 08:00 (khi có thời gian biểu ghép chỉ nên còn một tin sáng, tin của compass bỏ hoặc nhường chỗ); sự kiện đột xuất (nửa còn lại của (a)) nằm ở routine hay chỗ khác; tên chính thức; stack, hosting và auth của backend Mini App.
