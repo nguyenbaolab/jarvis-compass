@@ -1,0 +1,3 @@
+supabase/migrations/20261109190000_date_moves_revoke.sql
+docs/DECISIONS.md
+docs/reviews/**
