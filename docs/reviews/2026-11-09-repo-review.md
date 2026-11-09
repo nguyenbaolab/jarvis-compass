@@ -14,7 +14,7 @@ Hàng `Repo review` của `check.ps1` báo `due`: 22 file `src/` đổi từ `ed
 - So khớp: ba migration cũ (chỉ lấy dòng `revoke`, `grant`, `enable row level security`), `docs/ARCHITECTURE.md` (dòng về `PROMPT_VERSION`, catalog, §4, §6), tên test trong `tests/test_plan_store_contract.py` và `tests/test_supabase_plan_store.py`, `tests/test_telegram_update_flow.py` (nhóm `/next`).
 - Quét chuỗi giống khóa bí mật (khóa Anthropic, `sb_secret`, JWT, token bot) trên toàn cây `HEAD` trừ `uv.lock`, `pylock.toml`: không có. `.gitignore` có `.env`, `.dev.vars`, `.venv-workers/`, `python_modules/`, `node_modules/`; file theo dõi giống file môi trường chỉ có `.env.example`.
 - Không đọc lại: logic bộ chấm `evals/score.py` và các file eval khác (chỉ soát đọc biến môi trường, `redact` khóa trong `evals/result.py`, và `evals/results/` không chứa chuỗi giống khóa), test ngoài các tên ở trên, `specs/015-*`, `uv.lock`, `docs/architecture/*`, adapter `clients/anthropic_model.py` ngoài phần đổi. Chat không chạy test; số 748 test lấy từ handoff do Starter chạy `check.ps1`.
-- Quan sát cloud dùng: bản xuất Observability sáu dòng `morning_digest` của 2026-11-08 và 2026-11-09 do Starter dán. Chưa làm: tin 08:00 ngày 2026-11-10 (lần đầu của `6c17f7f7`), truy vấn quyền bảng trên Supabase cloud (xem Q3-01).
+- Quan sát cloud dùng: bản xuất Observability sáu dòng `morning_digest` của 2026-11-08 và 2026-11-09 do Starter dán. Truy vấn quyền bảng và quyền hàm trên Supabase cloud do Starter chạy, kết quả ở mục Cập nhật. Chưa làm: tin 08:00 ngày 2026-11-10 (lần đầu của `6c17f7f7`).
 
 ## Cập nhật sau khi đọc log cloud (cùng ngày)
 
@@ -26,14 +26,24 @@ Sáu dòng `morning_digest`, hai ngày, mỗi ngày ba lần chạy cùng `updat
 
 Chốt ba mục D-025 còn ghi "chưa quan sát": dòng `before_eight` của cron 05:00 UTC, dòng `already_sent` của cron 07:00 UTC, không có tin thứ hai lúc 09:00 Helsinki. Còn chưa quan sát: đường nhiều phần của `split_utf16` trên cloud (log không có trường số phần), đường mùa hè (UTC+3, đổi giờ 2027-03-28), và tin sáng của bản `6c17f7f7`.
 
+Truy vấn quyền trên Supabase cloud (câu SQL ở mục "Cách kiểm Q3-01"):
+
+- Cả năm bảng `public` có `rls` true.
+- Bốn bảng cũ (`plans`, `subtasks`, `telegram_updates`, `telegram_context_messages`): `anon_select`, `anon_truncate`, `auth_select` đều false.
+- `subtask_date_moves`: `anon_truncate` true; `anon_select` và `auth_select` false.
+- `service_truncate` true ở cả năm bảng.
+- Hàm `public.subtask_date_moves_block_change`: `anon_exec` true.
+
+Hệ quả: Q3-01 được xác nhận một phần (xem hàng Q3-01), Q3-02 được xác nhận.
+
 ## Phát hiện
 
 Mức: chặn, nên sửa, ghi nhận. Trạng thái: mở, đã sửa ở (nhánh hoặc commit), đóng (đã kiểm, không có vấn đề).
 
 | ID | Mức | Chỗ | Tóm tắt | Trạng thái |
 |---|---|---|---|---|
-| Q3-01 | nên sửa | `supabase/migrations/20261109120000_plan_dates_priority.sql` dòng 29 đến 46 | Bảng `subtask_date_moves` bật RLS và cấp quyền cho `service_role`, nhưng không có `revoke all on table ... from public, anon, authenticated`. Bốn bảng cũ (`plans`, `subtasks`, `telegram_updates`, `telegram_context_messages`) đều có dòng này. Hàm trigger `public.subtask_date_moves_block_change` nằm ở schema `public` và không bị thu quyền thực thi, trong khi trigger của lần đầu (`internal.subtasks_keep_clocks`) nằm ở `internal` và có `revoke`. Suy ra, chưa kiểm: nếu dự án Supabase cấp mặc định mọi quyền trên bảng mới cho `anon` và `authenticated`, hai role đó có quyền trên bảng này. RLS bật và không có policy nên đọc ghi qua PostgREST vẫn bị từ chối; `TRUNCATE` không qua RLS và trigger theo hàng không chặn, nhưng PostgREST không có đường gọi `TRUNCATE`. Chưa có test nào kiểm quyền hay RLS của bất kỳ bảng nào. Cách kiểm ở mục dưới bảng | mở (chờ kết quả truy vấn) |
-| Q3-02 | ghi nhận | cùng migration dòng 31 và 43 đến 46; D-026 mục 3 | "Chỉ thêm" dựa vào một cơ chế: trigger theo hàng `before update or delete`. `service_role` được cấp UPDATE và DELETE (test dựa vào đó để thấy trigger chặn); không có trigger `before truncate`. Ai giữ khóa `service_role` (secret của Worker) xóa được lịch sử bằng `TRUNCATE` (suy ra từ quyền mặc định, chưa kiểm). Với một chủ bot duy nhất thì chấp nhận được; D-026 nói trigger chặn sửa và xóa mà không nêu `TRUNCATE` | mở (ghi nhận) |
+| Q3-01 | nên sửa | `supabase/migrations/20261109120000_plan_dates_priority.sql` dòng 29 đến 46 | Bảng `subtask_date_moves` bật RLS và cấp quyền cho `service_role`, nhưng không có `revoke all on table ... from public, anon, authenticated`. Bốn bảng cũ (`plans`, `subtasks`, `telegram_updates`, `telegram_context_messages`) đều có dòng này. Hàm trigger `public.subtask_date_moves_block_change` nằm ở schema `public` và không bị thu quyền thực thi, trong khi trigger của lần đầu (`internal.subtasks_keep_clocks`) nằm ở `internal` và có `revoke`. Đã kiểm trên cloud 2026-11-09: `anon` có quyền `TRUNCATE` trên `subtask_date_moves` (bốn bảng cũ không có) và `anon_exec` của hàm trigger là true. `anon_select` và `auth_select` của bảng là false, nên mặc định của dự án không cấp mọi quyền như suy đoán ban đầu; truy vấn chỉ hỏi `SELECT` và `TRUNCATE` của `anon`, nên chưa biết `anon` và `authenticated` còn quyền nào khác (`INSERT`, `UPDATE`, `DELETE`, `REFERENCES`, `TRIGGER`). Không có đường khai thác qua PostgREST: không có endpoint `TRUNCATE`, RLS bật và không có policy. Vậy đây là chỗ lệch mẫu và thiếu một lớp bảo vệ, chưa phải lỗ hổng đã dùng được. Chưa có test nào kiểm quyền hay RLS của bất kỳ bảng nào. Hướng sửa ở mục dưới bảng | mở (đã xác nhận, chờ migration) |
+| Q3-02 | ghi nhận | cùng migration dòng 31 và 43 đến 46; D-026 mục 3 | "Chỉ thêm" dựa vào một cơ chế: trigger theo hàng `before update or delete`. `service_role` được cấp UPDATE và DELETE (test dựa vào đó để thấy trigger chặn); không có trigger `before truncate`. Ai giữ khóa `service_role` (secret của Worker) xóa được lịch sử bằng `TRUNCATE` (đã quan sát: `service_truncate` true ở cả năm bảng). Với một chủ bot duy nhất thì chấp nhận được; D-026 nói trigger chặn sửa và xóa mà không nêu `TRUNCATE` | mở (ghi nhận) |
 | Q3-03 | ghi nhận | `api/telegram_update.py` nhánh `/next` (dòng 271 đến 284), `core/telegram_channel.py` `decide_receive` | Lỗi đọc kế hoạch sau khi đã claim ghi `defer` với `reason` `store_unavailable`, cùng mã với lỗi trước claim, nhưng hàng claim còn lại không có câu. Telegram gửi lại thì gặp `in_flight` (503) tới 90 giây, sau đó `decide_receive` chọn `SaveUncertain` và chủ bot nhận "Chưa chắc tin này đã được xử lý." cho một lệnh chỉ đọc chưa chạy xong. Suy ra từ mã và lịch gửi lại của Q2-18 (lần nhận lại đến +231 giây); chưa chạy trên cloud. Test `test_next_plan_read_error_defers_without_the_uncertain_sentence` chốt nửa đầu (không gửi câu chưa chắc ngay, hàng chưa có câu) và không chạy lần gửi lại. Cùng dạng với nhánh `context_failed` có từ trước | mở (ghi nhận) |
 | Q3-04 | ghi nhận | `tools/plan_tools.py` (`get_plans`, `reschedule_subtasks`), `tools/schemas.py`, `db/client.py` (`list_plans`) | `get_plans` không giới hạn: trả mọi kế hoạch, kể cả kế hoạch đã xong hết việc; `list_plans` không phân trang; `reschedule_subtasks` đọc toàn bộ kế hoạch mỗi khi hạn của kế hoạch đổi. JSON của tool luôn mang `priority`, `scheduled_on`, `effort` kể cả khi null (`model_dump_json` không bỏ null). Kích thước kết quả tool tăng theo số kế hoạch, cộng vào mức token vào đã gấp khoảng 2,3 lần p3-d2 (handoff 016). Chưa đo ở số kế hoạch nào thì thành vấn đề | mở (ghi nhận; liên quan việc nhỏ (iv) của handoff 016) |
 | Q3-05 | ghi nhận | `tools/plan_tools.py` `_apply_changes`, `reschedule_subtasks` | Ba chỗ chỉ đúng nhờ router: (a) khóa `scheduled_on` vắng trong một thay đổi bị đọc là null, tức bỏ ngày, và bỏ ngày không sinh dòng lịch sử; schema bắt buộc khóa này nên router chặn trước; (b) phần tử không phải object ném `_DUPLICATE_CHANGE`, sai câu; router chặn bằng kiểm kiểu từ trước; (c) `PlanDomainError` ném ngoài `_domain_as_tool_error` ở dòng 443 và 448, được đổi thành lỗi tool nhờ `_run` của router. Gọi trực tiếp (test, eval) mới thấy | mở (ghi nhận) |
@@ -58,7 +68,16 @@ where n.nspname = 'public' and c.relkind = 'r'
 order by c.relname;
 ```
 
-Kỳ vọng theo các migration cũ: `plans`, `subtasks`, `telegram_updates`, `telegram_context_messages` có `rls` true, `anon_select`, `anon_truncate`, `auth_select` false. Nếu `subtask_date_moves` ra true ở các cột `anon_*` hoặc `auth_*` thì Q3-01 xác nhận. Hướng sửa (đề xuất, chưa chốt): migration mới thu quyền bảng cho `public, anon, authenticated` và thu quyền thực thi hàm trigger; có thể thêm trigger `before truncate`. Đây là thay đổi migration nên theo AGENTS.md phải qua chat trước.
+Kết quả 2026-11-09 ở mục Cập nhật. Câu thứ hai, cho hàm trigger:
+
+```sql
+select p.proname, has_function_privilege('anon', p.oid, 'EXECUTE') as anon_exec
+from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.proname = 'subtask_date_moves_block_change';
+```
+
+Hướng sửa (đề xuất, chưa chốt): một migration mới, đúng mẫu của bốn bảng cũ, thu quyền bảng và quyền hàm của `public`, `anon`, `authenticated`: `revoke all on table public.subtask_date_moves from public, anon, authenticated` và `revoke all on function public.subtask_date_moves_block_change() from public, anon, authenticated`. Thu quyền thực thi không làm trigger ngừng chạy: quyền `EXECUTE` của hàm trigger chỉ kiểm lúc tạo trigger, không kiểm lúc kích hoạt (hàm trigger `internal.subtasks_keep_clocks` của migration đầu đã bị thu quyền như vậy mà vẫn chạy). Tùy chọn cho Q3-02: `revoke truncate on table public.subtask_date_moves from service_role`; không đụng UPDATE và DELETE của `service_role` vì test dựa vào chúng để thấy trigger chặn. Kiểm sau khi áp: chạy lại hai câu trên; `anon_truncate` và `anon_exec` phải false. Đây là thay đổi migration nên theo AGENTS.md phải qua chat trước.
 
 ## Mục mở của lần quét trước, kiểm lại
 
