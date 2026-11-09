@@ -66,6 +66,14 @@ def write_result(
     hidden: list[RunRecord] = []
     for run in runs:
         reply, lines = redact(run.reply, run.lines, api_key)
+        earlier_reply = None
+        earlier_lines = None
+        if run.earlier_reply is not None or run.earlier_lines is not None:
+            earlier_reply, earlier_lines = redact(
+                run.earlier_reply or "",
+                run.earlier_lines or (),
+                api_key,
+            )
         hidden.append(
             RunRecord(
                 case_id=run.case_id,
@@ -77,6 +85,9 @@ def write_result(
                 rounds=run.rounds,
                 laws=run.laws,
                 dataset_titles=run.dataset_titles,
+                earlier_reply=earlier_reply,
+                earlier_lines=earlier_lines,
+                store_after=run.store_after,
             )
         )
     report = summarize(hidden)
@@ -115,19 +126,25 @@ def write_result(
             }
             for item in report.by_group
         ],
-        "runs": [
-            {
-                "id": run.case_id,
-                "index": run.index,
-                "kind": run.kind,
-                "reply": run.reply,
-                "lines": list(run.lines),
-                "rounds": run.rounds,
-                "laws": run.laws,
-                "manual_titles": _manual_titles(run),
-            }
-            for run in hidden
-        ],
+        "runs": [_run_body(run, cases_version) for run in hidden],
     }
     path.write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path
+
+
+def _run_body(run: RunRecord, cases_version: int) -> dict[str, object]:
+    body: dict[str, object] = {
+        "id": run.case_id,
+        "index": run.index,
+        "kind": run.kind,
+        "reply": run.reply,
+        "lines": list(run.lines),
+        "rounds": run.rounds,
+        "laws": run.laws,
+        "manual_titles": _manual_titles(run),
+    }
+    if cases_version >= 2:
+        body["earlier_reply"] = run.earlier_reply
+        body["earlier_lines"] = None if run.earlier_lines is None else list(run.earlier_lines)
+        body["store_after"] = run.store_after
+    return body

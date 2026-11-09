@@ -2,9 +2,18 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Literal
 
 Remaining = Callable[[], float] | None
+
+
+@dataclass
+class TurnContext:
+    """Ngữ cảnh một lượt. Không đóng băng vì tool đặt cờ trùng hạn."""
+
+    instant: datetime
+    clash_reported: bool = False
 
 
 @dataclass(frozen=True)

@@ -6,19 +6,22 @@ from pydantic import BaseModel
 
 
 class SubtaskJson(BaseModel):
-    """Một việc con trong JSON của tool. Khóa theo thứ tự id, title, status, note."""
+    """Một việc con trong JSON của tool. Khóa theo thứ tự id, title, status, note, scheduled_on, effort."""
 
     id: str
     title: str
     status: Literal["pending", "done", "skipped"]
     note: str | None
+    scheduled_on: str | None
+    effort: str | None
 
 
 class PlanJson(BaseModel):
-    """Một kế hoạch trong JSON. Đúng ba khóa id, goal, subtasks."""
+    """Một kế hoạch trong JSON. Khóa theo thứ tự id, goal, priority, subtasks."""
 
     id: str
     goal: str
+    priority: str | None
     subtasks: list[SubtaskJson]
 
 

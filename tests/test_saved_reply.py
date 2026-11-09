@@ -1,4 +1,4 @@
-"""Ba câu, sáu mẫu, và hàm ghép nằm một chỗ."""
+"""Ba câu, mười một mẫu, và hàm ghép nằm một chỗ."""
 
 from pathlib import Path
 
@@ -9,9 +9,14 @@ from tools.saved_reply import (
     UNCERTAIN_SENTENCE,
     compose,
     saved_add,
+    saved_clear_effort,
     saved_clear_note,
+    saved_clear_priority,
     saved_create,
     saved_note,
+    saved_reschedule,
+    saved_set_effort,
+    saved_set_priority,
     saved_status,
 )
 
@@ -30,6 +35,11 @@ _SAMPLES = (
     "Đã lưu việc Học hiragana trong kế hoạch Học tiếng Nhật là bỏ qua.",
     "Đã lưu ghi chú Đợi giáo trình cho việc Học hiragana trong kế hoạch Học tiếng Nhật.",
     "Đã bỏ ghi chú của việc Học hiragana trong kế hoạch Học tiếng Nhật.",
+    "Đã lưu ưu tiên cao cho kế hoạch Học tiếng Nhật.",
+    "Đã bỏ ưu tiên của kế hoạch Học tiếng Nhật.",
+    "Đã lưu sức S cho việc Học hiragana trong kế hoạch Học tiếng Nhật.",
+    "Đã bỏ sức của việc Học hiragana trong kế hoạch Học tiếng Nhật.",
+    "Đã lưu ngày của việc Học hiragana trong kế hoạch Học tiếng Nhật.",
 )
 
 
@@ -62,6 +72,29 @@ def test_compose_orders_saved_then_uncertain_then_rejected() -> None:
         f"1. {saved.text}\n{UNCERTAIN_SENTENCE}\n{REJECTED_SENTENCE}"
     )
     assert "\n\n" not in compose((saved, uncertain, rejected))
+
+
+def test_saved_set_priority_line() -> None:
+    assert saved_set_priority("cao", "Học tiếng Nhật") == _SAMPLES[9]
+
+
+def test_saved_clear_priority_line() -> None:
+    assert saved_clear_priority("Học tiếng Nhật") == _SAMPLES[10]
+
+
+def test_saved_set_effort_line() -> None:
+    assert saved_set_effort("S", "Học hiragana", "Học tiếng Nhật") == _SAMPLES[11]
+
+
+def test_saved_clear_effort_line() -> None:
+    assert saved_clear_effort("Học hiragana", "Học tiếng Nhật") == _SAMPLES[12]
+
+
+def test_saved_reschedule_line() -> None:
+    assert saved_reschedule(("Học hiragana",), "Học tiếng Nhật") == _SAMPLES[13]
+    assert saved_reschedule(("Học hiragana", "Mua vở"), "Học tiếng Nhật") == (
+        "Đã lưu ngày của việc Học hiragana, Mua vở trong kế hoạch Học tiếng Nhật."
+    )
 
 
 def test_fixed_strings_live_only_in_saved_reply() -> None:

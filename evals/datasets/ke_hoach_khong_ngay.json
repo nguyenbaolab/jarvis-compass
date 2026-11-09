@@ -1,0 +1,13 @@
+{
+  "name": "ke_hoach_khong_ngay",
+  "plans": [
+    {
+      "goal": "Chạy được 10km",
+      "subtasks": [
+        {"title": "Chạy 6km không nghỉ", "status": "pending", "note": null},
+        {"title": "Chạy 8km không nghỉ", "status": "pending", "note": null},
+        {"title": "Chạy 10km không nghỉ", "status": "pending", "note": null}
+      ]
+    }
+  ]
+}

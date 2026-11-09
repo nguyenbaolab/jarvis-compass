@@ -2,6 +2,7 @@
 
 import json
 import unicodedata
+from datetime import date, datetime
 from pathlib import Path
 
 from core.plans import normalize_subtask_note
@@ -19,12 +20,26 @@ _KIND = {
     Group.CAP_NHAT: "update_status",
     Group.THEM_VIEC: "add_subtask",
     Group.GHI_CHU: "set_note",
+    Group.HAN_LUU_NGAY: "create_with_deadline",
+    Group.HAN_HOI_LAI: "ask_back_no_write",
+    Group.NHOM_MO_HO: "ask_back_no_write",
+    Group.HAN_CA_KE_HOACH: "set_deadline_existing",
+    Group.DOI_HAN_TRUNG: "clash_two_turn",
+    Group.DOI_NGAY: "reschedule_no_confirm",
+    Group.TIN_DAI: "long_message_goal",
+    Group.LIET_KE: "verbatim_titles",
+    Group.GHI_NHAN: "observe",
+    Group.UU_TIEN_NGUOI_DUNG: "create_with_priority",
+    Group.DAT_UU_TIEN: "set_priority_existing",
+    Group.DAT_SUC: "set_effort_existing",
 }
 _EXTRA = {
     "update_status": ("goal", "title", "status"),
     "add_subtask": ("goal", "title"),
     "set_note": ("goal", "title", "note"),
 }
+_EFFORTS = frozenset({"S", "M", "L"})
+_PRIORITIES = frozenset({"high", "medium", "low"})
 _STATUSES = frozenset({"pending", "done", "skipped"})
 
 
@@ -34,6 +49,48 @@ class LoadError(Exception):
 
 def _nfc(value: str) -> str:
     return unicodedata.normalize("NFC", value).strip()
+
+
+def _optional_choice(raw: object, key: str, allowed: frozenset[str]) -> str | None:
+    if not isinstance(raw, dict) or key not in raw or raw[key] is None:
+        return None
+    if not isinstance(raw[key], str) or raw[key] not in allowed:
+        raise LoadError(f"{key} không hợp lệ.")
+    return raw[key]
+
+
+def _optional_date(raw: object, key: str) -> str | None:
+    if not isinstance(raw, dict) or key not in raw or raw[key] is None:
+        return None
+    if not isinstance(raw[key], str):
+        raise LoadError(f"{key} không phải ngày.")
+    try:
+        date.fromisoformat(raw[key])
+    except ValueError as error:
+        raise LoadError(f"{key} không phải ngày.") from error
+    return raw[key]
+
+
+def _aware_instant(raw: object) -> datetime | None:
+    if not isinstance(raw, dict) or "instant" not in raw or raw["instant"] is None:
+        return None
+    if not isinstance(raw["instant"], str):
+        raise LoadError("instant không phải chuỗi.")
+    try:
+        instant = datetime.fromisoformat(raw["instant"])
+    except ValueError as error:
+        raise LoadError("instant không phải mốc.") from error
+    if instant.tzinfo is None:
+        raise LoadError("instant không có múi giờ.")
+    return instant
+
+
+def _follow_up(raw: object) -> str | None:
+    if not isinstance(raw, dict) or "follow_up" not in raw or raw["follow_up"] is None:
+        return None
+    if not isinstance(raw["follow_up"], str):
+        raise LoadError("follow_up không phải chuỗi.")
+    return _nfc(raw["follow_up"])
 
 
 def _need_str(item: object, key: str) -> str:
@@ -83,8 +140,19 @@ def _load_dataset(path: Path, name: str) -> Dataset:
             note_raw = raw_item.get("note")
             if note_raw is not None and not isinstance(note_raw, str):
                 raise LoadError("Ghi chú không phải chuỗi.")
-            items.append(SubtaskSeed(title=title, status=status, note=normalize_subtask_note(note_raw)))
-        plans.append(PlanSeed(goal=goal, subtasks=tuple(items)))
+            scheduled = _optional_date(raw_item, "scheduled_on")
+            effort = _optional_choice(raw_item, "effort", _EFFORTS)
+            items.append(
+                SubtaskSeed(
+                    title=title,
+                    status=status,
+                    note=normalize_subtask_note(note_raw),
+                    scheduled_on=scheduled,
+                    effort=effort,
+                )
+            )
+        priority = _optional_choice(raw_plan, "priority", _PRIORITIES)
+        plans.append(PlanSeed(goal=goal, subtasks=tuple(items), priority=priority))
     return Dataset(name=name, plans=tuple(plans))
 
 
@@ -112,16 +180,130 @@ def _expectation(group: Group, raw: object) -> Expectation:
             raise LoadError(f"Kỳ vọng {key} rỗng.")
     if "status" in values and values["status"] not in _STATUSES:
         raise LoadError("Trạng thái kỳ vọng không hợp lệ.")
-    return Expectation(kind=kind, goal=values.get("goal"), title=values.get("title"), status=values.get("status"), note=values.get("note"))
+    deadline = _required_date(raw, "deadline") if kind in {"create_with_deadline", "set_deadline_existing"} else None
+    goal = values.get("goal")
+    other_goal = None
+    dates = None
+    history_moves = None
+    titles = None
+    priority = None
+    effort = None
+    title = values.get("title")
+    if kind == "set_deadline_existing" and "goal" not in raw:
+        raise LoadError("Kỳ vọng thiếu goal.")
+    if kind == "set_deadline_existing":
+        goal = _need_str(raw, "goal")
+        if goal == "":
+            raise LoadError("Kỳ vọng goal rỗng.")
+    if kind == "verbatim_titles":
+        titles = _title_list(raw)
+    if kind in {"clash_two_turn", "reschedule_no_confirm"}:
+        goal = _need_str(raw, "goal")
+        dates = _date_pairs(raw)
+        history_moves = _history_moves(raw)
+        if goal == "":
+            raise LoadError("Kỳ vọng goal rỗng.")
+    if kind == "clash_two_turn":
+        other_goal = _need_str(raw, "other_goal")
+        if other_goal == "":
+            raise LoadError("Kỳ vọng other_goal rỗng.")
+    if kind == "create_with_priority":
+        priority = _optional_choice(raw, "priority", _PRIORITIES)
+        if priority is None:
+            raise LoadError("Kỳ vọng thiếu priority.")
+    if kind == "set_priority_existing":
+        goal = _need_str(raw, "goal")
+        if goal == "":
+            raise LoadError("Kỳ vọng goal rỗng.")
+        priority = _optional_choice(raw, "priority", _PRIORITIES)
+        if priority is None:
+            raise LoadError("Kỳ vọng thiếu priority.")
+    if kind == "set_effort_existing":
+        goal = _need_str(raw, "goal")
+        title = _need_str(raw, "title")
+        if goal == "" or title == "":
+            raise LoadError("Kỳ vọng goal rỗng.")
+        effort = _optional_choice(raw, "effort", _EFFORTS)
+        if effort is None:
+            raise LoadError("Kỳ vọng thiếu effort.")
+    return Expectation(
+        kind=kind,
+        goal=goal,
+        title=title,
+        status=values.get("status"),
+        note=values.get("note"),
+        deadline=deadline,
+        titles=titles,
+        other_goal=other_goal,
+        dates=dates,
+        history_moves=history_moves,
+        priority=priority,
+        effort=effort,
+    )
+
+
+def _required_date(raw: dict[str, object], key: str) -> str:
+    if key not in raw or not isinstance(raw[key], str):
+        raise LoadError(f"Kỳ vọng thiếu {key}.")
+    try:
+        date.fromisoformat(raw[key])
+    except ValueError as error:
+        raise LoadError(f"Kỳ vọng {key} không phải ngày.") from error
+    return raw[key]
+
+
+def _title_list(raw: dict[str, object]) -> tuple[str, ...]:
+    titles = raw.get("titles")
+    if not isinstance(titles, list) or not titles:
+        raise LoadError("Kỳ vọng thiếu titles.")
+    found: list[str] = []
+    for item in titles:
+        if not isinstance(item, str) or _nfc(item) == "":
+            raise LoadError("Kỳ vọng titles không phải chuỗi.")
+        found.append(_nfc(item))
+    return tuple(found)
+
+
+def _date_pairs(raw: dict[str, object]) -> tuple[tuple[str, str], ...]:
+    dates = raw.get("dates")
+    if not isinstance(dates, list) or not dates:
+        raise LoadError("Kỳ vọng thiếu dates.")
+    pairs: list[tuple[str, str]] = []
+    for item in dates:
+        if not isinstance(item, list) or len(item) != 2 or not isinstance(item[0], str) or not isinstance(item[1], str):
+            raise LoadError("Kỳ vọng dates không hợp lệ.")
+        title = _nfc(item[0])
+        if title == "":
+            raise LoadError("Kỳ vọng dates không hợp lệ.")
+        try:
+            date.fromisoformat(item[1])
+        except ValueError as error:
+            raise LoadError("Kỳ vọng dates không hợp lệ.") from error
+        pairs.append((title, item[1]))
+    return tuple(pairs)
+
+
+def _history_moves(raw: dict[str, object]) -> int:
+    value = raw.get("history_moves")
+    if type(value) is not int:
+        raise LoadError("Kỳ vọng thiếu history_moves.")
+    return value
 
 
 def _expectation_refers(dataset: Dataset, expectation: Expectation) -> None:
-    if expectation.goal is None:
-        return
-    plan = next((item for item in dataset.plans if item.goal == expectation.goal), None)
-    if plan is None:
+    goals = {item.goal: item for item in dataset.plans}
+    if expectation.goal is not None and expectation.goal not in goals:
         raise LoadError("Kỳ vọng trỏ mục tiêu không có.")
-    if expectation.kind in {"update_status", "set_note"}:
+    if expectation.other_goal is not None and expectation.other_goal not in goals:
+        raise LoadError("Kỳ vọng trỏ mục tiêu không có.")
+    plan = goals.get(expectation.goal or "")
+    if expectation.dates is not None and plan is not None:
+        titles = {item.title for item in plan.subtasks}
+        if any(title not in titles for title, _day in expectation.dates):
+            raise LoadError("Kỳ vọng trỏ tiêu đề không có.")
+    if expectation.goal is None or plan is None:
+        return
+    if expectation.kind in {"update_status", "set_note", "set_effort_existing"}:
         if expectation.title is None or all(item.title != expectation.title for item in plan.subtasks):
             raise LoadError("Kỳ vọng trỏ tiêu đề không có.")
 
@@ -177,6 +359,10 @@ def load_suite(cases_path: Path, datasets_dir: Path) -> Suite:
             raise LoadError("Nhóm không hợp lệ.") from error
         message = _need_str(raw, "user_message")
         dataset_name = _need_str(raw, "dataset")
+        instant = _aware_instant(raw)
+        follow_up = _follow_up(raw)
+        if version == 2 and instant is None:
+            raise LoadError("Ca v2 thiếu instant.")
         if "/" in dataset_name or "\\" in dataset_name:
             raise LoadError("Tên bộ dữ liệu có đường dẫn.")
         expectation = _expectation(group, raw.get("expectation"))
@@ -191,5 +377,19 @@ def load_suite(cases_path: Path, datasets_dir: Path) -> Suite:
             _expectation_refers(dataset, expectation)
             if _already_true(dataset, expectation):
                 raise LoadError("Kỳ vọng đã đúng từ bộ dữ liệu.")
-        cases.append(Case(id=case_id, group=group, user_message=message, dataset=dataset_name, expectation=expectation))
+        elif expectation.goal is not None or expectation.other_goal is not None or expectation.dates:
+            raise LoadError("Kỳ vọng trỏ mục tiêu không có.")
+        if expectation.kind == "clash_two_turn" and (follow_up is None or dataset is None):
+            raise LoadError("Ca trùng thiếu follow_up hoặc bộ dữ liệu.")
+        cases.append(
+            Case(
+                id=case_id,
+                group=group,
+                user_message=message,
+                dataset=dataset_name,
+                expectation=expectation,
+                instant=instant,
+                follow_up=follow_up,
+            )
+        )
     return Suite(cases_version=version, cases=tuple(cases), datasets=datasets)

@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pytest
 from zoneinfo import ZoneInfoNotFoundError
 
+import core.clock as clock
 import core.morning as morning
 from core.morning import digest_update_id, helsinki_clock
 
@@ -43,18 +44,26 @@ def _raise_missing_zone(key: str) -> None:
 
 def test_import_does_not_need_zone_data() -> None:
     saved = {
-        key: morning.__dict__[key]
-        for key in morning.__dict__
+        key: clock.__dict__[key]
+        for key in clock.__dict__
         if key not in {"__builtins__"}
     }
     try:
         with patch("zoneinfo.ZoneInfo", new=_raise_missing_zone):
-            importlib.reload(morning)
+            importlib.reload(clock)
+            cached = getattr(clock, "_helsinki_zone", None)
+            if cached is not None and hasattr(cached, "cache_clear"):
+                cached.cache_clear()
             with pytest.raises(ZoneInfoNotFoundError):
-                morning.helsinki_clock(datetime(2026, 1, 15, 12, 0, tzinfo=timezone.utc))
+                clock.helsinki_clock(datetime(2026, 1, 15, 12, 0, tzinfo=timezone.utc))
     finally:
-        importlib.reload(morning)
-        morning.__dict__.update(saved)
-        cached = getattr(morning, "_helsinki_zone", None)
+        importlib.reload(clock)
+        clock.__dict__.update(saved)
+        cached = getattr(clock, "_helsinki_zone", None)
         if cached is not None and hasattr(cached, "cache_clear"):
             cached.cache_clear()
+        morning.helsinki_clock = clock.helsinki_clock
+
+
+def test_helsinki_clock_imports_from_morning() -> None:
+    assert morning.helsinki_clock is clock.helsinki_clock

@@ -458,3 +458,41 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 - Hình dạng lịch sử mỗi dạng đo một lần, chỉ cho `claude-haiku-5-5`. Đổi model thì đo lại trước khi deploy.
 
 **Phương án đã bỏ:** bảng riêng cho ngày bản tin kèm đổi khóa ngoại của `telegram_context_messages` (đụng bảng đang chạy và cần RPC mới cho cùng một hành vi); dải mã dương dành riêng (mã update thật chỉ được biết là số dương, không có trần để chọn dải an toàn); bảng lệch UTC tự viết thay `tzdata` (ngày chuyển mùa đổi theo năm); cờ "bỏ qua 90 giây" trong `decide_receive` (cờ dùng chung dễ làm update thường mất câu chưa chắc); gộp vai cùng loại hoặc chèn tin `user` giả vào lịch sử (thêm mã mà API không đòi).
+
+## D-026 — Ngày, ưu tiên, sức và lịch sử dời việc: ngày ở việc con, hạn suy ra, lịch sử do SQL chèn
+
+**Date:** 2026-11-09
+**Status:** Accepted
+
+**Supersedes:** Một phần D-021 mục 3 (số mẫu dòng bản ghép, từ sáu thành mười một) và mô tả chữ ký `replace_plan` của D-021 mục 2. Một phần D-024 mục 3: việc con sửa riêng ưu tiên dời sang vòng quét tải.
+
+**Bối cảnh:** D-024 chốt F17 mở rộng nhưng kho chưa có chỗ lưu ngày có cấu trúc: bot nhét ngày vào tiêu đề việc con và mô hình không có đồng hồ. Spec 015 thực hiện D-024 mục 1, 3, 5, 9 và 11. Clarify và plan chốt các điểm dưới đây.
+
+**Quyết định:**
+1. Mốc lượt là tham số bắt buộc của `run_turn`, không có mặc định. Một mốc cho mọi lần gọi mô hình của lượt. Khối ngày (hôm nay, cùng bảng thứ và ngày ISO của tuần này và tuần sau) do hàm thuần dựng và ghép sau hằng lời hướng dẫn, hằng không chứa ngày. `helsinki_clock` nằm ở `src/core/clock.py` và vẫn import được từ `core.morning`. Một hàm tên thứ tiếng Việt dùng chung cho dòng ngày của lượt và cho digest. `execute_tool` nhận ngữ cảnh lượt tùy chọn.
+2. `Plan.priority` (cao, vừa, thấp, lưu `high`, `medium`, `low`), `Subtask.scheduled_on` (ngày lịch, không giờ) và `Subtask.effort` (S, M, L), đều cho phép trống. S, M, L ứng với 1, 3, 6 giờ ở một hằng; vòng này chỉ lưu, không cộng giờ. Không lưu độ gấp. Không có cột hạn: hạn của kế hoạch là ngày muộn nhất trong các việc chưa làm có ngày. Khi chủ bot nêu hạn cho cả kế hoạch, bot đặt ngày đó lên việc chưa làm cuối cùng. Ưu tiên riêng của việc con, trường "xong khi" và tên kế hoạch tách khỏi goal không thuộc vòng này. Bot không tự đặt ưu tiên hay sức: chỉ đặt khi người dùng nói rõ (lần đo p4-d3 cho thấy mô hình tự đặt ưu tiên ở 20 trên 20 lần tạo kế hoạch của bộ v1).
+3. Lịch sử dời việc là bảng chỉ thêm `subtask_date_moves`. Một dòng chỉ sinh khi một việc đổi từ một ngày sang một ngày khác; đặt ngày lần đầu, bỏ ngày và đặt lại đúng ngày không sinh dòng. `replace_plan` tự chèn dòng trong cùng transaction với lần ghi kế hoạch. Lý do và mốc là tham số RPC, không gọi `now()`. Bảng không có khóa ngoại, vì `replace_plan` xóa việc con vắng trong payload, và một trigger chặn sửa và xóa. Vòng này không có đường đọc lịch sử cho mô hình.
+4. RPC tương thích ngược. `add_plan` thêm `priority` mặc định null. `replace_plan` thêm `plan_fields`, `move_reason`, `moved_at`, đều mặc định null. Migration bỏ chữ ký cũ rồi tạo lại. Khóa vắng trong JSON của ngày, sức và ưu tiên thì giữ giá trị đang lưu; JSON null thì xóa; khóa `note` vắng vẫn thành null như cũ. Nhờ vậy giữa `db push` và deploy Worker không có cửa sổ lỗi, và rollback Worker về bản cũ không xóa giá trị đã lưu.
+5. Catalog tool bản 3 có chín tool: sáu tool cũ cộng `set_plan_priority`, `set_subtask_effort`, `reschedule_subtasks`. `create_plan` nhận mảng object. `add_subtask` nhận ngày và sức. Tool đổi trạng thái không đặt ngày, sức hay ưu tiên. Lời hướng dẫn lên bản 7. Các bản 4, 5 và 6 chỉ dùng cho ba lần đo p4-d3, p5-d3 và p6-d3 và chưa deploy: bản 4 làm mô hình tự đặt ưu tiên và sức, hỏi trước khi tạo kế hoạch, và dời cả chuỗi việc; bản 5 sửa các lỗi đó nhưng làm mô hình tạo kế hoạch cả khi hạn mơ hồ, bỏ sót ngày của hạn, và không đặt confirm ở lượt xác nhận.
+6. Chỉ `reschedule_subtasks` kiểm trùng. Trùng khi hạn của kế hoạch đang dời, sau lần dời, bằng hạn một kế hoạch khác, tính theo ngày và chỉ trên việc chưa làm, không cộng giờ. Lần gọi đầu thấy trùng trả thông tin và không ghi. Chỉ lần gọi lại có cờ xác nhận mới ghi. Cờ không chứng minh chủ bot đồng ý. Ngữ cảnh lượt giữ cờ "đã báo trùng"; lần gọi có cờ trong cùng lượt sau một lần báo trùng bị từ chối. Kết quả trùng không vào bản ghép D-021. `create_plan` và `add_subtask` không kiểm trùng; kiểm lúc tạo thuộc vòng quét tải (D-024 mục 7).
+7. Bản ghép D-021 có mười một mẫu dòng, thay cho sáu.
+8. Digest và `/next` thêm đoạn ngày `(thứ Sáu 06/11)` cuối dòng tiêu đề của việc chưa làm đầu tiên khi việc đó có ngày. Code dựng đoạn này từ trường ngày. Quy tắc dựng không nhận thời điểm hiện tại.
+9. Hạn tương đối: tuần lịch là thứ Hai đến Chủ nhật theo ngày Helsinki. "Cuối tuần này" là Chủ nhật của tuần chứa hôm nay. Tên một thứ vào đúng ngày đó thì bot hỏi lại và không ghi. "Tuần sau" không kèm thứ là Chủ nhật của tuần sau; bot lưu ngày đó và nói ngày đã chọn (đổi sau lần đo p6-d3: mô hình không hỏi lại ở 3 trên 3 lượt và chọn Chủ nhật, cùng quy ước với "cuối tuần này"). "Thứ X tuần sau" là thứ X của tuần kế tiếp. Luật nằm ở lời hướng dẫn; code không phân tích tiếng Việt.
+10. Eval có bộ câu v2 với mốc đồng hồ theo từng ca và ca hai lượt (lịch sử lượt hai chỉ là chữ). Bộ v1 chạy lại với lời hướng dẫn bản mới để so với p3-d2.
+11. Router chấp nhận tham số kiểu mảng khi mô hình gửi nó dưới dạng chuỗi JSON (6 trên 62 lần gọi create_plan ở p5-d3 làm vậy) và ghi input đã chuyển vào dòng log.
+
+**Lý do:**
+- Ngày có cấu trúc là điều kiện của quét tải, lịch và nhắc theo giờ. Dữ liệu phải ghi từ sớm vì không điền ngược được.
+- Hạn suy ra từ ngày việc con nên một nguồn sự thật, và gia hạn là dời ngày việc con nên lịch sử tự có.
+- Lịch sử do SQL chèn thì bất biến nằm cạnh dữ liệu: đường ghi nào gọi `replace_plan` cũng không bỏ qua được.
+- Khóa vắng thì giữ, tham số mặc định null và `drop function` bảo đảm Worker cũ và Worker mới sống chung qua một lần đẩy hoặc một lần rollback.
+- Cờ nằm trên ngữ cảnh lượt để vòng lặp lượt không phải biết tên tool và router không giữ trạng thái.
+
+**Trade-off:**
+- Phép tìm trùng đọc các kế hoạch khác trước khi ghi và không cùng transaction với lần ghi; khóa version chỉ bảo vệ kế hoạch đang dời.
+- Cờ xác nhận không phải bằng chứng. Eval không bắt được cờ đặt ngay lần gọi đầu của một lượt khi chủ bot chưa đồng ý.
+- Trigger chặn xóa nên test kho không dọn được bảng lịch sử; test lọc theo mã của chính lần ghi và `db reset` dọn bảng.
+- Catalog chín tool, lời hướng dẫn dài hơn và khối ngày làm mỗi lần gọi mô hình thêm khoảng 1.600 đến 1.800 token vào (đo ở p4-d3: 1.199.053 so với 732.676 token vào cho 150 lượt v1). Việc chọn tool của các nhóm cũ không kém đi: cập nhật, thêm việc, ghi chú và hỏi danh sách đều 1,0.
+- Digest mất chữ ngày ở tiêu đề mới và chỉ hiện ngày qua trường ngày; kế hoạch cũ giữ ngày trong tiêu đề và trường ngày trống.
+
+**Phương án đã bỏ:** cột hạn riêng trên kế hoạch (hai nguồn sự thật, gia hạn không có lịch sử); core tính danh sách việc đổi ngày rồi store ghi lịch sử bằng RPC thứ hai (đường gọi `replace_plan` khác sẽ mất dòng); khóa ngoại `ON DELETE CASCADE` (xóa lịch sử) hoặc `RESTRICT` (chặn lần ghi hợp lệ); coi khóa ngày vắng là xóa (Worker cũ sẽ xóa ngày); `run_turn` tự nhớ tên tool và chữ kết quả để chốt cờ; nhét ngày vào tin người dùng (vào ngữ cảnh hội thoại như lời chủ bot); phân tích hạn tương đối bằng code; ưu tiên riêng của việc con ngay vòng này.

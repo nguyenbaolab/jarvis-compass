@@ -1,4 +1,4 @@
-"""Ba câu và sáu mẫu khi lượt không kết thúc bình thường. Không bản sao ở chỗ khác."""
+"""Ba câu và mười một mẫu khi lượt không kết thúc bình thường. Không bản sao ở chỗ khác."""
 
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -38,6 +38,36 @@ def saved_clear_note(title: str, goal: str) -> str:
     """Dòng đã lưu khi xóa ghi chú."""
 
     return f"Đã bỏ ghi chú của việc {title} trong kế hoạch {goal}."
+
+
+def saved_set_priority(label: str, goal: str) -> str:
+    """Dòng đã lưu khi đặt ưu tiên. label là cao, vừa, hoặc thấp."""
+
+    return f"Đã lưu ưu tiên {label} cho kế hoạch {goal}."
+
+
+def saved_clear_priority(goal: str) -> str:
+    """Dòng đã lưu khi xóa ưu tiên."""
+
+    return f"Đã bỏ ưu tiên của kế hoạch {goal}."
+
+
+def saved_set_effort(code: str, title: str, goal: str) -> str:
+    """Dòng đã lưu khi đặt sức. code là S, M, hoặc L."""
+
+    return f"Đã lưu sức {code} cho việc {title} trong kế hoạch {goal}."
+
+
+def saved_clear_effort(title: str, goal: str) -> str:
+    """Dòng đã lưu khi xóa sức."""
+
+    return f"Đã bỏ sức của việc {title} trong kế hoạch {goal}."
+
+
+def saved_reschedule(titles: tuple[str, ...], goal: str) -> str:
+    """Một dòng cho cả lần dời ngày. Nhiều tiêu đề nối bằng dấu phẩy."""
+
+    return f"Đã lưu ngày của việc {', '.join(titles)} trong kế hoạch {goal}."
 
 
 @dataclass(frozen=True)

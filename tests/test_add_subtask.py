@@ -211,3 +211,22 @@ def test_goal_or_uppercase_id_is_missing() -> None:
     assert _refusal(upper_changed(created["id"]), "Mua giáo trình", store) == _MISSING_PLAN
     assert listed_plans(store) == before
     _add_after(created, store)
+
+
+def test_add_subtask_stores_date_and_effort() -> None:
+    store = MemoryPlanStore()
+    created = pending_or_done_plan(asyncio.run(create_plan("Học tiếng Nhật", store=store)))
+    added = pending_or_done_plan(
+        asyncio.run(
+            add_subtask(
+                created["id"],
+                "Mua giáo trình",
+                scheduled_on="2026-11-06",
+                effort="L",
+                store=store,
+            )
+        )
+    )
+    assert added["subtasks"][0]["scheduled_on"] == "2026-11-06"
+    assert added["subtasks"][0]["effort"] == "L"
+    assert store.date_moves == []

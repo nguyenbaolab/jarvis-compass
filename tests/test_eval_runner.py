@@ -221,3 +221,56 @@ def test_runner_one_case_prints_one_stderr_progress_line(
     assert captured.err.splitlines() == [f"[1/1] c1 {kinds}"]
     assert "Mình nghe." not in captured.err
     _assert_no_socket()
+
+
+def test_runner_defaults_to_v1_cases(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Không truyền đường dẫn thì runner đọc evals/cases/v1.json."""
+
+    import sys
+    import types
+    from pathlib import Path
+
+    from evals import runner
+
+    seen: dict[str, object] = {}
+
+    def fake(*args: object, **kwargs: object) -> int:
+        del kwargs
+        seen["path"] = args[4]
+        return 0
+
+    module = types.ModuleType("clients.anthropic_model")
+    module.AnthropicModel = lambda: None  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "clients.anthropic_model", module)
+    monkeypatch.setattr(runner, "run_suite", fake)
+    monkeypatch.setattr(runner.sys, "argv", ["runner"])
+    with pytest.raises(SystemExit) as error:
+        runner.main()
+    assert error.value.code == 0
+    assert seen["path"] == Path("evals/cases/v1.json")
+
+
+def test_runner_reads_case_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Đường dẫn trên lệnh là file bộ câu."""
+
+    import sys
+    import types
+
+    from evals import runner
+
+    seen: dict[str, object] = {}
+
+    def fake(*args: object, **kwargs: object) -> int:
+        del kwargs
+        seen["path"] = args[4]
+        return 0
+
+    module = types.ModuleType("clients.anthropic_model")
+    module.AnthropicModel = lambda: None  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "clients.anthropic_model", module)
+    monkeypatch.setattr(runner, "run_suite", fake)
+    monkeypatch.setattr(runner.sys, "argv", ["runner", "evals/cases/v2.json"])
+    with pytest.raises(SystemExit) as error:
+        runner.main()
+    assert error.value.code == 0
+    assert str(seen["path"]).replace("\\", "/") == "evals/cases/v2.json"

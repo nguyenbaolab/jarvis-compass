@@ -3,8 +3,10 @@
 Chỉ dùng thư viện chuẩn. Không import FastAPI, Pydantic, tools, hay db.
 """
 
+import re
 import uuid
 from dataclasses import dataclass, replace
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Callable, Protocol
 
@@ -27,6 +29,30 @@ class SubtaskStatus(StrEnum):
     SKIPPED = "skipped"
 
 
+class Priority(StrEnum):
+    """Ưu tiên của kế hoạch. Không có mức độ gấp."""
+
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+class Effort(StrEnum):
+    """Sức của việc con. Số giờ chỉ ở EFFORT_HOURS."""
+
+    S = "S"
+    M = "M"
+    L = "L"
+
+
+EFFORT_HOURS: dict[Effort, int] = {Effort.S: 1, Effort.M: 3, Effort.L: 6}
+
+_ISO_DATE = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$")
+_BAD_DATE = "Ngày phải là YYYY-MM-DD."
+_BAD_PRIORITY = "Ưu tiên chỉ nhận high, medium hoặc low."
+_BAD_EFFORT = "Sức chỉ nhận S, M hoặc L."
+
+
 @dataclass(frozen=True)
 class Subtask:
     """Một việc con. Danh tính giữ nguyên khi trạng thái hoặc ghi chú đổi."""
@@ -35,6 +61,8 @@ class Subtask:
     title: str
     status: SubtaskStatus
     note: str | None
+    scheduled_on: date | None = None
+    effort: Effort | None = None
 
 
 @dataclass(frozen=True)
@@ -46,12 +74,19 @@ class Plan:
     subtasks: tuple[Subtask, ...]
     created_order: int
     version: int
+    priority: Priority | None = None
 
 
 class PlanStore(Protocol):
     """Cổng lưu kế hoạch. Bản cài đặt thật là SupabasePlanStore ở src/db/plan_store.py."""
 
-    async def add(self, goal: str, subtasks: tuple[Subtask, ...]) -> Plan:
+    async def add(
+        self,
+        goal: str,
+        subtasks: tuple[Subtask, ...],
+        *,
+        priority: Priority | None = None,
+    ) -> Plan:
         """Gán id và created_order, giữ nguyên goal và thứ tự việc con."""
 
     async def list_newest_first(self) -> tuple[Plan, ...]:
@@ -60,7 +95,13 @@ class PlanStore(Protocol):
     async def get(self, plan_id: str) -> Plan | None:
         """Trả kế hoạch có đúng id, hoặc None khi không có."""
 
-    async def replace(self, plan: Plan) -> None:
+    async def replace(
+        self,
+        plan: Plan,
+        *,
+        move_reason: str | None = None,
+        moved_at: datetime | None = None,
+    ) -> None:
         """Thay kế hoạch cùng id. Không thêm mới và không cấp lại id việc con."""
 
 
@@ -86,9 +127,74 @@ def new_subtask(title: str | None) -> Subtask:
     )
 
 
+def normalize_scheduled_on(value: object) -> date | None:
+    """Ngày lịch YYYY-MM-DD, hoặc trống. Chuỗi khác là lỗi miền."""
+
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        raise PlanDomainError(_BAD_DATE)
+    if isinstance(value, date):
+        return value
+    if not isinstance(value, str) or _ISO_DATE.fullmatch(value) is None:
+        raise PlanDomainError(_BAD_DATE)
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        raise PlanDomainError(_BAD_DATE) from None
+
+
+def normalize_priority(value: object) -> Priority | None:
+    """Ba mã ưu tiên, hoặc trống. Mã lạ là lỗi miền."""
+
+    if value is None:
+        return None
+    if isinstance(value, Priority):
+        return value
+    if not isinstance(value, str):
+        raise PlanDomainError(_BAD_PRIORITY)
+    try:
+        return Priority(value)
+    except ValueError:
+        raise PlanDomainError(_BAD_PRIORITY) from None
+
+
+def normalize_effort(value: object) -> Effort | None:
+    """S, M, L, hoặc trống. Mã lạ là lỗi miền."""
+
+    if value is None:
+        return None
+    if isinstance(value, Effort):
+        return value
+    if not isinstance(value, str):
+        raise PlanDomainError(_BAD_EFFORT)
+    try:
+        return Effort(value)
+    except ValueError:
+        raise PlanDomainError(_BAD_EFFORT) from None
+
+
+def _subtask_from_raw(raw: object) -> Subtask:
+    """Chuỗi là tiêu đề. Object có title, và ngày cùng sức tùy chọn."""
+
+    if isinstance(raw, str):
+        return new_subtask(raw)
+    if isinstance(raw, dict):
+        title = raw.get("title")
+        if title is not None and not isinstance(title, str):
+            raise PlanDomainError("Việc con không được để trống.")
+        built = new_subtask(title)
+        return replace(
+            built,
+            scheduled_on=normalize_scheduled_on(raw.get("scheduled_on")),
+            effort=normalize_effort(raw.get("effort")),
+        )
+    raise PlanDomainError("Việc con không được để trống.")
+
+
 def normalize_new_plan(
     goal: str | None,
-    subtasks: list[str] | None,
+    subtasks: list[str] | list[object] | None,
 ) -> tuple[str, tuple[Subtask, ...]]:
     """Chuẩn hóa goal và việc con trước khi lưu. Store không chuẩn hóa lại."""
 
@@ -99,7 +205,7 @@ def normalize_new_plan(
         raise PlanDomainError("Mục tiêu không được để trống.")
     if subtasks is None:
         return normalized_goal, ()
-    return normalized_goal, tuple(new_subtask(raw_title) for raw_title in subtasks)
+    return normalized_goal, tuple(_subtask_from_raw(raw) for raw in subtasks)
 
 
 def normalize_plan_id(plan_id: str | None) -> str:
@@ -149,6 +255,7 @@ def _plan_with_subtasks(plan: Plan, subtasks: tuple[Subtask, ...]) -> Plan:
         subtasks=subtasks,
         created_order=plan.created_order,
         version=plan.version,
+        priority=plan.priority,
     )
 
 
@@ -192,6 +299,17 @@ def replace_subtask_status(plan: Plan, subtask_id: str, status: SubtaskStatus) -
     return _replace_one_subtask(plan, subtask_id, change)
 
 
+def normalize_move_reason(reason: str | None) -> str | None:
+    """NFC rồi bỏ khoảng trắng hai đầu. None hoặc rỗng thành không có lý do."""
+
+    if reason is None:
+        return None
+    normalized = _nfc_strip(reason)
+    if normalized == "":
+        return None
+    return normalized
+
+
 def normalize_subtask_note(note: str | None) -> str | None:
     """NFC rồi bỏ khoảng trắng hai đầu. None hoặc rỗng thành không có ghi chú."""
 
@@ -212,6 +330,47 @@ def replace_subtask_note(plan: Plan, subtask_id: str, note: str | None) -> Plan:
         return replace(item, note=note)
 
     return _replace_one_subtask(plan, subtask_id, change)
+
+
+def plan_deadline(plan: Plan) -> date | None:
+    """Ngày muộn nhất trong các việc chưa làm có ngày. Không có thì None."""
+
+    dates = [
+        item.scheduled_on
+        for item in plan.subtasks
+        if item.status is SubtaskStatus.PENDING and item.scheduled_on is not None
+    ]
+    if not dates:
+        return None
+    return max(dates)
+
+
+def deadline_clash(after: Plan, others: tuple[Plan, ...]) -> Plan | None:
+    """Kế hoạch khác có cùng hạn. Cùng id với after thì bỏ qua."""
+
+    deadline = plan_deadline(after)
+    if deadline is None:
+        return None
+    for other in others:
+        if other.id == after.id:
+            continue
+        if plan_deadline(other) == deadline:
+            return other
+    return None
+
+
+def date_moves(before: Plan, after: Plan) -> tuple[Subtask, ...]:
+    """Việc đổi từ một ngày sang một ngày khác. Trả việc ở bản sau."""
+
+    previous = {item.id: item for item in before.subtasks}
+    moved: list[Subtask] = []
+    for item in after.subtasks:
+        old = previous.get(item.id)
+        if old is None or old.scheduled_on is None or item.scheduled_on is None:
+            continue
+        if old.scheduled_on != item.scheduled_on:
+            moved.append(item)
+    return tuple(moved)
 
 
 def filter_by_keyword(

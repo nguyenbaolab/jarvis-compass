@@ -1,11 +1,12 @@
 """Kiểu bộ câu và bộ dữ liệu. Không dùng Pydantic."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from enum import StrEnum
 
 
 class Group(StrEnum):
-    """Mười nhóm, đúng chữ trong spec."""
+    """Nhóm câu, đúng chữ trong spec và mục 10a."""
 
     LAP_KE_HOACH = "nhờ lập kế hoạch"
     CHI_KE_VIEC = "chỉ kể việc"
@@ -17,6 +18,18 @@ class Group(StrEnum):
     CHAO_HOI = "chào hỏi"
     CAU_MO_HO = "câu mơ hồ"
     CAU_NGOAI = "câu ngoài phạm vi"
+    HAN_LUU_NGAY = "hạn tương đối: lưu ngày"
+    HAN_HOI_LAI = "hạn tương đối: hỏi lại"
+    NHOM_MO_HO = "nhóm việc mơ hồ"
+    HAN_CA_KE_HOACH = "hạn cả kế hoạch"
+    DOI_HAN_TRUNG = "dời hạn trùng"
+    DOI_NGAY = "dời ngày không cần xác nhận"
+    TIN_DAI = "tin dài có ngày"
+    LIET_KE = "liệt kê tiêu đề"
+    GHI_NHAN = "ghi nhận"
+    UU_TIEN_NGUOI_DUNG = "ưu tiên do người dùng nêu"
+    DAT_UU_TIEN = "đặt ưu tiên"
+    DAT_SUC = "đặt sức"
 
 
 @dataclass(frozen=True)
@@ -28,6 +41,13 @@ class Expectation:
     title: str | None = None
     status: str | None = None
     note: str | None = None
+    deadline: str | None = None
+    titles: tuple[str, ...] | None = None
+    other_goal: str | None = None
+    dates: tuple[tuple[str, str], ...] | None = None
+    history_moves: int | None = None
+    priority: str | None = None
+    effort: str | None = None
 
 
 @dataclass(frozen=True)
@@ -39,6 +59,8 @@ class Case:
     user_message: str
     dataset: str
     expectation: Expectation
+    instant: datetime | None = None
+    follow_up: str | None = None
 
 
 @dataclass(frozen=True)
@@ -48,6 +70,8 @@ class SubtaskSeed:
     title: str
     status: str
     note: str | None
+    scheduled_on: str | None = None
+    effort: str | None = None
 
 
 @dataclass(frozen=True)
@@ -56,6 +80,7 @@ class PlanSeed:
 
     goal: str
     subtasks: tuple[SubtaskSeed, ...]
+    priority: str | None = None
 
 
 @dataclass(frozen=True)

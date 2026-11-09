@@ -26,7 +26,7 @@
 
 Chủ bot nhận một tin buổi sáng do JARVIS tự gửi, và bất cứ lúc nào cũng gõ `/next` để xem lại đúng nội dung đó. Trước lát này bot chỉ trả lời khi có tin tới. Đây là lần đầu bot tự gửi, theo constitution nguyên tắc V và [D-007](../../docs/DECISIONS.md): đồng hồ nằm ở server, tin đi vào cuộc trò chuyện riêng, không phụ thuộc điện thoại có đang mở hay không.
 
-Vòng này là F10 vòng đầu trong [D-024](../../docs/DECISIONS.md) mục 2. Cả hai đường không gọi mô hình. Chữ của digest và chữ của `/next` do cùng một quy tắc dựng. Đầu vào của quy tắc là các kế hoạch đang hoạt động. Quy tắc không thêm ngày, thứ, hay múi giờ vào tin.
+Vòng này là F10 vòng đầu trong [D-024](../../docs/DECISIONS.md) mục 2. Cả hai đường không gọi mô hình. Chữ của digest và chữ của `/next` do cùng một quy tắc dựng. Đầu vào của quy tắc là các kế hoạch đang hoạt động. Quy tắc không nhận thời điểm hiện tại. Việc chưa làm đầu có ngày thì cuối dòng tiêu đề thêm một dấu cách và `(<tên thứ> DD/MM)` dựng từ trường ngày. Không năm, không múi giờ, không chữ quá hạn. Không ngày thì không thêm. Tiêu đề đã lưu giữ nguyên từng chữ.
 
 Người dùng là một người, chủ bot, đúng [docs/PRODUCT.md](../../docs/PRODUCT.md) §2 và [D-022](../../docs/DECISIONS.md). Kho kế hoạch không có khái niệm người dùng. Lát này không thêm khái niệm đó.
 
@@ -81,7 +81,7 @@ Chủ bot gõ `/next` trong cuộc trò chuyện riêng và nhận ngay nội du
 
 ### User Story 3 - Hai đường không lệch chữ (Priority: P1)
 
-Digest và `/next` dùng một quy tắc. Không có bản chữ thứ hai viết riêng cho từng đường. Quy tắc nhận các kế hoạch đang hoạt động. Quy tắc không thêm ngày, thứ, hay múi giờ vào chữ.
+Digest và `/next` dùng một quy tắc. Không có bản chữ thứ hai viết riêng cho từng đường. Quy tắc nhận các kế hoạch đang hoạt động. Quy tắc không nhận thời điểm hiện tại. Việc chưa làm đầu có ngày thì cuối dòng tiêu đề thêm một dấu cách và `(<tên thứ> DD/MM)` dựng từ trường ngày. Không năm, không múi giờ, không chữ quá hạn. Không ngày thì không thêm. Tiêu đề đã lưu giữ nguyên từng chữ.
 
 **Why this priority**: Hai đường lệch nhau thì chủ bot không biết tin sáng và lệnh `/next` cái nào đúng.
 
@@ -89,7 +89,7 @@ Digest và `/next` dùng một quy tắc. Không có bản chữ thứ hai viế
 
 **Acceptance Scenarios**:
 
-1. **Given** một bộ kế hoạch cố định, **When** gọi quy tắc ở hai thời điểm khác nhau, **Then** hai kết quả cùng chữ. Không kết quả nào chứa một ngày, một thứ, hay một múi giờ do quy tắc thêm vào.
+1. **Given** một bộ kế hoạch cố định, **When** gọi quy tắc ở hai thời điểm khác nhau, **Then** hai kết quả cùng chữ. Việc chưa làm đầu có ngày thì cuối dòng tiêu đề có đoạn `(<tên thứ> DD/MM)` dựng từ trường ngày. Không năm, không múi giờ, không chữ quá hạn. Không ngày thì không có đoạn đó. Tiêu đề đã lưu giữ nguyên từng chữ.
 2. **Given** cùng bộ kế hoạch, **When** lấy chữ bằng đường digest và bằng đường `/next`, **Then** hai chữ là cùng một chuỗi, kể cả thứ tự các đoạn. Khác đường không được thêm lời chào, lời kết, hay một việc khác.
 
 ---
@@ -159,7 +159,7 @@ Gửi lỗi hoặc kết quả không rõ thì ngày đó chưa gửi, và lần
 ### Functional Requirements
 
 - **FR-001**: Mỗi ngày, lúc 08:00 theo đồng hồ Helsinki, khi ngày đó chưa được xác nhận đã gửi, hệ thống MUST gửi một digest vào cuộc trò chuyện riêng với chủ bot. Mốc MUST là 08:00 giờ địa phương Helsinki cả khi Helsinki đổi giờ mùa. Ngày của digest MUST là ngày trên lịch Helsinki. Việc gửi MUST NOT phụ thuộc điện thoại có đang mở hay có tự đặt lịch.
-- **FR-002**: Digest và câu trả lời `/next` MUST được dựng bằng cùng một quy tắc. Đầu vào MUST là các kế hoạch đang hoạt động. Quy tắc MUST NOT gọi mô hình. Quy tắc MUST NOT thêm ngày, thứ, hay múi giờ vào chữ. Hai lần gọi với cùng các kế hoạch MUST ra cùng một chuỗi. Các đoạn MUST xếp theo thứ tự tạo (`created_order`) tăng dần: kế hoạch tạo trước đứng trước.
+- **FR-002**: Digest và câu trả lời `/next` MUST được dựng bằng cùng một quy tắc. Đầu vào MUST là các kế hoạch đang hoạt động. Quy tắc MUST NOT gọi mô hình. Quy tắc MUST NOT nhận thời điểm hiện tại. Việc chưa làm đầu có ngày thì cuối dòng tiêu đề MUST thêm một dấu cách và `(<tên thứ> DD/MM)` dựng từ trường ngày. Không năm, không múi giờ, không chữ quá hạn. Không ngày thì MUST NOT thêm đoạn đó. Tiêu đề đã lưu MUST giữ nguyên từng chữ. Hai lần gọi với cùng các kế hoạch MUST ra cùng một chuỗi. Các đoạn MUST xếp theo thứ tự tạo (`created_order`) tăng dần: kế hoạch tạo trước đứng trước.
 - **FR-003**: Nghĩa "đang hoạt động" MUST giữ nguyên theo [spec tạo và liệt kê](../001-create-list-plans/spec.md) và [spec bỏ qua và ghi chú](../005-subtask-skip-note/spec.md). Kế hoạch không còn việc `pending` MUST vẫn đang hoạt động và MUST NOT có đoạn trong tin. Lát này MUST NOT thêm cách đóng kế hoạch.
 - **FR-004**: Với mỗi kế hoạch đang hoạt động còn ít nhất một việc `pending`, đoạn của kế hoạch đó MUST là nguyên văn mục tiêu đã lưu, xuống dòng, rồi nguyên văn tiêu đề của việc `pending` đầu tiên theo thứ tự đã lưu. Tiêu đề việc `done`, tiêu đề việc `skipped`, và tiêu đề các việc `pending` đứng sau MUST NOT được thêm vào. Ngày chỉ nằm trong tiêu đề MUST được giữ nguyên từng ký tự.
 - **FR-005**: Khi không có đoạn nào, vì không có kế hoạch đang hoạt động hoặc không kế hoạch nào còn việc `pending`, cả digest và câu trả lời `/next` MUST là đúng câu `Không còn việc chưa làm.` Câu đó MUST là cả tin. Khi đã có ít nhất một đoạn, quy tắc MUST NOT thêm câu đó.

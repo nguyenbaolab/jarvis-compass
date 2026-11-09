@@ -2,7 +2,9 @@
 
 import time
 from collections.abc import Callable, Sequence
+from datetime import datetime
 
+from core.clock import turn_date_line
 from core.llm import (
     ModelClient,
     ModelError,
@@ -15,6 +17,7 @@ from core.llm import (
 from core.log_line import default_log, duration_ms, write_json_line
 from core.plans import PlanStore
 from core.system_prompt import PROMPT_VERSION, SYSTEM_PROMPT
+from tools.base import TurnContext
 from tools.saved_reply import Abandoned, Rejected, Saved, compose
 from tools.tool_definitions import DEFINITIONS_VERSION, TOOL_DEFINITIONS
 from tools.tool_router import execute_tool
@@ -122,6 +125,7 @@ async def _run_tools(
     log: Callable[[str], None],
     started: float,
     effects: list[Saved | Abandoned | Rejected],
+    turn: TurnContext,
 ) -> tuple[ToolResultMessage, ...] | str:
     """Chạy mọi tool theo thứ tự. Hết giờ thì trả câu lỗi, không bắt đầu tool kế."""
 
@@ -135,6 +139,7 @@ async def _run_tools(
             store=store,
             log=log,
             remaining=lambda: _remaining(started),
+            turn=turn,
         )
         _record(effects, tool_result)
         results.append(
@@ -171,17 +176,20 @@ async def run_turn(
     user_message: str,
     history: Sequence[TextMessage],
     *,
+    instant: datetime,
     store: PlanStore,
     api_key: str | None,
     client: ModelClient,
     log: Callable[[str], None] | None = None,
 ) -> str:
-    """Chạy một lượt và trả một chuỗi. Không sửa list lịch sử của người gọi."""
+    """Chạy một lượt và trả một chuỗi. Mốc là bắt buộc và không đọc lại giữa lượt."""
 
     if api_key is None or api_key == "":
         raise MissingKeyError()
     writer = default_log if log is None else log
     started = _now()
+    turn = TurnContext(instant=instant)
+    system = f"{SYSTEM_PROMPT}\n\n{turn_date_line(instant)}"
     messages = tuple(history) + (TextMessage(role="user", text=user_message),)
     done: list[tuple[tuple[ToolRequest, ...], tuple[ToolResultMessage, ...]]] = []
     effects: list[Saved | Abandoned | Rejected] = []
@@ -190,7 +198,7 @@ async def run_turn(
         if remaining <= 0:
             return _abnormal(effects, _MODEL_ERROR)
         request = ModelRequest(
-            system=SYSTEM_PROMPT,
+            system=system,
             messages=messages,
             tools=TOOL_DEFINITIONS,
             rounds=tuple(done),
@@ -227,6 +235,7 @@ async def run_turn(
             log=writer,
             started=started,
             effects=effects,
+            turn=turn,
         )
         if isinstance(tool_results, str):
             return tool_results

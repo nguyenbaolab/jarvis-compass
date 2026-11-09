@@ -31,11 +31,11 @@ _NOT_IN_PLAN = "Kế hoạch này không có việc con với danh tính này."
 def _plan(result: ToolResult) -> dict:
     assert result.success is True
     data = json.loads(result.output)
-    assert set(data) == {"id", "goal", "subtasks"}
+    assert set(data) == {"id", "goal", "priority", "subtasks"}
     assert _UUID.fullmatch(data["id"])
     seen: set[str] = set()
     for item in data["subtasks"]:
-        assert list(item) == ["id", "title", "status", "note"]
+        assert list(item) == ["id", "title", "status", "note", "scheduled_on", "effort"]
         assert isinstance(item["title"], str)
         assert item["status"] in {"pending", "done", "skipped"}
         assert item["note"] is None or isinstance(item["note"], str)
@@ -165,7 +165,7 @@ def test_added_subtask_has_null_note_and_keeps_key_order() -> None:
     store = MemoryPlanStore()
     created = _plan(asyncio.run(create_plan("Học tiếng Nhật", store=store)))
     added = _plan(asyncio.run(add_subtask(created["id"], "Mua giáo trình", store=store)))
-    assert list(added["subtasks"][0]) == ["id", "title", "status", "note"]
+    assert list(added["subtasks"][0]) == ["id", "title", "status", "note", "scheduled_on", "effort"]
     assert added["subtasks"][0]["note"] is None
     assert added["subtasks"][0]["status"] == "pending"
 

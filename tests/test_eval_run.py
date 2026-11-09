@@ -483,3 +483,71 @@ def test_run_once_always_get_plans_is_cap_at_tool_round_cap() -> None:
     assert outcome.kind == "cap"
     assert outcome.rounds == TOOL_ROUND_CAP
     _assert_no_socket()
+
+
+def test_follow_up_history_is_two_text_messages() -> None:
+    """History lượt 2 là hai tin chữ. follow_up là tin của lượt 2."""
+
+    from evals.model import Group
+
+    case = Case(
+        id="two",
+        group=Group.GHI_NHAN,
+        user_message="lượt một",
+        dataset="",
+        expectation=Expectation(kind="observe"),
+        follow_up="lượt hai",
+    )
+    client = FakeClient([_reply("end_turn", text="trả lời một"), _reply("end_turn", text="trả lời hai")])
+    outcome = run_offline(run_once(case, MemoryPlanStore(), client, "k"))
+    second = client.requests[1]
+    assert [message.role for message in second.messages] == ["user", "assistant", "user"]
+    assert second.messages[0].text == "lượt một"
+    assert second.messages[1].text == "trả lời một"
+    assert second.messages[2].text == "lượt hai"
+    assert outcome.reply == "trả lời hai"
+    _assert_no_socket()
+
+
+def test_first_turn_error_does_not_call_second_turn() -> None:
+    """Lượt 1 lỗi thì không gọi lượt 2."""
+
+    from evals.model import Group
+
+    case = Case(
+        id="two",
+        group=Group.GHI_NHAN,
+        user_message="lượt một",
+        dataset="",
+        expectation=Expectation(kind="observe"),
+        follow_up="lượt hai",
+    )
+    client = FakeClient([ModelError("TimeoutError"), _reply("end_turn")])
+    outcome = run_offline(run_once(case, MemoryPlanStore(), client, "k"))
+    assert outcome.kind == "model_error"
+    assert outcome.earlier is None
+    assert len(client.requests) == 1
+    _assert_no_socket()
+
+
+def test_two_turn_outcome_has_earlier_opening_and_after_first() -> None:
+    """Outcome chính là lượt 2 và mang earlier, opening, after_first."""
+
+    from evals.model import Group
+
+    case = Case(
+        id="two",
+        group=Group.GHI_NHAN,
+        user_message="lượt một",
+        dataset="",
+        expectation=Expectation(kind="observe"),
+        follow_up="lượt hai",
+    )
+    client = FakeClient([_reply("end_turn", text="trả lời một"), _reply("end_turn", text="trả lời hai")])
+    outcome = run_offline(run_once(case, MemoryPlanStore(), client, "k"))
+    assert outcome.kind == "observed"
+    assert outcome.earlier is not None
+    assert outcome.earlier.reply == "trả lời một"
+    assert outcome.opening == ()
+    assert outcome.after_first == ()
+    _assert_no_socket()

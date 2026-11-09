@@ -18,10 +18,10 @@ def _plans(result: ToolResult) -> list[dict]:
     data = json.loads(result.output)
     assert set(data) == {"plans"}
     for plan in data["plans"]:
-        assert set(plan) == {"id", "goal", "subtasks"}
+        assert set(plan) == {"id", "goal", "priority", "subtasks"}
         seen: set[str] = set()
         for item in plan["subtasks"]:
-            assert list(item) == ["id", "title", "status", "note"]
+            assert list(item) == ["id", "title", "status", "note", "scheduled_on", "effort"]
             assert item["status"] == "pending"
             assert item["id"] != plan["id"]
             assert item["id"] not in seen

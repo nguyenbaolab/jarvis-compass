@@ -104,7 +104,7 @@ def test_hung_write_returns_uncertain_sentence() -> None:
     async def _case():
         result, logged = await _execute(
             "create_plan",
-            {"goal": "Học tiếng Nhật", "subtasks": ["Học hiragana"]},
+            {"goal": "Học tiếng Nhật", "subtasks": [{"title": "Học hiragana"}]},
             store,
             remaining=lambda: 0.05,
         )

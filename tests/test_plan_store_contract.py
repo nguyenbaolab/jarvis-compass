@@ -3,12 +3,26 @@
 import asyncio
 import uuid
 from dataclasses import replace
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
-from core.plans import Plan, PlanConflictError, PlanDomainError, PlanStore, Subtask, SubtaskStatus
+from core.plans import (
+    Effort,
+    Plan,
+    PlanConflictError,
+    PlanDomainError,
+    PlanStore,
+    Priority,
+    Subtask,
+    SubtaskStatus,
+)
 from tests.fakes.memory_plan_store import MemoryPlanStore
 from tests.helpers import _UUID
+
+_STAMP = datetime(2026, 11, 6, 8, 0, tzinfo=timezone(timedelta(hours=2)))
+_DAY = date(2026, 11, 6)
+_NEXT = date(2026, 11, 7)
 
 
 def _subtask(
@@ -310,6 +324,7 @@ def _written(plan: Plan, *, goal: str | None = None, subtasks: tuple[Subtask, ..
         subtasks=plan.subtasks if subtasks is None else subtasks,
         created_order=plan.created_order,
         version=plan.version,
+        priority=plan.priority,
     )
 
 
@@ -377,3 +392,240 @@ def test_plan_conflict_error_is_not_domain_error() -> None:
     from core.plans import PlanConflictError
 
     assert not issubclass(PlanConflictError, PlanDomainError)
+
+
+def _dated(title: str, day: date | None) -> Subtask:
+    return Subtask(
+        id=str(uuid.uuid4()),
+        title=title,
+        status=SubtaskStatus.PENDING,
+        note=None,
+        scheduled_on=day,
+    )
+
+
+def _saved(plan: Plan, subtasks: tuple[Subtask, ...]) -> Plan:
+    return Plan(
+        id=plan.id,
+        goal=plan.goal,
+        subtasks=subtasks,
+        created_order=plan.created_order,
+        version=plan.version,
+        priority=plan.priority,
+    )
+
+
+async def _history(store: PlanStore, plan_id: str, subtask_id: str) -> list[object]:
+    if isinstance(store, MemoryPlanStore):
+        return [
+            row
+            for row in store.date_moves
+            if row.plan_id == plan_id and row.subtask_id == subtask_id
+        ]
+    from db.client import postgrest_client
+    from tests.supabase_plan_db import read_test_env
+
+    url, key = read_test_env()
+    async with postgrest_client(url, key) as client:
+        response = await (
+            client.from_("subtask_date_moves")
+            .select("id,plan_id,subtask_id,from_date,to_date")
+            .eq("plan_id", plan_id)
+            .eq("subtask_id", subtask_id)
+            .execute()
+        )
+    rows = response.data
+    if not isinstance(rows, list):
+        raise AssertionError("lịch sử không phải mảng")
+    return rows
+
+
+def test_date_to_other_date_writes_one_history_row(plan_store: PlanStore) -> None:
+    asyncio.run(_date_to_other_date_writes_one_history_row(plan_store))
+
+
+async def _date_to_other_date_writes_one_history_row(store: PlanStore) -> None:
+    item = _dated("Việc", _DAY)
+    plan = await store.add("Mục tiêu", (item,))
+    moved = replace(item, scheduled_on=_NEXT)
+    await store.replace(_saved(plan, (moved,)), move_reason="bận", moved_at=_STAMP)
+    assert len(await _history(store, plan.id, item.id)) == 1
+
+
+def test_empty_to_date_writes_no_history_row(plan_store: PlanStore) -> None:
+    asyncio.run(_empty_to_date_writes_no_history_row(plan_store))
+
+
+async def _empty_to_date_writes_no_history_row(store: PlanStore) -> None:
+    item = _dated("Việc", None)
+    plan = await store.add("Mục tiêu", (item,))
+    await store.replace(_saved(plan, (replace(item, scheduled_on=_DAY),)), moved_at=_STAMP)
+    assert await _history(store, plan.id, item.id) == []
+
+
+def test_date_to_empty_writes_no_history_row(plan_store: PlanStore) -> None:
+    asyncio.run(_date_to_empty_writes_no_history_row(plan_store))
+
+
+async def _date_to_empty_writes_no_history_row(store: PlanStore) -> None:
+    item = _dated("Việc", _DAY)
+    plan = await store.add("Mục tiêu", (item,))
+    await store.replace(_saved(plan, (replace(item, scheduled_on=None),)))
+    assert await _history(store, plan.id, item.id) == []
+
+
+def test_same_date_writes_no_history_row(plan_store: PlanStore) -> None:
+    asyncio.run(_same_date_writes_no_history_row(plan_store))
+
+
+async def _same_date_writes_no_history_row(store: PlanStore) -> None:
+    item = _dated("Việc", _DAY)
+    plan = await store.add("Mục tiêu", (item,))
+    await store.replace(_saved(plan, (replace(item, title="Việc sửa"),)), moved_at=_STAMP)
+    assert await _history(store, plan.id, item.id) == []
+
+
+def test_several_date_changes_write_one_row_each(plan_store: PlanStore) -> None:
+    asyncio.run(_several_date_changes_write_one_row_each(plan_store))
+
+
+async def _several_date_changes_write_one_row_each(store: PlanStore) -> None:
+    first = _dated("Một", _DAY)
+    second = _dated("Hai", _DAY)
+    plan = await store.add("Mục tiêu", (first, second))
+    await store.replace(
+        _saved(plan, (replace(first, scheduled_on=_NEXT), replace(second, scheduled_on=_NEXT))),
+        move_reason=None,
+        moved_at=_STAMP,
+    )
+    assert len(await _history(store, plan.id, first.id)) == 1
+    assert len(await _history(store, plan.id, second.id)) == 1
+
+
+def test_version_conflict_keeps_dates_and_writes_no_row(plan_store: PlanStore) -> None:
+    asyncio.run(_version_conflict_keeps_dates_and_writes_no_row(plan_store))
+
+
+async def _version_conflict_keeps_dates_and_writes_no_row(store: PlanStore) -> None:
+    item = _dated("Việc", _DAY)
+    plan = await store.add("Mục tiêu", (item,))
+    await store.replace(_saved(plan, (replace(item, title="Đã ghi"),)))
+    with pytest.raises(PlanConflictError):
+        await store.replace(
+            _saved(plan, (replace(item, scheduled_on=_NEXT),)),
+            moved_at=_STAMP,
+        )
+    opened = await store.get(plan.id)
+    assert opened is not None
+    assert opened.subtasks[0].scheduled_on == _DAY
+    assert await _history(store, plan.id, item.id) == []
+
+
+def test_null_moved_at_on_date_change_errors_and_keeps_plan(plan_store: PlanStore) -> None:
+    asyncio.run(_null_moved_at_on_date_change_errors_and_keeps_plan(plan_store))
+
+
+async def _null_moved_at_on_date_change_errors_and_keeps_plan(store: PlanStore) -> None:
+    item = _dated("Việc", _DAY)
+    plan = await store.add("Mục tiêu", (item,))
+    with pytest.raises(PlanDomainError):
+        await store.replace(_saved(plan, (replace(item, scheduled_on=_NEXT),)))
+    opened = await store.get(plan.id)
+    assert opened is not None
+    assert opened.subtasks[0].scheduled_on == _DAY
+    assert opened.version == plan.version
+    assert await _history(store, plan.id, item.id) == []
+
+
+def test_dropped_subtask_keeps_its_history(plan_store: PlanStore) -> None:
+    asyncio.run(_dropped_subtask_keeps_its_history(plan_store))
+
+
+async def _dropped_subtask_keeps_its_history(store: PlanStore) -> None:
+    item = _dated("Việc", _DAY)
+    plan = await store.add("Mục tiêu", (item,))
+    await store.replace(_saved(plan, (replace(item, scheduled_on=_NEXT),)), moved_at=_STAMP)
+    current = await store.get(plan.id)
+    assert current is not None
+    await store.replace(_saved(current, ()))
+    opened = await store.get(plan.id)
+    assert opened is not None
+    assert opened.subtasks == ()
+    assert len(await _history(store, plan.id, item.id)) == 1
+
+
+def test_add_returns_priority_date_and_effort(plan_store: PlanStore) -> None:
+    asyncio.run(_add_returns_priority_date_and_effort(plan_store))
+
+
+async def _add_returns_priority_date_and_effort(store: PlanStore) -> None:
+    item = Subtask(
+        id=str(uuid.uuid4()),
+        title="Việc",
+        status=SubtaskStatus.PENDING,
+        note=None,
+        scheduled_on=_DAY,
+        effort=Effort.M,
+    )
+    plan = await store.add("Mục tiêu", (item,), priority=Priority.HIGH)
+    assert plan.priority is Priority.HIGH
+    assert plan.subtasks[0].scheduled_on == _DAY
+    assert plan.subtasks[0].effort is Effort.M
+
+
+def _with_effort(title: str, day: date | None, effort: Effort | None) -> Subtask:
+    return Subtask(
+        id=str(uuid.uuid4()),
+        title=title,
+        status=SubtaskStatus.PENDING,
+        note=None,
+        scheduled_on=day,
+        effort=effort,
+    )
+
+
+def test_replace_adds_new_subtask_with_date_and_effort(plan_store: PlanStore) -> None:
+    asyncio.run(_replace_adds_new_subtask_with_date_and_effort(plan_store))
+
+
+async def _replace_adds_new_subtask_with_date_and_effort(store: PlanStore) -> None:
+    existing = _dated("Cũ", None)
+    plan = await store.add("Mục tiêu", (existing,))
+    added = _with_effort("Mới", _DAY, Effort.M)
+    await store.replace(_saved(plan, (existing, added)))
+    opened = await store.get(plan.id)
+    assert opened is not None
+    found = next(item for item in opened.subtasks if item.id == added.id)
+    assert found.scheduled_on == _DAY
+    assert found.effort is Effort.M
+
+
+def test_replace_adds_new_subtask_without_date_or_effort_keeps_them_empty(plan_store: PlanStore) -> None:
+    asyncio.run(_replace_adds_new_subtask_without_date_or_effort_keeps_them_empty(plan_store))
+
+
+async def _replace_adds_new_subtask_without_date_or_effort_keeps_them_empty(store: PlanStore) -> None:
+    existing = _dated("Cũ", _DAY)
+    plan = await store.add("Mục tiêu", (existing,))
+    added = _with_effort("Mới", None, None)
+    await store.replace(_saved(plan, (existing, added)))
+    opened = await store.get(plan.id)
+    assert opened is not None
+    kept = next(item for item in opened.subtasks if item.id == existing.id)
+    found = next(item for item in opened.subtasks if item.id == added.id)
+    assert kept.scheduled_on == _DAY
+    assert found.scheduled_on is None
+    assert found.effort is None
+
+
+def test_new_subtask_with_date_writes_no_history_row(plan_store: PlanStore) -> None:
+    asyncio.run(_new_subtask_with_date_writes_no_history_row(plan_store))
+
+
+async def _new_subtask_with_date_writes_no_history_row(store: PlanStore) -> None:
+    existing = _dated("Cũ", _DAY)
+    plan = await store.add("Mục tiêu", (existing,))
+    added = _with_effort("Mới", _NEXT, Effort.S)
+    await store.replace(_saved(plan, (existing, added)), moved_at=_STAMP)
+    assert await _history(store, plan.id, added.id) == []
+    assert await _history(store, plan.id, existing.id) == []

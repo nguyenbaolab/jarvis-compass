@@ -1,0 +1,12 @@
+{
+  "name": "bang_chu_cai_tach",
+  "plans": [
+    {
+      "goal": "Học tiếng Nhật cơ bản",
+      "subtasks": [
+        {"title": "Học thuộc bảng Hiragana", "status": "pending", "note": null},
+        {"title": "Học thuộc bảng Katakana", "status": "pending", "note": null}
+      ]
+    }
+  ]
+}

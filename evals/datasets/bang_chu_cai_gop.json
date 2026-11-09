@@ -1,0 +1,12 @@
+{
+  "name": "bang_chu_cai_gop",
+  "plans": [
+    {
+      "goal": "Học tiếng Nhật cơ bản",
+      "subtasks": [
+        {"title": "Học thuộc bảng Hiragana và Katakana", "status": "pending", "note": null},
+        {"title": "Học 50 chữ Kanji đầu tiên", "status": "pending", "note": null}
+      ]
+    }
+  ]
+}
