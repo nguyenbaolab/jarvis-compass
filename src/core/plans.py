@@ -6,7 +6,7 @@ Chỉ dùng thư viện chuẩn. Không import FastAPI, Pydantic, tools, hay db.
 import re
 import uuid
 from dataclasses import dataclass, replace
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import StrEnum
 from typing import Callable, Protocol
 
@@ -371,6 +371,151 @@ def date_moves(before: Plan, after: Plan) -> tuple[Subtask, ...]:
         if old.scheduled_on != item.scheduled_on:
             moved.append(item)
     return tuple(moved)
+
+
+@dataclass(frozen=True)
+class DayLoad:
+    """Tải tính ra của một ngày. Không lưu trên kế hoạch."""
+
+    total: int
+    provisional: int
+
+
+@dataclass(frozen=True)
+class ProposedMove:
+    """Một việc code đề xuất dời. Không phải danh sách chủ bot đã chốt."""
+
+    plan_id: str
+    subtask_id: str
+    title: str
+    goal: str
+    scheduled_on: date
+
+
+def day_budget(day: date) -> int:
+    """Quỹ giờ của một ngày. Hiện luôn là 8. Không gọi routine."""
+
+    if not isinstance(day, date) or isinstance(day, datetime):
+        raise PlanDomainError("Quỹ cần một ngày lịch.")
+    return 8
+
+
+def task_hours(subtask: Subtask) -> int:
+    """Giờ của một việc. Xong và bỏ qua là 0. Chưa làm không sức tính 3."""
+
+    if subtask.status is not SubtaskStatus.PENDING:
+        return 0
+    if subtask.effort is None:
+        return EFFORT_HOURS[Effort.M]
+    return EFFORT_HOURS[subtask.effort]
+
+
+def day_load(plans: tuple[Plan, ...], day: date, today: date) -> DayLoad:
+    """Tổng giờ và số việc tính tạm của một ngày. Ngày trước hôm nay là 0."""
+
+    if day < today:
+        return DayLoad(total=0, provisional=0)
+    total = 0
+    provisional = 0
+    for plan in plans:
+        for item in plan.subtasks:
+            if item.status is not SubtaskStatus.PENDING or item.scheduled_on != day:
+                continue
+            total += task_hours(item)
+            if item.effort is None:
+                provisional += 1
+    return DayLoad(total=total, provisional=provisional)
+
+
+def _move_rank(priority: Priority | None) -> int:
+    """Thấp đứng trước. Trống và vừa cùng một mức. Cao đứng sau."""
+
+    if priority is Priority.LOW:
+        return 0
+    if priority is Priority.HIGH:
+        return 2
+    return 1
+
+
+def _move_key(plan: Plan, index: int) -> tuple[int, int, int, int, int]:
+    """Hạn muộn hơn trước. Cùng hạn thì tạo trước. Cùng kế hoạch thì việc đứng sau trước."""
+
+    deadline = plan_deadline(plan)
+    if deadline is None:
+        undated = 1
+        later_first = 0
+    else:
+        undated = 0
+        later_first = -deadline.toordinal()
+    return (_move_rank(plan.priority), undated, later_first, plan.created_order, -index)
+
+
+def propose_load_moves(
+    plans: tuple[Plan, ...],
+    day: date,
+    today: date,
+    incoming: tuple[tuple[str, str], ...] = (),
+    reserved: dict[date, int] | None = None,
+) -> tuple[ProposedMove, ...]:
+    """Đoạn việc dời ngắn nhất và ngày đích trong bảy ngày sau. Không sửa kế hoạch.
+
+    reserved là giờ đã hứa cho ngày đích bởi các ngày vượt trước trong cùng lần gọi.
+    """
+
+    load = day_load(plans, day, today)
+    budget = day_budget(day)
+    if load.total <= budget:
+        return ()
+    placed = set(incoming)
+    candidates: list[tuple[Plan, int, Subtask]] = []
+    for plan in plans:
+        for index, item in enumerate(plan.subtasks):
+            if item.status is not SubtaskStatus.PENDING or item.scheduled_on != day:
+                continue
+            if (plan.id, item.id) in placed:
+                continue
+            candidates.append((plan, index, item))
+    candidates.sort(key=lambda row: _move_key(row[0], row[1]))
+    chosen: list[tuple[Plan, Subtask]] = []
+    removed = 0
+    cleared = False
+    for plan, _index, item in candidates:
+        chosen.append((plan, item))
+        removed += task_hours(item)
+        if load.total - removed <= budget:
+            cleared = True
+            break
+    if not cleared:
+        return ()
+    assigned: dict[date, int] = {}
+    held = {} if reserved is None else reserved
+    moves: list[ProposedMove] = []
+    for plan, item in chosen:
+        hours = task_hours(item)
+        destination: date | None = None
+        for offset in range(1, 8):
+            target = day + timedelta(days=offset)
+            already = (
+                day_load(plans, target, today).total
+                + assigned.get(target, 0)
+                + held.get(target, 0)
+            )
+            if already + hours <= day_budget(target):
+                destination = target
+                break
+        if destination is None:
+            continue
+        assigned[destination] = assigned.get(destination, 0) + hours
+        moves.append(
+            ProposedMove(
+                plan_id=plan.id,
+                subtask_id=item.id,
+                title=item.title,
+                goal=plan.goal,
+                scheduled_on=destination,
+            )
+        )
+    return tuple(moves)
 
 
 def filter_by_keyword(

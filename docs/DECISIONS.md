@@ -541,3 +541,47 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Chưa kiểm chứng:** Thông tin về ba dự án mã nguồn mở đến từ blog và trang giới thiệu, chưa ai thử cài; tên dự án, khả năng cắm tool và mức quyền cần kiểm bằng thực tế ở bước thử. Mốc v1 ước tính 2 đến 3 tuần, không có số đo.
 
 **Chưa quyết:** sau tuần thử có tiếp tục các hướng đang tạm dừng hay đổi hướng; Mini App có làm không (mục 3); thứ tự cụ thể giữa các việc tạm dừng nếu làm tiếp.
+
+**Cập nhật 2026-11-10:** Starter chốt thay mục tự dùng hằng ngày 1 đến 2 tuần ở mục 1 bằng chạy giả lập (đồng hồ giả, kho trong bộ nhớ, kịch bản nhiều ngày), để khép repo sớm; dùng thật làm khi cắm compass vào trợ lý mã nguồn mở ở bước thử. Vì vậy mục 4 chưa có nguồn: chưa có thiếu sót nào ghi từ dùng thật. README và báo cáo phải ghi đúng điều này: đánh giá bằng eval và giả lập, chưa dùng thật dài ngày; chi phí chỉ là ước tính từ token trong eval.
+
+## D-029 — Quét tải: tải một ngày tính ở code, cảnh báo mềm, lần ghi đã xác nhận mới dời việc
+
+**Date:** 2026-11-10
+**Status:** Accepted
+
+**Supersedes:** Cách hiểu của D-024 mục 7 và 8 về việc hằng ngày, sự kiện và "hạn muộn hơn" (xem mục 1 và 3). Một phần D-026 mục 6: kiểm tải lúc tạo kế hoạch và thêm việc nay làm; kiểm trùng hạn lúc tạo và thêm việc vẫn chưa làm.
+
+**Bối cảnh:** D-024 mục 7 và 8 chốt quét tải khi thêm việc, D-026 mục 6 để phần kiểm lúc tạo cho vòng này, D-027 mục 8 đưa việc hằng ngày ra khỏi compass và đòi quỹ là hàm của ngày. Spec 016 (F20) thực hiện, clarify và plan chốt các điểm dưới đây. Quét tải là một phần mốc v1 của D-028.
+
+**Quyết định (Starter chốt khi clarify):**
+1. Tải của hôm nay và của một ngày sau hôm nay là tổng giờ của mọi việc chưa làm mang đúng ngày đó, ở mọi kế hoạch. S, M, L là 1, 3, 6 giờ qua EFFORT_HOURS. Việc chưa có sức cộng 3 giờ và cảnh báo ghi "tính tạm"; mức này được chấp nhận dù ba việc như vậy là 9 giờ và vượt quỹ. Việc đã xong và việc bỏ qua cộng 0. Việc của một ngày đã qua cộng 0 vào ngày đó và không dồn vào hôm nay; ghi việc lên ngày đã qua không cảnh báo vì tải. Việc hằng ngày, sự kiện đột xuất và ngày nghỉ không cộng (D-027). Quỹ là hàm nhận ngày, hiện luôn trả 8, không gọi routine. Vượt khi tổng lớn hơn quỹ.
+2. Kiểm chạy ở ba lần ghi đặt việc chưa làm lên hôm nay hoặc một ngày sau: tạo kế hoạch có ngày, thêm việc có ngày, dời ngày. Tổng đem so gồm cả việc vừa đặt. Vượt thì lần gọi đầu không ghi: tool trả ngày, tổng, quỹ, có tính tạm hay không, kèm danh sách việc sẽ bị dời; mô hình chỉ nói lại; chỉ ghi khi chủ bot xác nhận ở lượt sau. Cảnh báo là mềm: lần ghi đã xác nhận được lưu kể cả khi ngày đó vẫn vượt, và không mở cảnh báo mới cho ngày vừa báo. Không bao giờ tự dời.
+3. Code chọn việc dời. Ứng viên chỉ là việc chưa làm đã có trên ngày vượt từ trước lần ghi; việc vừa đặt không phải ứng viên và vẫn tính vào tổng. Thứ tự: ưu tiên thấp, rồi trống cùng vừa, rồi cao (trống bằng vừa khi xếp, giá trị lưu vẫn trống). Cùng mức: hạn kế hoạch muộn hơn trước (D-024 mục 8 nói "hạn", là hạn của kế hoạch theo D-026 mục 2, không phải ngày của việc, vì mọi ứng viên cùng một ngày). Cùng hạn: kế hoạch tạo trước trước. Cùng kế hoạch: việc đứng sau trong thứ tự đã lưu trước, không xét số giờ. Danh sách đề xuất là đoạn đầu ngắn nhất để tổng còn lại không lớn hơn quỹ; không tách giờ của một việc.
+4. Ngày đích là ngày gần nhất còn đủ quỹ trong bảy ngày lịch ngay sau ngày vượt, tính cả giờ của việc đã được đề xuất nhận ngày đó. Hết bảy ngày thì việc ở lại ngày gốc và không vào danh sách. Thứ Bảy và Chủ nhật tính như ngày thường. Chủ bot sửa được danh sách và ngày đích trước khi ghi.
+5. Ghi: lần chủ bot xin trước, rồi các lần dời theo thứ tự danh sách đã chốt, mỗi lần qua `replace_plan` nên có dòng lịch sử như D-026 mục 3. Lỗi giữa chừng thì dừng, giữ phần đã ghi, không hoàn tác, không thử lại, báo việc nào đã dời và việc nào chưa. Không RPC mới, không transaction nhiều kế hoạch. Ưu tiên riêng của việc con (D-026 dời sang vòng này) không làm trong vòng này: chỉ dùng ưu tiên của kế hoạch.
+6. Lần dời trong danh sách vì quá tải không kiểm trùng hạn. Tool dời ngày vẫn kiểm trùng hạn cho lần chủ bot xin. Tạo kế hoạch và thêm việc không kiểm trùng hạn trong vòng này. Vừa vượt vừa trùng ở tool dời: một lần gọi đầu, tải trước, trùng sau, một cờ bao cả hai.
+7. Cờ xác nhận dùng lại nguyên cơ chế D-026 mục 6 (`confirm` và `turn.clash_reported`). Cờ không phải bằng chứng chủ bot đồng ý và được chấp nhận. Eval chấm theo kho; bộ v3 có ca hai lượt: lượt một báo vượt, lượt hai chủ bot từ chối, kho không đổi.
+
+**Quyết định của plan (chat và Cursor, Starter duyệt khi chạy tasks):**
+8. Không schema mới, không migration. `create_plan` và `add_subtask` thêm `confirm` và `load_moves`; `reschedule_subtasks` thêm `load_moves`. Catalog bản 4, lời hướng dẫn bản 8, vẫn chín tool. Câu cảnh báo do tool dựng và khóa ở `specs/016-load-check/contracts/load-warning.md`; mô hình nói lại, đo bằng tỉ lệ eval bộ v3, không phải bảo đảm 100%.
+9. Mỗi lần xét tải là một `list_plans`; `get` một kế hoạch bị bỏ khi đã có list. Mỗi lần `replace` của cùng một kế hoạch trong một lần gọi dựng từ bản đã áp mọi lần ghi trước, gồm nội dung và `version`, vì `replace_plan` ghi lại cả danh sách việc. Trước lần ghi đầu của lượt xác nhận, kiểm mọi phần tử `load_moves` với danh sách vừa đọc: việc phải còn và còn chưa làm, sai thì lỗi và không ghi gì.
+
+**Lý do:**
+- Tải do code tính vì mô hình dễ sai số học (D-024). Câu cảnh báo do tool dựng để pytest khóa được, như `_clash_text`.
+- Việc vừa đặt không là ứng viên vì đó là việc chủ bot muốn giữ ở ngày đó; không thì lần xác nhận có thể dời chính việc vừa xin.
+- Khóa thứ hai dùng hạn của kế hoạch vì khóa theo ngày của việc luôn hòa trên cùng một ngày.
+- Ghi dở không hoàn tác vì bảng lịch sử chỉ thêm: hoàn tác sẽ thêm dòng dời ngược.
+- Ưu tiên trống bằng vừa giữ ý nghĩa của ba mức đã đặt và để các kế hoạch chưa đặt ưu tiên vẫn xếp được.
+
+**Trade-off:**
+- Việc không có sức tính 3 giờ nên một ngày có ba việc như vậy đã báo vượt, cảnh báo sẽ kêu thường khi bot chưa tự đặt sức (D-026 mục 2).
+- Quỹ 8 giờ không trừ giờ đã trôi qua trong hôm nay.
+- Cờ xác nhận không chứng minh sự đồng ý; mô hình có thể đặt cờ sau lời từ chối. Ca hai lượt của bộ v3 đo điều này.
+- Lịch sử hội thoại chỉ là chữ nên ở lượt xác nhận mô hình phải tìm lại mã việc qua `get_plans`, và với `create_plan` phải dựng lại kế hoạch. Cùng điểm yếu với luồng trùng hạn hiện có. Đo bằng ca xác nhận của bộ v3.
+- Ghi dở nhiều kế hoạch không hoàn tác: trạng thái xấu nhất là việc mới đã nằm trên ngày vượt mà ngày đó vẫn vượt.
+- `list_plans` không phân trang, thân lớn theo số kế hoạch (Q3-04); thân đó không gửi cho mô hình.
+- Tạo kế hoạch và thêm việc chưa kiểm trùng hạn; bật khi thấy thiếu (D-028 mục 4).
+
+**Phương án đã bỏ:** cột hoặc bảng quỹ riêng từng ngày và lệnh đặt quỹ (làm riêng sau v1); RPC gộp nhiều kế hoạch trong một transaction; hoàn tác phần đã ghi; ưu tiên trống xếp trước thấp hoặc sau cao; coi việc vừa đặt là ứng viên dời; tìm ngày đích xa hơn bảy ngày hoặc lấy ngày kế tiếp bất kể quỹ; hai cờ riêng cho tải và trùng hạn; để mô hình tự cộng giờ hoặc tự chọn việc dời.
+
+**Cập nhật 2026-11-10:** Đo F20 với lời hướng dẫn bản 9 và định nghĩa tool bản 4 (claude-haiku-5-5, ba lượt mỗi ca, các file `evals/results/p8-d4-*` và `p9-d4-*`). Mọi lượt mà tool báo ngày vượt đều không ghi: luật store của các ca vượt đạt ở mọi lượt trong hai lần chạy bản 9. Ca từ chối giữ kho nguyên 6 trên 6 lượt. Đoạn tính tạm được nêu ở mọi lượt có cảnh báo cần nó; bản 8 chỉ 2 trên 3 ở V3-04 và 1 trên 3 ở V3-06, nên bản 9 thêm câu giữ đoạn đó. Lượt xác nhận (V3-07) đi đúng đường add_subtask kèm load_moves ở 4 trên 6 lượt của hai lần chạy bản 9; hai lượt kia dời việc qua reschedule_subtasks kèm confirm và ra cùng trạng thái cuối nhưng bỏ qua kiểm trùng hạn, đúng điểm yếu ở mục 7. Chạy lại bộ v1 và v2 với bản 9: v1 tool 135 trên 150 (p7: 136), store 45 trên 45; v2 tool 44 trên 45 (p7: 42), store 44 trên 45 (p7: 41); nhóm dời hạn trùng lên 1,0 (p7 và p8: 0,33). Hai ca P04 và V2-06, cả hai là ca hạn cả kế hoạch, xuống 0,67 ở cả p8 lẫn p9 sau khi đạt 1,0 ở p6 và p7; với ba lượt mỗi ca chưa đủ để kết luận, ghi nhận để theo dõi. Mô hình không chép nguyên câu của tool ở lượt nào (0 trên 24 ở p8), nên FR-006 chỉ đòi các thành phần của câu và bộ chấm kiểm thành phần. Chữ "hạn" trong tin người dùng kích hoạt luật hạn cả kế hoạch của D-026 mục 2; một lượt ở V3-05 vẫn chỉ đặt ngày lên việc cuối dù tin nói cả ba làm cùng ngày, nên ngày đó không vượt. Một lần chạy cả ba bộ tốn khoảng 37 cent.

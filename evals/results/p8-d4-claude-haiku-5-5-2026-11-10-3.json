@@ -1,0 +1,3724 @@
+{
+  "cases_version": 3,
+  "scorer_version": 3,
+  "prompt_version": "8",
+  "definitions_version": "4",
+  "model": "claude-haiku-5-5",
+  "date": "2026-11-10",
+  "input_tokens": 509279,
+  "output_tokens": 11284,
+  "by_case": [
+    {
+      "id": "V3-01",
+      "group": "quét tải: trong quỹ",
+      "rate": 1.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-02",
+      "group": "quét tải: vượt quỹ",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-03",
+      "group": "quét tải: việc xong",
+      "rate": 1.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-04",
+      "group": "quét tải: sức",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-05",
+      "group": "quét tải: câu cảnh báo",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-06",
+      "group": "quét tải: thứ tự dời",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-07",
+      "group": "quét tải: xác nhận",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "id": "V3-08",
+      "group": "quét tải: từ chối",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    }
+  ],
+  "by_rule": [
+    {
+      "name": "tool",
+      "passed": 6,
+      "considered": 24
+    },
+    {
+      "name": "create_plan_count",
+      "passed": 24,
+      "considered": 24
+    },
+    {
+      "name": "required",
+      "passed": 24,
+      "considered": 24
+    },
+    {
+      "name": "prefix",
+      "passed": 24,
+      "considered": 24
+    },
+    {
+      "name": "markdown",
+      "passed": 24,
+      "considered": 24
+    },
+    {
+      "name": "self_name",
+      "passed": 24,
+      "considered": 24
+    },
+    {
+      "name": "store",
+      "passed": 21,
+      "considered": 24
+    }
+  ],
+  "by_group": [
+    {
+      "group": "quét tải: trong quỹ",
+      "rate": 1.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: vượt quỹ",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: việc xong",
+      "rate": 1.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: sức",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: câu cảnh báo",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: thứ tự dời",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: xác nhận",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    },
+    {
+      "group": "quét tải: từ chối",
+      "rate": 0.0,
+      "run_errors": 0,
+      "cap_stops": 0
+    }
+  ],
+  "runs": [
+    {
+      "id": "V3-01",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Đã thêm việc Viết vào kế hoạch Nhẹ, sức S, ngày 20/11/2026. Kế hoạch giờ có hai việc, Đọc và Viết, cùng ngày 20/11.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6219, \"output_tokens\": 91, \"duration_ms\": 1510, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Nhẹ\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6423, \"output_tokens\": 157, \"duration_ms\": 1249, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"2e54945e-ea5e-4f2b-935d-e5e03ac9ddfb\", \"title\": \"Viết\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-20\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6799, \"output_tokens\": 79, \"duration_ms\": 969, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "pass",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ],
+            [
+              "Viết",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-01",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Đã thêm việc Viết (sức S, ngày 20/11/2026) vào kế hoạch Nhẹ. Kế hoạch hiện có hai việc: Đọc và Viết, cùng ngày 20/11.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6219, \"output_tokens\": 94, \"duration_ms\": 1176, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Nhẹ\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6419, \"output_tokens\": 154, \"duration_ms\": 1178, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"5096bd0c-d2ae-4aa3-9b63-1a0795547896\", \"title\": \"Viết\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-20\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6787, \"output_tokens\": 80, \"duration_ms\": 928, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "pass",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ],
+            [
+              "Viết",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-01",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Đã thêm việc Viết vào kế hoạch Nhẹ, sức S, ngày 20/11/2026.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6219, \"output_tokens\": 82, \"duration_ms\": 1092, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Nhẹ\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6413, \"output_tokens\": 190, \"duration_ms\": 1426, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"b8306b63-9393-4fef-96b7-3aac1a711f49\", \"title\": \"Viết\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-20\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6772, \"output_tokens\": 43, \"duration_ms\": 768, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "pass",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ],
+            [
+              "Viết",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-02",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Ngày 19/11 sẽ có 12 giờ, vượt quỹ 8 giờ. Nếu vẫn ghi, hệ thống đề nghị dời việc \"Sẵn\" (kế hoạch Đầy) sang 20/11.\n\nBạn có muốn tiếp tục ghi việc \"Thêm\" (sức L, ngày 19/11) và dời \"Sẵn\" sang 20/11 không?",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 81, \"duration_ms\": 1015, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Đầy\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6418, \"output_tokens\": 158, \"duration_ms\": 1122, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"9ed4c98c-927e-4fd5-9ffb-06069a7dd5ba\", \"title\": \"Thêm\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-19\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6668, \"output_tokens\": 147, \"duration_ms\": 1125, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Thêm",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-02",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Ngày 19/11 sẽ vượt quỹ: có 12 giờ trên quỹ 8 giờ.\n\nNếu vẫn muốn ghi việc \"Thêm\" (sức L) vào ngày 19/11, cần dời việc \"Sẵn\" của kế hoạch Đầy sang 20/11. Bạn có đồng ý không?",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 86, \"duration_ms\": 1019, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Đầy\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6407, \"output_tokens\": 151, \"duration_ms\": 1130, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"b70b9f18-3830-42d8-9005-217b2a192494\", \"title\": \"Thêm\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-19\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6650, \"output_tokens\": 124, \"duration_ms\": 1440, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Thêm",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-02",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Ngày 19/11 sẽ có 12 giờ, vượt quỹ 8 giờ. Nếu vẫn ghi thì cần dời: Sẵn (kế hoạch Đầy) sang 20/11.\n\nBạn có muốn tiếp tục ghi việc Thêm, sức L, ngày 19/11 và dời Sẵn sang 20/11 không?",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 77, \"duration_ms\": 1490, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Đầy\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 1, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6414, \"output_tokens\": 206, \"duration_ms\": 1414, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"c3f82cbf-4476-47d4-8004-650cf2c29f81\", \"title\": \"Thêm\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-19\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6660, \"output_tokens\": 133, \"duration_ms\": 1108, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Thêm",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-03",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Đã thêm việc \"Mới\" vào kế hoạch Xong, sức S, ngày 18/11/2026.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6216, \"output_tokens\": 79, \"duration_ms\": 1144, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Xong\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6548, \"output_tokens\": 152, \"duration_ms\": 1245, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"e7499d75-4ab8-44e7-9512-93c8704a772a\", \"title\": \"Mới\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-18\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 7046, \"output_tokens\": 42, \"duration_ms\": 908, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "pass",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Mới",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ],
+            [
+              "Mới",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-03",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Đã thêm việc \"Mới\" vào kế hoạch Xong, sức S, ngày 18/11/2026. Việc này hiện là chưa làm.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6216, \"output_tokens\": 78, \"duration_ms\": 1068, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Xong\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6560, \"output_tokens\": 203, \"duration_ms\": 1549, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"618dd435-7db4-4761-b362-e58a559a2864\", \"title\": \"Mới\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-18\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 7067, \"output_tokens\": 56, \"duration_ms\": 980, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "pass",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Mới",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ],
+            [
+              "Mới",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-03",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Đã thêm việc \"Mới\" vào kế hoạch Xong, sức S, ngày 18/11/2026. Việc này hiện đang chưa làm.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6216, \"output_tokens\": 78, \"duration_ms\": 1140, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Xong\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6552, \"output_tokens\": 201, \"duration_ms\": 1606, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"88b03092-cecd-41f9-bd24-4d832890bae4\", \"title\": \"Mới\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-18\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 7049, \"output_tokens\": 57, \"duration_ms\": 1000, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "pass",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Mới",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ],
+            [
+              "Mới",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-04",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Kế hoạch chưa được ghi vì ngày 22/11 sẽ có 13 giờ, vượt quỹ 8 giờ. Phần tính tạm: 1 việc chưa có sức, mỗi việc tính 3 giờ.\n\nBạn có muốn tiếp tục ghi kế hoạch với ngày 22/11 không? Nếu muốn, tôi sẽ ghi lại đúng như bạn yêu cầu. Hoặc bạn có thể chọn dời một hoặc nhiều việc sang ngày khác.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6258, \"output_tokens\": 349, \"duration_ms\": 1935, \"error_type\": null}",
+        "{\"tool\": \"create_plan\", \"input\": {\"goal\": \"Hoàn thành bốn việc Đọc, Viết, Nghe, Ôn\", \"subtasks\": [{\"title\": \"Đọc\", \"scheduled_on\": \"2026-11-22\", \"effort\": \"S\"}, {\"title\": \"Viết\", \"scheduled_on\": \"2026-11-22\", \"effort\": \"M\"}, {\"title\": \"Nghe\", \"scheduled_on\": \"2026-11-22\", \"effort\": \"L\"}, {\"title\": \"Ôn\", \"scheduled_on\": \"2026-11-22\"}]}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6589, \"output_tokens\": 192, \"duration_ms\": 1724, \"error_type\": null}"
+      ],
+      "rounds": 1,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Đọc",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Nghe",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Ôn",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": []
+    },
+    {
+      "id": "V3-04",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Hạn 22/11 đã có 13 giờ việc, vượt quỹ 8 giờ mỗi ngày. Kế hoạch chưa được ghi.\n\nBạn có muốn tôi ghi vào ngày 22/11 như vậy không, hay chọn cách khác? Nếu đồng ý ghi như vậy, tôi sẽ thực hiện ngay.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6258, \"output_tokens\": 263, \"duration_ms\": 1584, \"error_type\": null}",
+        "{\"tool\": \"create_plan\", \"input\": {\"goal\": \"Hoàn thành bốn việc\", \"subtasks\": [{\"title\": \"Đọc\", \"scheduled_on\": \"2026-11-22\", \"effort\": \"S\"}, {\"title\": \"Viết\", \"scheduled_on\": \"2026-11-22\", \"effort\": \"M\"}, {\"title\": \"Nghe\", \"scheduled_on\": \"2026-11-22\", \"effort\": \"L\"}, {\"title\": \"Ôn\", \"scheduled_on\": \"2026-11-22\"}]}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6571, \"output_tokens\": 133, \"duration_ms\": 1459, \"error_type\": null}"
+      ],
+      "rounds": 1,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Đọc",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Nghe",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Ôn",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": []
+    },
+    {
+      "id": "V3-04",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Ngày 22/11 sẽ vượt quỹ: có 13 giờ trong khi quỹ là 8 giờ. Tool tính tạm mỗi việc chưa có sức là 3 giờ, nên việc Ôn được tính thêm.\n\nTôi chưa ghi kế hoạch. Bạn muốn làm thế nào?\n1. Giữ nguyên, ghi cả bốn việc cùng ngày 22/11.\n2. Dời một hoặc nhiều việc sang ngày khác. Cho tôi biết việc nào và ngày nào.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6258, \"output_tokens\": 309, \"duration_ms\": 1861, \"error_type\": null}",
+        "{\"tool\": \"create_plan\", \"input\": {\"goal\": \"Hoàn thành bốn việc đọc, viết, nghe và ôn\", \"subtasks\": [{\"title\": \"Đọc\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-22\"}, {\"title\": \"Viết\", \"effort\": \"M\", \"scheduled_on\": \"2026-11-22\"}, {\"title\": \"Nghe\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-22\"}, {\"title\": \"Ôn\", \"scheduled_on\": \"2026-11-22\"}]}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6585, \"output_tokens\": 198, \"duration_ms\": 1658, \"error_type\": null}"
+      ],
+      "rounds": 1,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Đọc",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Nghe",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Ôn",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": []
+    },
+    {
+      "id": "V3-05",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Hệ thống báo ngày 21/11 sẽ có 9 giờ, vượt quỹ 8 giờ (ước tính 3 giờ cho mỗi việc vì chưa có sức). Kế hoạch chưa được ghi.\n\nBạn muốn làm thế nào?\n1. Vẫn ghi cả ba việc vào ngày 21/11.\n2. Dời một trong ba việc sang ngày khác (cho tôi biết việc nào và ngày nào).",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6244, \"output_tokens\": 272, \"duration_ms\": 1712, \"error_type\": null}",
+        "{\"tool\": \"create_plan\", \"input\": {\"goal\": \"Hoàn thành ba việc Đọc, Viết, Nghe\", \"subtasks\": [{\"title\": \"Đọc\", \"scheduled_on\": \"2026-11-21\"}, {\"title\": \"Viết\", \"scheduled_on\": \"2026-11-21\"}, {\"title\": \"Nghe\", \"scheduled_on\": \"2026-11-21\"}]}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6518, \"output_tokens\": 167, \"duration_ms\": 1643, \"error_type\": null}"
+      ],
+      "rounds": 1,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Đọc",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Nghe",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": []
+    },
+    {
+      "id": "V3-05",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Kế hoạch đã được tạo với ba việc: Đọc, Viết, Nghe.\n\n1. Đọc: chưa có ngày.\n2. Viết: hạn 21/11/2026.\n3. Nghe: hạn 21/11/2026.\n\nViệc cuối cùng của kế hoạch là Nghe, nên lẽ ra cần đặt hạn 21/11 cho nó. Việc Viết cũng đã đặt đúng ngày đó. Việc Đọc chưa có ngày, nếu bạn muốn tôi đặt ngày cho Đọc thì cho tôi biết.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6244, \"output_tokens\": 249, \"duration_ms\": 1502, \"error_type\": null}",
+        "{\"tool\": \"create_plan\", \"input\": {\"goal\": \"Hoàn thành ba việc Đọc, Viết, Nghe\", \"subtasks\": [{\"title\": \"Đọc\"}, {\"title\": \"Viết\", \"scheduled_on\": \"2026-11-21\"}, {\"title\": \"Nghe\", \"scheduled_on\": \"2026-11-21\"}]}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6702, \"output_tokens\": 209, \"duration_ms\": 1431, \"error_type\": null}"
+      ],
+      "rounds": 1,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "fail"
+      },
+      "manual_titles": [
+        {
+          "title": "Đọc",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Nghe",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Hoàn thành ba việc Đọc, Viết, Nghe",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              null,
+              null
+            ],
+            [
+              "Viết",
+              "pending",
+              null,
+              "2026-11-21",
+              null
+            ],
+            [
+              "Nghe",
+              "pending",
+              null,
+              "2026-11-21",
+              null
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-05",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Đã tạo kế hoạch \"Hoàn thành ba việc Đọc, Viết, Nghe\" với ba việc: Đọc, Viết, Nghe.\n\nHạn 21/11/2026 được đặt cho việc cuối là Nghe. Đọc và Viết chưa có ngày riêng. Nếu bạn muốn cả ba cùng ngày 21/11, tôi có thể đặt thêm ngày cho Đọc và Viết.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6244, \"output_tokens\": 196, \"duration_ms\": 1466, \"error_type\": null}",
+        "{\"tool\": \"create_plan\", \"input\": {\"goal\": \"Hoàn thành ba việc Đọc, Viết, Nghe\", \"subtasks\": [{\"title\": \"Đọc\"}, {\"title\": \"Viết\"}, {\"title\": \"Nghe\", \"scheduled_on\": \"2026-11-21\"}]}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6682, \"output_tokens\": 160, \"duration_ms\": 1291, \"error_type\": null}"
+      ],
+      "rounds": 1,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "fail"
+      },
+      "manual_titles": [
+        {
+          "title": "Đọc",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Viết",
+          "mark": "unmarked"
+        },
+        {
+          "title": "Nghe",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Hoàn thành ba việc Đọc, Viết, Nghe",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              null,
+              null
+            ],
+            [
+              "Viết",
+              "pending",
+              null,
+              null,
+              null
+            ],
+            [
+              "Nghe",
+              "pending",
+              null,
+              "2026-11-21",
+              null
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-06",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Ngày 12/11 sẽ vượt quỹ: có 16 giờ trên quỹ 8 giờ. Để ghi việc \"Việc mới\" vào ngày đó, hệ thống đề nghị dời hai việc sau:\n\n1. Học module 3 (kế hoạch Azure) sang 14/11.\n2. Luyện nói (kế hoạch Phần Lan) sang 15/11.\n\nBạn có đồng ý dời hai việc này và ghi \"Việc mới\" vào ngày 12/11 không? Nếu không, mình sẽ không ghi gì cả.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 72, \"duration_ms\": 940, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Azure\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6405, \"output_tokens\": 152, \"duration_ms\": 1281, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"57992876-7f91-4859-ac9e-78d0437b8054\", \"title\": \"Việc mới\", \"scheduled_on\": \"2026-11-12\", \"effort\": \"S\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6712, \"output_tokens\": 203, \"duration_ms\": 1433, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Việc mới",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-06",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Ngày 12/11 sẽ vượt quỹ: có 16 giờ trên quỹ 8 giờ. Nếu vẫn ghi thì cần dời hai việc sau:\n\n1. Học module 3 (kế hoạch Azure) sang 14/11.\n2. Luyện nói (kế hoạch Phần Lan) sang 15/11.\n\nBạn có muốn ghi việc \"Việc mới\" vào ngày 12/11 và dời hai việc trên không?",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 76, \"duration_ms\": 968, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Azure\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6403, \"output_tokens\": 149, \"duration_ms\": 1126, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"b4664178-066d-4869-91b0-58118f716366\", \"title\": \"Việc mới\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-12\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6707, \"output_tokens\": 166, \"duration_ms\": 1294, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Việc mới",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-06",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Thêm việc \"Việc mới\" vào kế hoạch Azure ngày 12/11 chưa được ghi, vì ngày 12/11 sẽ vượt quỹ: 16 giờ trên quỹ 8 giờ. Tính tạm, có 2 việc chưa có sức, mỗi việc 3 giờ.\n\nNếu vẫn muốn ghi, cần dời trước:\n1. Học module 3 (kế hoạch Azure) sang 14/11.\n2. Luyện nói (kế hoạch Phần Lan) sang 15/11.\n\nBạn có đồng ý với hai lần dời này và muốn tôi ghi việc mới không?",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 80, \"duration_ms\": 946, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Azure\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6406, \"output_tokens\": 152, \"duration_ms\": 1190, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"967e78e3-af04-40bc-bc34-5d31af292732\", \"title\": \"Việc mới\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-12\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6713, \"output_tokens\": 231, \"duration_ms\": 1479, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "Việc mới",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": null,
+      "earlier_lines": null,
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-07",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Việc B chưa dời được vì kế hoạch Nộp cũng đến hạn ngày 18/11. Việc C cũng chưa ghi vì có cùng vấn đề trùng hạn đó.\n\nBạn có muốn tiếp tục dời việc B sang 18/11 dù trùng với kế hoạch Nộp không? Nếu đồng ý, tôi sẽ dời B và thêm việc C vào ngày 17/11.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6368, \"output_tokens\": 96, \"duration_ms\": 1100, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Một\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6824, \"output_tokens\": 418, \"duration_ms\": 2079, \"error_type\": null}",
+        "{\"tool\": \"reschedule_subtasks\", \"input\": {\"plan_id\": \"f5ec6085-a86e-41a0-96d9-275d50831316\", \"changes\": [{\"subtask_id\": \"26fc2f60-082a-4a8f-82c8-aa780af2c814\", \"scheduled_on\": \"2026-11-18\"}], \"reason\": \"Dời B để nhường chỗ cho việc C ngày 17/11\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"f5ec6085-a86e-41a0-96d9-275d50831316\", \"title\": \"C\", \"scheduled_on\": \"2026-11-17\", \"effort\": \"S\", \"confirm\": true}, \"ok\": false, \"error_type\": \"domain\", \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 7371, \"output_tokens\": 155, \"duration_ms\": 1482, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "fail"
+      },
+      "manual_titles": [
+        {
+          "title": "C",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": "Ngày 17/11 hiện đã có việc A và B, nếu thêm việc C thì sẽ có 13 giờ, vượt quỹ 8 giờ.\n\nNếu vẫn muốn ghi, tôi sẽ dời việc B của kế hoạch Một sang 18/11 rồi thêm việc C vào ngày 17/11. Bạn có đồng ý không?",
+      "earlier_lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6213, \"output_tokens\": 83, \"duration_ms\": 953, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Một\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6669, \"output_tokens\": 149, \"duration_ms\": 1161, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"f5ec6085-a86e-41a0-96d9-275d50831316\", \"title\": \"C\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-17\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6904, \"output_tokens\": 135, \"duration_ms\": 1225, \"error_type\": null}"
+      ],
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-07",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Xong. Kế hoạch Một giờ có:\n- A, ngày 17/11, sức L\n- B, đã dời từ 17/11 sang 18/11, sức L\n- C, ngày 17/11, sức S",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6365, \"output_tokens\": 74, \"duration_ms\": 1018, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Một\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6828, \"output_tokens\": 477, \"duration_ms\": 2349, \"error_type\": null}",
+        "{\"tool\": \"reschedule_subtasks\", \"input\": {\"plan_id\": \"a83fa029-6b98-49be-800d-fce3869d5981\", \"changes\": [{\"subtask_id\": \"eb5597cd-5910-4fa9-b061-1d794b5abaa4\", \"scheduled_on\": \"2026-11-18\"}], \"confirm\": true, \"load_moves\": [], \"reason\": \"Dời B để nhường chỗ cho C\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"a83fa029-6b98-49be-800d-fce3869d5981\", \"title\": \"C\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-17\", \"confirm\": true, \"load_moves\": []}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 7785, \"output_tokens\": 75, \"duration_ms\": 1069, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "C",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": "Ngày 17/11 hiện đã có việc A và B, nếu thêm C sẽ có 13 giờ trên quỹ 8 giờ.\n\nTool đề nghị dời B của kế hoạch Một sang 18/11 để ghi C vào 17/11. Bạn có muốn tôi dời B sang 18/11 và thêm C vào ngày 17/11 không?",
+      "earlier_lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6213, \"output_tokens\": 83, \"duration_ms\": 990, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Một\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6676, \"output_tokens\": 148, \"duration_ms\": 1120, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"a83fa029-6b98-49be-800d-fce3869d5981\", \"title\": \"C\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-17\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6910, \"output_tokens\": 132, \"duration_ms\": 1210, \"error_type\": null}"
+      ],
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "C",
+              "pending",
+              null,
+              "2026-11-17",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-07",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Đã ghi việc C vào kế hoạch Một, ngày 17/11, sức S. Việc B đã dời sang 18/11. Việc A vẫn giữ ngày 17/11.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6374, \"output_tokens\": 78, \"duration_ms\": 1071, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Một\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6836, \"output_tokens\": 334, \"duration_ms\": 1969, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"f9e95b12-08fe-4fce-9c32-f2e585aef2d6\", \"title\": \"C\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-17\", \"load_moves\": [{\"plan_id\": \"f9e95b12-08fe-4fce-9c32-f2e585aef2d6\", \"subtask_id\": \"f03c8b73-a2da-4ecf-928b-9f1718c6284c\", \"scheduled_on\": \"2026-11-18\"}], \"confirm\": true}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 7401, \"output_tokens\": 68, \"duration_ms\": 894, \"error_type\": null}"
+      ],
+      "rounds": 2,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [
+        {
+          "title": "C",
+          "mark": "unmarked"
+        }
+      ],
+      "earlier_reply": "Ngày 17/11 hiện đã có việc A và B, nên thêm C vào sẽ có 13 giờ, vượt quỹ 8 giờ. Nếu vẫn ghi, hệ thống đề nghị dời việc B (kế hoạch Một) sang 18/11.\n\nBạn có muốn ghi việc C vào ngày 17/11 và dời việc B sang 18/11 không?",
+      "earlier_lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6213, \"output_tokens\": 77, \"duration_ms\": 1005, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Một\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6675, \"output_tokens\": 153, \"duration_ms\": 1175, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"f9e95b12-08fe-4fce-9c32-f2e585aef2d6\", \"title\": \"C\", \"effort\": \"S\", \"scheduled_on\": \"2026-11-17\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6914, \"output_tokens\": 141, \"duration_ms\": 1309, \"error_type\": null}"
+      ],
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "C",
+              "pending",
+              null,
+              "2026-11-17",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-08",
+      "index": 1,
+      "kind": "scored",
+      "reply": "Đã hủy, việc \"Thêm\" không được ghi vào kế hoạch Đầy.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6355, \"output_tokens\": 35, \"duration_ms\": 1075, \"error_type\": null}"
+      ],
+      "rounds": 0,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [],
+      "earlier_reply": "Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ, nên việc \"Thêm\" chưa được ghi.\n\nNếu vẫn muốn ghi, hệ thống đề nghị dời việc \"Sẵn\" (kế hoạch Đầy) sang 20/11. Bạn có đồng ý không?",
+      "earlier_lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 84, \"duration_ms\": 1309, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Đầy\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6413, \"output_tokens\": 217, \"duration_ms\": 1508, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"03fc6f95-b6cf-4608-b6af-c593f201a880\", \"title\": \"Thêm\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-19\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6658, \"output_tokens\": 121, \"duration_ms\": 1151, \"error_type\": null}"
+      ],
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-08",
+      "index": 2,
+      "kind": "scored",
+      "reply": "Đã hủy, việc \"Thêm\" không được ghi vào kế hoạch Đầy. Kế hoạch giữ nguyên như trước.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6369, \"output_tokens\": 53, \"duration_ms\": 1000, \"error_type\": null}"
+      ],
+      "rounds": 0,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [],
+      "earlier_reply": "Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ, nên chưa ghi việc \"Thêm\" vào kế hoạch Đầy.\n\nNếu vẫn muốn ghi, hệ thống đề nghị dời việc \"Sẵn\" (kế hoạch Đầy) sang ngày 20/11. Bạn có đồng ý không?",
+      "earlier_lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 84, \"duration_ms\": 1056, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Đầy\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6415, \"output_tokens\": 192, \"duration_ms\": 1545, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"c93ad301-53d8-42b8-ac1f-9b96a926918a\", \"title\": \"Thêm\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-19\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6661, \"output_tokens\": 135, \"duration_ms\": 1392, \"error_type\": null}"
+      ],
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "V3-08",
+      "index": 3,
+      "kind": "scored",
+      "reply": "Đã hủy, không thêm việc \"Thêm\" vào kế hoạch Đầy. Không có thay đổi nào được ghi.",
+      "lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6373, \"output_tokens\": 49, \"duration_ms\": 1079, \"error_type\": null}"
+      ],
+      "rounds": 0,
+      "laws": {
+        "tool": "fail",
+        "create_plan_count": "pass",
+        "required": "pass",
+        "prefix": "pass",
+        "markdown": "pass",
+        "self_name": "pass",
+        "store": "pass"
+      },
+      "manual_titles": [],
+      "earlier_reply": "Ngày 19/11 sẽ có 12 giờ, vượt quỹ 8 giờ. Nếu vẫn thêm việc \"Thêm\" (sức L) vào kế hoạch Đầy với ngày 19/11, cần dời việc \"Sẵn\" của kế hoạch Đầy sang 20/11.\n\nBạn có muốn tiếp tục ghi và dời như trên không?",
+      "earlier_lines": [
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6218, \"output_tokens\": 84, \"duration_ms\": 1261, \"error_type\": null}",
+        "{\"tool\": \"get_plans\", \"input\": {\"keyword\": \"Đầy\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"tool_use\", \"input_tokens\": 6414, \"output_tokens\": 158, \"duration_ms\": 1496, \"error_type\": null}",
+        "{\"tool\": \"add_subtask\", \"input\": {\"plan_id\": \"8b6d31cb-9554-4ccf-bc11-e89bdb47a6b3\", \"title\": \"Thêm\", \"effort\": \"L\", \"scheduled_on\": \"2026-11-19\"}, \"ok\": true, \"error_type\": null, \"duration_ms\": 0, \"definitions_version\": 4, \"detail\": null}",
+        "{\"model\": \"claude-haiku-5-5\", \"prompt_version\": 8, \"definitions_version\": 4, \"stop_reason\": \"end_turn\", \"input_tokens\": 6664, \"output_tokens\": 139, \"duration_ms\": 1198, \"error_type\": null}"
+      ],
+      "store_after": [
+        [
+          "Nộp",
+          null,
+          [
+            [
+              "Nộp bài",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Một",
+          null,
+          [
+            [
+              "A",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ],
+            [
+              "B",
+              "pending",
+              null,
+              "2026-11-17",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Xong",
+          null,
+          [
+            [
+              "Đã xong",
+              "done",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Bỏ",
+              "skipped",
+              null,
+              "2026-11-18",
+              "L"
+            ],
+            [
+              "Còn",
+              "pending",
+              null,
+              "2026-11-18",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đầy",
+          null,
+          [
+            [
+              "Sẵn",
+              "pending",
+              null,
+              "2026-11-19",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Nhẹ",
+          null,
+          [
+            [
+              "Đọc",
+              "pending",
+              null,
+              "2026-11-20",
+              "S"
+            ]
+          ]
+        ],
+        [
+          "Đệm",
+          null,
+          [
+            [
+              "Chặn",
+              "pending",
+              null,
+              "2026-11-13",
+              "L"
+            ]
+          ]
+        ],
+        [
+          "Cao",
+          "high",
+          [
+            [
+              "Giữ một",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ],
+            [
+              "Giữ hai",
+              "pending",
+              null,
+              "2026-11-12",
+              null
+            ]
+          ]
+        ],
+        [
+          "Phần Lan",
+          "medium",
+          [
+            [
+              "Luyện nói",
+              "pending",
+              null,
+              "2026-11-12",
+              "M"
+            ]
+          ]
+        ],
+        [
+          "Azure",
+          "low",
+          [
+            [
+              "Học module 3",
+              "pending",
+              null,
+              "2026-11-12",
+              "L"
+            ]
+          ]
+        ]
+      ]
+    }
+  ]
+}
