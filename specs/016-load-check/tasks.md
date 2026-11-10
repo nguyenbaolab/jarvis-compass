@@ -144,6 +144,10 @@ Mỗi lệnh ghi một file trong `evals/results/`, tên `p{prompt}-d{definition
 
 - [ ] T032 DỪNG: Starter chạy lại ba bộ eval, cùng ba lệnh của T024. Khi Starter đưa ba đường dẫn p9-d4 thì thêm đúng ba đường đó vào `specs/016-load-check/allowed-files.txt`. Không dùng `*`. Không deploy. Không `db push`
 
+- [X] T033 Đổi `user_message` của V3-02 và V3-08 trong `evals/cases/v3.json`: tên việc "Thêm" thành "Báo cáo", thành "Thêm việc Báo cáo, sức L, vào kế hoạch Đầy, ngày 2026-11-19." Note, dataset và follow_up giữ nguyên
+
+  Kết quả: lần đo p9-d4 của bộ v3: luật tool 22/24, luật store 24/24. Trượt V3-02 một lượt vì tên việc "Thêm". Trượt V3-07 một lượt vì mô hình dời qua reschedule_subtasks kèm confirm thay vì load_moves của add_subtask.
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

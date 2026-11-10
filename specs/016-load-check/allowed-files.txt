@@ -9,6 +9,7 @@ evals/score.py
 evals/results/p8-d4-claude-haiku-5-5-2026-11-10.json
 evals/results/p8-d4-claude-haiku-5-5-2026-11-10-2.json
 evals/results/p8-d4-claude-haiku-5-5-2026-11-10-3.json
+evals/results/p9-d4-claude-haiku-5-5-2026-11-10.json
 specs/016-load-check/**
 src/core/plans.py
 src/core/system_prompt.py

@@ -18,7 +18,7 @@
       "id": "V3-02",
       "group": "quét tải: vượt quỹ",
       "instant": "2026-11-10T10:00:00+02:00",
-      "user_message": "Thêm việc Thêm, sức L, vào kế hoạch Đầy, ngày 2026-11-19.",
+      "user_message": "Thêm việc Báo cáo, sức L, vào kế hoạch Đầy, ngày 2026-11-19.",
       "dataset": "qua_tai",
       "expectation": {
         "kind": "load_over_budget",
@@ -98,7 +98,7 @@
       "id": "V3-08",
       "group": "quét tải: từ chối",
       "instant": "2026-11-10T10:00:00+02:00",
-      "user_message": "Thêm việc Thêm, sức L, vào kế hoạch Đầy, ngày 2026-11-19.",
+      "user_message": "Thêm việc Báo cáo, sức L, vào kế hoạch Đầy, ngày 2026-11-19.",
       "follow_up": "Thôi không thêm nữa.",
       "dataset": "qua_tai",
       "expectation": {
