@@ -110,9 +110,11 @@ Cùng cách T004.
 
   Kết quả: đỏ `assert 'pass' == 'fail'`. SHA256 trước AB56EEFC7FEF17FA6497107C7A44ECA73F805C52891B485898D211D4626A6A77. SHA256 sau AB56EEFC7FEF17FA6497107C7A44ECA73F805C52891B485898D211D4626A6A77.
 
-- [ ] T023 Chạy `.\scripts\check.ps1 -AllowList specs/016-load-check/allowed-files.txt` (phụ thuộc T019, T020, T021, T022). Ghi mã thoát và cả bảng. Không chạy eval. Không `db push`. Không deploy
+- [X] T023 Chạy `.\scripts\check.ps1 -AllowList specs/016-load-check/allowed-files.txt` (phụ thuộc T019, T020, T021, T022). Ghi mã thoát và cả bảng. Không chạy eval. Không `db push`. Không deploy
 
-- [ ] T024 DỪNG: Starter chạy ba lệnh, mỗi lệnh một bộ, vì Cursor không giữ khóa API. Không gộp. Từ gốc repo:
+  Kết quả: 796 passed, 1 warning, pytest exit 0; Changed files pass với 37 file nằm trong allow list; các hàng Core imports, Workers imports, Turns imports, Update imports, Tools imports, SDK imports, Env reads, Eval tests imports và Eval env reads đều pass, no matches; Repo review info, 5 file src đổi so với ngưỡng 15.
+
+- [X] T024 DỪNG: Starter chạy ba lệnh, mỗi lệnh một bộ, vì Cursor không giữ khóa API. Không gộp. Từ gốc repo:
 
 ```text
 $env:PYTHONPATH = "src"
@@ -123,6 +125,8 @@ uv run python -m evals.runner evals/cases/v3.json
 ```
 
 Mỗi lệnh ghi một file trong `evals/results/`, tên `p{prompt}-d{definitions}-{model}-{ngày}.json` do runner đặt. Cursor không chạy ba lệnh này. Khi Starter đưa ba đường dẫn, thêm đúng ba đường đó vào `specs/016-load-check/allowed-files.txt`, không dùng `*`. Rồi chat đọc diff lô 3 và ba file kết quả. Không deploy. Không `db push`
+
+  Kết quả: Ba lần chạy nằm ở T025 và T032.
 
 ### Vòng sửa sau lần đo p8-d4
 
@@ -142,7 +146,9 @@ Mỗi lệnh ghi một file trong `evals/results/`, tên `p{prompt}-d{definition
 
   Kết quả: đỏ `assert 'pass' == 'fail'`. SHA256 trước 0EE2F639E36679359EA6BC925A8AC477621BE4579A260310628DE7025F47F138. SHA256 sau 0EE2F639E36679359EA6BC925A8AC477621BE4579A260310628DE7025F47F138.
 
-- [ ] T032 DỪNG: Starter chạy lại ba bộ eval, cùng ba lệnh của T024. Khi Starter đưa ba đường dẫn p9-d4 thì thêm đúng ba đường đó vào `specs/016-load-check/allowed-files.txt`. Không dùng `*`. Không deploy. Không `db push`
+- [X] T032 DỪNG: Starter chạy lại ba bộ eval, cùng ba lệnh của T024. Khi Starter đưa ba đường dẫn p9-d4 thì thêm đúng ba đường đó vào `specs/016-load-check/allowed-files.txt`. Không dùng `*`. Không deploy. Không `db push`
+
+  Kết quả: p9-d4-2 là bộ v1, p9-d4-3 là bộ v2, p9-d4-4 là bộ v3. v1 tool 135 trên 150, store 45 trên 45; v2 tool 44 trên 45, store 44 trên 45; v3 tool 22 trên 24, store 23 trên 24.
 
 - [X] T033 Đổi `user_message` của V3-02 và V3-08 trong `evals/cases/v3.json`: tên việc "Thêm" thành "Báo cáo", thành "Thêm việc Báo cáo, sức L, vào kế hoạch Đầy, ngày 2026-11-19." Note, dataset và follow_up giữ nguyên
 

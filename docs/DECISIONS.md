@@ -542,6 +542,8 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 
 **Chưa quyết:** sau tuần thử có tiếp tục các hướng đang tạm dừng hay đổi hướng; Mini App có làm không (mục 3); thứ tự cụ thể giữa các việc tạm dừng nếu làm tiếp.
 
+**Cập nhật 2026-11-10:** Starter chốt thay mục tự dùng hằng ngày 1 đến 2 tuần ở mục 1 bằng chạy giả lập (đồng hồ giả, kho trong bộ nhớ, kịch bản nhiều ngày), để khép repo sớm; dùng thật làm khi cắm compass vào trợ lý mã nguồn mở ở bước thử. Vì vậy mục 4 chưa có nguồn: chưa có thiếu sót nào ghi từ dùng thật. README và báo cáo phải ghi đúng điều này: đánh giá bằng eval và giả lập, chưa dùng thật dài ngày; chi phí chỉ là ước tính từ token trong eval.
+
 ## D-029 — Quét tải: tải một ngày tính ở code, cảnh báo mềm, lần ghi đã xác nhận mới dời việc
 
 **Date:** 2026-11-10
@@ -581,3 +583,5 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 - Tạo kế hoạch và thêm việc chưa kiểm trùng hạn; bật khi thấy thiếu (D-028 mục 4).
 
 **Phương án đã bỏ:** cột hoặc bảng quỹ riêng từng ngày và lệnh đặt quỹ (làm riêng sau v1); RPC gộp nhiều kế hoạch trong một transaction; hoàn tác phần đã ghi; ưu tiên trống xếp trước thấp hoặc sau cao; coi việc vừa đặt là ứng viên dời; tìm ngày đích xa hơn bảy ngày hoặc lấy ngày kế tiếp bất kể quỹ; hai cờ riêng cho tải và trùng hạn; để mô hình tự cộng giờ hoặc tự chọn việc dời.
+
+**Cập nhật 2026-11-10:** Đo F20 với lời hướng dẫn bản 9 và định nghĩa tool bản 4 (claude-haiku-5-5, ba lượt mỗi ca, các file `evals/results/p8-d4-*` và `p9-d4-*`). Mọi lượt mà tool báo ngày vượt đều không ghi: luật store của các ca vượt đạt ở mọi lượt trong hai lần chạy bản 9. Ca từ chối giữ kho nguyên 6 trên 6 lượt. Đoạn tính tạm được nêu ở mọi lượt có cảnh báo cần nó; bản 8 chỉ 2 trên 3 ở V3-04 và 1 trên 3 ở V3-06, nên bản 9 thêm câu giữ đoạn đó. Lượt xác nhận (V3-07) đi đúng đường add_subtask kèm load_moves ở 4 trên 6 lượt của hai lần chạy bản 9; hai lượt kia dời việc qua reschedule_subtasks kèm confirm và ra cùng trạng thái cuối nhưng bỏ qua kiểm trùng hạn, đúng điểm yếu ở mục 7. Chạy lại bộ v1 và v2 với bản 9: v1 tool 135 trên 150 (p7: 136), store 45 trên 45; v2 tool 44 trên 45 (p7: 42), store 44 trên 45 (p7: 41); nhóm dời hạn trùng lên 1,0 (p7 và p8: 0,33). Hai ca P04 và V2-06, cả hai là ca hạn cả kế hoạch, xuống 0,67 ở cả p8 lẫn p9 sau khi đạt 1,0 ở p6 và p7; với ba lượt mỗi ca chưa đủ để kết luận, ghi nhận để theo dõi. Mô hình không chép nguyên câu của tool ở lượt nào (0 trên 24 ở p8), nên FR-006 chỉ đòi các thành phần của câu và bộ chấm kiểm thành phần. Chữ "hạn" trong tin người dùng kích hoạt luật hạn cả kế hoạch của D-026 mục 2; một lượt ở V3-05 vẫn chỉ đặt ngày lên việc cuối dù tin nói cả ba làm cùng ngày, nên ngày đó không vượt. Một lần chạy cả ba bộ tốn khoảng 37 cent.
