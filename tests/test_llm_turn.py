@@ -583,8 +583,8 @@ def test_duration_ms_uses_clock_around_complete(monkeypatch: pytest.MonkeyPatch)
     assert json.loads(logs[0])["duration_ms"] == 1500
 
 
-def test_system_prompt_has_version_eight_laws() -> None:
-    assert PROMPT_VERSION == 8
+def test_system_prompt_has_version_nine_laws() -> None:
+    assert PROMPT_VERSION == 9
     assert "get_plan_detail" not in SYSTEM_PROMPT
     assert "Friday" not in SYSTEM_PROMPT
     assert SYSTEM_PROMPT.count("trợ lý lập kế hoạch") == 1
@@ -685,6 +685,14 @@ def test_system_prompt_has_version_eight_laws() -> None:
     assert (
         "Mã kế hoạch và mã việc cho load_moves lấy từ get_plans trong lượt đó, "
         "không hỏi chủ bot mã."
+    ) in SYSTEM_PROMPT
+    assert (
+        "Việc trong danh sách dời gửi qua load_moves của chính lời gọi đang ghi, "
+        "không gọi reschedule_subtasks cho chúng."
+    ) in SYSTEM_PROMPT
+    assert (
+        "Khi câu tool có đoạn tính tạm, giữ đoạn đó khi nói lại: "
+        "nói rõ số giờ là ước tính vì có việc chưa có sức."
     ) in SYSTEM_PROMPT
 
 

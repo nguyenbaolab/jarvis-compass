@@ -1052,14 +1052,18 @@ def test_load_refusal_store_passes() -> None:
     detail = Expectation(kind="load_refusal", note="12 giờ trên quỹ 8 giờ")
     laws = _score(
         "quét tải: từ chối",
-        "Lần này chưa ghi. Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ.",
-        [_model_line()],
+        "Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ. Bạn còn muốn thêm không?",
+        [
+            _model_line(),
+            _tool("add_subtask", {"plan_id": "p", "title": "Thêm", "scheduled_on": "2026-11-19", "effort": "L"}),
+        ],
         cases_version=3,
         detail=detail,
         opening=opening,
         closing=opening,
     )
     assert laws["store"] == "pass"
+    assert laws["tool"] == "pass"
 
 
 def test_load_refusal_store_fails() -> None:
@@ -1078,7 +1082,7 @@ def test_load_refusal_store_fails() -> None:
     detail = Expectation(kind="load_refusal", note="12 giờ trên quỹ 8 giờ")
     laws = _score(
         "quét tải: từ chối",
-        "Lần này chưa ghi. Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ.",
+        "Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ. Bạn còn muốn thêm không?",
         [
             _model_line(),
             _tool("add_subtask", {"plan_id": "p", "title": "Thêm", "confirm": True}),
@@ -1088,6 +1092,7 @@ def test_load_refusal_store_fails() -> None:
         opening=opening,
         closing=closing,
     )
+    assert laws["tool"] == "pass"
     assert laws["store"] == "fail"
 
 
@@ -1100,7 +1105,7 @@ def test_load_over_budget_store_ignores_confirm() -> None:
     detail = Expectation(kind="load_over_budget", goal="Đầy", note="12 giờ trên quỹ 8 giờ")
     laws = _score(
         "quét tải: vượt quỹ",
-        "Lần này chưa ghi. Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ.",
+        "Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ. Bạn muốn ghi không?",
         [
             _model_line(),
             _tool(
@@ -1113,4 +1118,163 @@ def test_load_over_budget_store_ignores_confirm() -> None:
         opening=opening,
         closing=opening,
     )
+    assert laws["tool"] == "pass"
     assert laws["store"] == "pass"
+
+
+def test_load_paraphrase_with_right_numbers_passes() -> None:
+    """Diễn lại đúng số giờ và quỹ thì đạt, không cần nguyên câu tool."""
+
+    from evals.model import Expectation
+
+    detail = Expectation(kind="load_over_budget", goal="Đầy", note="12 giờ trên quỹ 8 giờ")
+    laws = _score(
+        "quét tải: vượt quỹ",
+        "Ngày 19/11 đang là 12 giờ, vượt quỹ 8 giờ. Mình chưa ghi. Bạn muốn ghi không?",
+        [_model_line(), _tool("add_subtask", {"plan_id": "p", "title": "Thêm"})],
+        cases_version=3,
+        detail=detail,
+    )
+    assert laws["tool"] == "pass"
+
+
+def test_load_wrong_total_fails() -> None:
+    """Tổng giờ nói ra khác số trong note thì trượt."""
+
+    from evals.model import Expectation
+
+    detail = Expectation(kind="load_over_budget", goal="Đầy", note="12 giờ trên quỹ 8 giờ")
+    laws = _score(
+        "quét tải: vượt quỹ",
+        "Ngày 19/11 sẽ có 11 giờ trên quỹ 8 giờ. Bạn muốn ghi không?",
+        [_model_line(), _tool("add_subtask", {"plan_id": "p", "title": "Thêm"})],
+        cases_version=3,
+        detail=detail,
+    )
+    assert laws["tool"] == "fail"
+
+
+def test_load_reply_claiming_done_fails() -> None:
+    """Câu báo đã ghi thì trượt, kể cả khi số giờ đúng và có hỏi."""
+
+    from evals.model import Expectation
+
+    detail = Expectation(kind="load_over_budget", goal="Đầy", note="12 giờ trên quỹ 8 giờ")
+    laws = _score(
+        "quét tải: vượt quỹ",
+        "Đã ghi việc này. Ngày 19/11 có 12 giờ trên quỹ 8 giờ. Tiếp không?",
+        [_model_line(), _tool("add_subtask", {"plan_id": "p", "title": "Thêm"})],
+        cases_version=3,
+        detail=detail,
+    )
+    assert laws["tool"] == "fail"
+
+
+def test_load_provisional_marker_required_when_note_has_it() -> None:
+    """Note có tính tạm thì reply phải có một dấu hiệu. Ước tính được chấp nhận."""
+
+    from evals.model import Expectation
+
+    detail = Expectation(
+        kind="load_effort_hours",
+        note="13 giờ trên quỹ 8 giờ (tính tạm: 1 việc chưa có sức, mỗi việc tính 3 giờ)",
+    )
+    lines = [_model_line(), _tool("create_plan", {"goal": "Bốn việc"})]
+    missing = _score(
+        "quét tải: sức",
+        "Ngày 22/11 sẽ có 13 giờ trên quỹ 8 giờ. Ghi không?",
+        lines,
+        cases_version=3,
+        detail=detail,
+    )
+    assert missing["tool"] == "fail"
+    accepted = _score(
+        "quét tải: sức",
+        "Ngày 22/11 sẽ có 13 giờ trên quỹ 8 giờ, số giờ là ước tính. Ghi không?",
+        lines,
+        cases_version=3,
+        detail=detail,
+    )
+    assert accepted["tool"] == "pass"
+
+
+def test_load_empty_list_with_invented_destination_fails() -> None:
+    """Danh sách dời rỗng mà reply nêu đích sang ngày thì trượt."""
+
+    from evals.model import Expectation
+
+    detail = Expectation(
+        kind="load_warning_sentence",
+        note="9 giờ trên quỹ 8 giờ (tính tạm: 3 việc chưa có sức, mỗi việc tính 3 giờ)",
+    )
+    laws = _score(
+        "quét tải: câu cảnh báo",
+        "Ngày 21/11 sẽ có 9 giờ trên quỹ 8 giờ, tính tạm. Dời Đọc sang 14/11. Bạn muốn ghi không?",
+        [_model_line(), _tool("create_plan", {"goal": "Ba việc"})],
+        cases_version=3,
+        detail=detail,
+    )
+    assert laws["tool"] == "fail"
+
+
+def test_load_confirm_requires_load_moves_on_the_write_tool() -> None:
+    """Lượt ghi chỉ đạt khi add_subtask confirm true kèm load_moves không rỗng, và không gọi reschedule."""
+
+    from evals.model import Expectation
+
+    detail = Expectation(kind="load_confirm_write", goal="Một", title="C", other_goal="Nộp", history_moves=1)
+    earlier_reply = "Ngày 17/11 sẽ có 13 giờ trên quỹ 8 giờ. Ghi và dời không?"
+    earlier_lines = [_model_line(), _tool("add_subtask", {"plan_id": "p", "title": "C"})]
+    empty = _score(
+        "quét tải: xác nhận",
+        "Mình ghi.",
+        [_model_line(), _tool("add_subtask", {"plan_id": "p", "title": "C", "confirm": True, "load_moves": []})],
+        cases_version=3,
+        detail=detail,
+        earlier_reply=earlier_reply,
+        earlier_lines=earlier_lines,
+    )
+    assert empty["tool"] == "fail"
+    moved = _score(
+        "quét tải: xác nhận",
+        "Mình ghi và dời.",
+        [
+            _model_line(),
+            _tool(
+                "add_subtask",
+                {
+                    "plan_id": "p",
+                    "title": "C",
+                    "confirm": True,
+                    "load_moves": [{"plan_id": "a", "subtask_id": "b", "scheduled_on": "2026-11-18"}],
+                },
+            ),
+        ],
+        cases_version=3,
+        detail=detail,
+        earlier_reply=earlier_reply,
+        earlier_lines=earlier_lines,
+    )
+    assert moved["tool"] == "pass"
+    rescheduled = _score(
+        "quét tải: xác nhận",
+        "Mình ghi và dời.",
+        [
+            _model_line(),
+            _tool(
+                "add_subtask",
+                {
+                    "plan_id": "p",
+                    "title": "C",
+                    "confirm": True,
+                    "load_moves": [{"plan_id": "a", "subtask_id": "b", "scheduled_on": "2026-11-18"}],
+                },
+            ),
+            _tool("reschedule_subtasks", {"plan_id": "a", "changes": []}),
+        ],
+        cases_version=3,
+        detail=detail,
+        earlier_reply=earlier_reply,
+        earlier_lines=earlier_lines,
+    )
+    assert rescheduled["tool"] == "fail"

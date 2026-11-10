@@ -591,8 +591,10 @@ def _v2_laws(
 
 _V3_TOOLS = _READ_OK | {"add_subtask", "create_plan", "reschedule_subtasks"}
 _V3_CREATE = frozenset({"load_effort_hours", "load_warning_sentence"})
-_WARNING = "Lần này chưa ghi"
-_MOVE_CLAUSE = "Nếu vẫn ghi thì dời"
+_HOUR_NUMBER = re.compile(r"(\d+)\s*giờ")
+_CLAIMED_DONE = re.compile(r"\bĐã (thêm|ghi|tạo|lưu)\b")
+_INVENTED_DESTINATION = re.compile(r"sang\s+\d{1,2}/\d{1,2}")
+_PROVISIONAL_MARKERS = ("tính tạm", "ước tính", "tạm tính", "ước lượng", "chưa có sức")
 
 
 def _day_mark(iso: str) -> str:
@@ -615,8 +617,36 @@ def _reply_moves(reply: str, dates: tuple[tuple[str, str], ...] | None) -> bool:
     return "3. " not in reply
 
 
-def _note_ok(reply: str, detail: Expectation) -> bool:
-    return detail.note is None or detail.note in reply
+def _hours_ok(reply: str, detail: Expectation) -> bool:
+    if detail.note is None:
+        return True
+    head = detail.note.split("(", 1)[0]
+    numbers = _HOUR_NUMBER.findall(head)
+    return all(re.search(rf"(?<!\d){number}\s*giờ", reply) is not None for number in numbers)
+
+
+def _provisional_ok(reply: str, detail: Expectation) -> bool:
+    if detail.note is None or "(tính tạm" not in detail.note:
+        return True
+    return any(marker in reply for marker in _PROVISIONAL_MARKERS)
+
+
+def _asks_owner(reply: str) -> bool:
+    return "?" in reply and _CLAIMED_DONE.search(reply) is None
+
+
+def _said(reply: str, detail: Expectation) -> bool:
+    return _asks_owner(reply) and _hours_ok(reply, detail) and _provisional_ok(reply, detail)
+
+
+def _confirmed_add_with_moves(row: dict[str, object]) -> bool:
+    if str(row.get("tool")) != "add_subtask" or not _confirm_true(row):
+        return False
+    tool_input = row.get("input")
+    if not isinstance(tool_input, dict):
+        return False
+    moves = tool_input.get("load_moves")
+    return isinstance(moves, list) and len(moves) > 0
 
 
 def _parsed_rows(lines: list[str] | None) -> list[dict[str, object]]:
@@ -638,26 +668,28 @@ def _v3_tool(
     if any(name not in _V3_TOOLS for name in names):
         return "fail"
     if kind in {"load_within_budget", "load_done_skipped"}:
-        return _mark("add_subtask" in names and _WARNING not in reply)
+        return _mark("add_subtask" in names and "Lần này chưa ghi" not in reply)
     if kind == "load_over_budget":
         called = "add_subtask" in names or "create_plan" in names
-        return _mark(called and _WARNING in reply and _note_ok(reply, detail))
+        return _mark(called and _said(reply, detail))
     if kind == "load_effort_hours":
-        return _mark("create_plan" in names and _note_ok(reply, detail))
+        return _mark("create_plan" in names and _said(reply, detail))
     if kind == "load_warning_sentence":
-        said = _WARNING in reply and _MOVE_CLAUSE not in reply and _note_ok(reply, detail)
-        return _mark("create_plan" in names and said)
+        clean = _INVENTED_DESTINATION.search(reply) is None
+        return _mark("create_plan" in names and _said(reply, detail) and clean)
     if kind == "load_move_order":
-        return _mark(_WARNING in reply and _note_ok(reply, detail) and _reply_moves(reply, detail.dates))
+        return _mark("add_subtask" in names and _said(reply, detail) and _reply_moves(reply, detail.dates))
     if kind == "load_confirm_write":
         first_rows = _tool_rows(_parsed_rows(earlier_lines))
-        second_ok = "get_plans" in names and any(_confirm_true(row) for row in rows)
+        wrote = any(_confirmed_add_with_moves(row) for row in rows)
+        no_reschedule = "reschedule_subtasks" not in names
         first_clean = not any(_confirm_true(row) for row in first_rows)
-        warned = earlier_reply is not None and _WARNING in earlier_reply
-        return _mark(second_ok and first_clean and warned)
+        warned = earlier_reply is not None and _asks_owner(earlier_reply)
+        return _mark(wrote and no_reschedule and first_clean and warned)
     if kind == "load_refusal":
         text = earlier_reply if earlier_reply is not None else reply
-        return _mark(_WARNING in text and _note_ok(text, detail))
+        first_names = names if earlier_lines is None else _names(_parsed_rows(earlier_lines))
+        return _mark("add_subtask" in first_names and _said(text, detail))
     return "fail"
 
 

@@ -48,7 +48,7 @@
       "id": "V3-04",
       "group": "quét tải: sức",
       "instant": "2026-11-10T10:00:00+02:00",
-      "user_message": "Lập kế hoạch Bốn việc, hạn 2026-11-22. Bốn việc cùng ngày 2026-11-22: Đọc sức S, Viết sức M, Nghe sức L, Ôn không có sức.",
+      "user_message": "Lập kế hoạch Bốn việc, cả bốn làm ngày 2026-11-22: Đọc sức S, Viết sức M, Nghe sức L, Ôn không có sức.",
       "dataset": "",
       "expectation": {
         "kind": "load_effort_hours",
@@ -59,7 +59,7 @@
       "id": "V3-05",
       "group": "quét tải: câu cảnh báo",
       "instant": "2026-11-10T10:00:00+02:00",
-      "user_message": "Lập kế hoạch Ba việc, hạn 2026-11-21. Ba việc cùng ngày 2026-11-21, không nói sức: Đọc, Viết, Nghe.",
+      "user_message": "Lập kế hoạch Ba việc, cả ba làm ngày 2026-11-21, không nói sức: Đọc, Viết, Nghe.",
       "dataset": "",
       "expectation": {
         "kind": "load_warning_sentence",

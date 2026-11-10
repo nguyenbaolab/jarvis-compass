@@ -1,6 +1,6 @@
 # Câu cảnh báo tải
 
-Tool dựng câu này khi lần gọi đầu chưa ghi vì vượt. Pytest khóa đúng các câu dưới. Mô hình nói lại câu tool. Tỉ lệ nói lại đúng là việc của eval bộ v3, không phải assert pytest.
+Tool dựng câu này khi lần gọi đầu chưa ghi vì vượt. Pytest khóa đúng các câu dưới. Câu của tool là chữ khóa. Mô hình được nói bằng chữ của mình, miễn nêu đủ ngày, tổng giờ, quỹ, ghi chú tính tạm khi có, danh sách dời đúng thứ tự và đúng ngày khi có, nói rõ chưa ghi hoặc hỏi chủ bot, không tự cộng giờ và không bịa việc. Ngày/tháng vẫn hai chữ số. Tỉ lệ nói đủ các phần đó là việc của eval bộ v3, không phải assert pytest.
 
 Ngày viết `ngày/tháng`, mỗi phần hai chữ số, không năm, cùng dạng với digest (`02d/02d`). 6 tháng 11 là `06/11`, 12 tháng 11 là `12/11`. Ngày trong câu trùng hạn giữ dạng ISO của `_clash_text`.
 

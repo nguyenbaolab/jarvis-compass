@@ -124,6 +124,26 @@ uv run python -m evals.runner evals/cases/v3.json
 
 Mỗi lệnh ghi một file trong `evals/results/`, tên `p{prompt}-d{definitions}-{model}-{ngày}.json` do runner đặt. Cursor không chạy ba lệnh này. Khi Starter đưa ba đường dẫn, thêm đúng ba đường đó vào `specs/016-load-check/allowed-files.txt`, không dùng `*`. Rồi chat đọc diff lô 3 và ba file kết quả. Không deploy. Không `db push`
 
+### Vòng sửa sau lần đo p8-d4
+
+- [X] T025 Thêm ba đường dẫn kết quả p8-d4 vào `specs/016-load-check/allowed-files.txt`: `evals/results/p8-d4-claude-haiku-5-5-2026-11-10.json`, `evals/results/p8-d4-claude-haiku-5-5-2026-11-10-2.json`, `evals/results/p8-d4-claude-haiku-5-5-2026-11-10-3.json`. Không dùng `*`
+
+- [X] T026 Sửa `evals/score.py`, chỉ nhánh `cases_version` 3 (phụ thuộc T025). Bộ chấm kiểm thành phần, không kiểm nguyên câu. `hours_ok`: mọi số đứng trước chữ "giờ" ở mệnh đề đầu của note, phần trước dấu "(", phải có trong reply dưới dạng số nguyên rồi "giờ", regex `(?<!\d)N\s*giờ`. `provisional_ok`: note có "(tính tạm" thì reply có một trong tính tạm, ước tính, tạm tính, ước lượng, chưa có sức. Số việc không bắt buộc. `asks_owner`: reply có "?" và không khớp `\bĐã (thêm|ghi|tạo|lưu)\b`. `load_move_order` giữ kiểm tiêu đề rồi ngày theo thứ tự và không có mục "3. ". `load_warning_sentence` trượt khi reply khớp `sang\s+\d{1,2}/\d{1,2}`. Các ca cảnh báo và lượt một của ca từ chối, ca xác nhận dùng `asks_owner` thay cho chữ "Lần này chưa ghi". `load_confirm_write` chỉ đạt khi lượt hai có `add_subtask` với confirm true và `load_moves` không rỗng, và lượt hai không gọi `reschedule_subtasks`. `load_move_order` và `load_refusal` phải thấy `add_subtask`, với ca từ chối là ở lượt một. Nhánh bản 1 và bản 2 không đổi
+
+- [X] T027 Sửa `evals/cases/v3.json` (phụ thuộc T025). V3-04 đổi `user_message` thành "Lập kế hoạch Bốn việc, cả bốn làm ngày 2026-11-22: Đọc sức S, Viết sức M, Nghe sức L, Ôn không có sức." V3-05 đổi thành "Lập kế hoạch Ba việc, cả ba làm ngày 2026-11-21, không nói sức: Đọc, Viết, Nghe." Không đổi gì khác
+
+- [X] T028 Sửa `src/core/system_prompt.py` (phụ thuộc T025). `PROMPT_VERSION` là 9. Giữ mọi câu bản 8. Thêm hai câu vào đoạn quét tải: "Việc trong danh sách dời gửi qua load_moves của chính lời gọi đang ghi, không gọi reschedule_subtasks cho chúng." và "Khi câu tool có đoạn tính tạm, giữ đoạn đó khi nói lại: nói rõ số giờ là ước tính vì có việc chưa có sức." Đổi `test_system_prompt_has_version_eight_laws` thành `test_system_prompt_has_version_nine_laws` trong `tests/test_llm_turn.py`, khóa số 9 và hai câu mới. `docs/ARCHITECTURE.md` §2 đổi `PROMPT_VERSION` 8 thành 9
+
+- [X] T029 Sửa `specs/016-load-check/spec.md`, `contracts/load-warning.md` và `research.md` (phụ thuộc T026). FR-006, SC-003 và ca 5 của User Story 7: câu tool là chữ khóa; mô hình được nói bằng chữ của mình miễn nêu đủ ngày, tổng giờ, quỹ, ghi chú tính tạm khi có, danh sách dời đúng thứ tự và đúng ngày khi có, nói rõ chưa ghi hoặc hỏi chủ bot, không tự cộng giờ và không bịa việc. Ngày/tháng vẫn hai chữ số. Thêm một câu tương ứng vào đoạn đầu contract và mục 4 của research
+
+- [X] T030 Thêm sáu hàm trong `tests/test_eval_score.py` (phụ thuộc T026): `test_load_paraphrase_with_right_numbers_passes`, `test_load_wrong_total_fails`, `test_load_reply_claiming_done_fails`, `test_load_provisional_marker_required_when_note_has_it`, `test_load_empty_list_with_invented_destination_fails`, `test_load_confirm_requires_load_moves_on_the_write_tool`. Cập nhật test v3 cũ cho khớp luật mới. Không đổi test v1 và v2
+
+- [X] T031 Trong `evals/score.py`, `hours_ok` luôn trả True (phụ thuộc T030). `test_load_wrong_total_fails` phải đỏ. Hoàn tác
+
+  Kết quả: đỏ `assert 'pass' == 'fail'`. SHA256 trước 0EE2F639E36679359EA6BC925A8AC477621BE4579A260310628DE7025F47F138. SHA256 sau 0EE2F639E36679359EA6BC925A8AC477621BE4579A260310628DE7025F47F138.
+
+- [ ] T032 DỪNG: Starter chạy lại ba bộ eval, cùng ba lệnh của T024. Khi Starter đưa ba đường dẫn p9-d4 thì thêm đúng ba đường đó vào `specs/016-load-check/allowed-files.txt`. Không dùng `*`. Không deploy. Không `db push`
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
