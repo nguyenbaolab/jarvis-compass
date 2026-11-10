@@ -99,7 +99,7 @@ def _run(name: object, tool_input: object, store: MemoryPlanStore, turn=None):
 
 
 def test_catalog_matches_contract() -> None:
-    assert DEFINITIONS_VERSION == 3
+    assert DEFINITIONS_VERSION == 4
     assert isinstance(DEFINITIONS_VERSION, int)
     assert list(TOOL_DEFINITIONS) == [
         "create_plan",
@@ -113,15 +113,15 @@ def test_catalog_matches_contract() -> None:
         "reschedule_subtasks",
     ]
     descriptions = {
-        "create_plan": "Tạo một kế hoạch mới từ mục tiêu và danh sách việc con. priority là high, medium hoặc low, chỉ đặt khi người dùng nói rõ. Mỗi việc có thể có scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ.",
+        "create_plan": "Tạo một kế hoạch mới từ mục tiêu và danh sách việc con. priority là high, medium hoặc low, chỉ đặt khi người dùng nói rõ. Mỗi việc có thể có scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ. Ngày vượt thì chưa ghi; nói lại câu tool; chỉ đặt confirm true ở lượt sau.",
         "get_plans": "Liệt kê kế hoạch đang có, mới hơn đứng trước, có thể lọc theo từ khóa trong mục tiêu hoặc tiêu đề việc con.",
         "get_plan_detail": "Mở một kế hoạch theo danh tính.",
         "update_subtask": "Đặt trạng thái một việc con thành pending, done hoặc skipped.",
-        "add_subtask": "Thêm một việc con vào cuối một kế hoạch. scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ.",
+        "add_subtask": "Thêm một việc con vào cuối một kế hoạch. scheduled_on dạng YYYY-MM-DD; effort là S, M hoặc L, chỉ đặt khi người dùng nói rõ. Ngày vượt thì chưa ghi; nói lại câu tool; chỉ đặt confirm true ở lượt sau.",
         "set_subtask_note": "Đặt hoặc xóa ghi chú của một việc con.",
         "set_plan_priority": "Đặt ưu tiên của một kế hoạch thành high, medium hoặc low, hoặc null để xóa.",
         "set_subtask_effort": "Đặt sức của một việc con thành S, M hoặc L, hoặc null để xóa.",
-        "reschedule_subtasks": "Đặt hoặc dời ngày của các việc trong một kế hoạch. scheduled_on dạng YYYY-MM-DD, hoặc null để bỏ ngày. Thấy trùng hạn một kế hoạch khác thì chưa ghi; chỉ đặt confirm là true ở lượt sau, khi chủ bot đã đồng ý.",
+        "reschedule_subtasks": "Đặt hoặc dời ngày của các việc trong một kế hoạch. scheduled_on dạng YYYY-MM-DD, hoặc null để bỏ ngày. Thấy trùng hạn một kế hoạch khác thì chưa ghi; chỉ đặt confirm là true ở lượt sau, khi chủ bot đã đồng ý. Khi câu vừa báo vượt vừa báo trùng, một cờ đó bao cả hai.",
     }
     for name, description in descriptions.items():
         entry = TOOL_DEFINITIONS[name]
@@ -134,7 +134,18 @@ def test_catalog_matches_contract() -> None:
         "goal",
         "priority",
         "subtasks",
+        "confirm",
+        "load_moves",
     ]
+    assert list(TOOL_DEFINITIONS["add_subtask"]["input_schema"]["properties"]) == [
+        "plan_id",
+        "title",
+        "scheduled_on",
+        "effort",
+        "confirm",
+        "load_moves",
+    ]
+    assert "load_moves" in TOOL_DEFINITIONS["reschedule_subtasks"]["input_schema"]["properties"]
     create_fields = TOOL_DEFINITIONS["create_plan"]["input_schema"]["properties"]
     subtasks = create_fields["subtasks"]
     assert subtasks["type"] == "array"

@@ -248,3 +248,19 @@ def test_no_prefix_clears_the_day_proposes_nothing() -> None:
         incoming=(("một", "Mới một"), ("một", "Mới hai")),
     )
     assert moves == ()
+
+
+def test_reserved_hours_count_toward_destination() -> None:
+    old = _item("Cũ", effort=Effort.L, scheduled_on=_DAY)
+    new = _item("Mới", effort=Effort.L, scheduled_on=_DAY)
+    plan = _plan(old, new, plan_id="một", priority=Priority.LOW)
+    moves = propose_load_moves(
+        (plan,),
+        _DAY,
+        _TODAY,
+        incoming=(("một", "Mới"),),
+        reserved={date(2026, 11, 13): 6},
+    )
+    assert [(item.subtask_id, item.scheduled_on) for item in moves] == [
+        ("Cũ", date(2026, 11, 14)),
+    ]

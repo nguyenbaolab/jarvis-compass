@@ -455,8 +455,12 @@ def propose_load_moves(
     day: date,
     today: date,
     incoming: tuple[tuple[str, str], ...] = (),
+    reserved: dict[date, int] | None = None,
 ) -> tuple[ProposedMove, ...]:
-    """Đoạn việc dời ngắn nhất và ngày đích trong bảy ngày sau. Không sửa kế hoạch."""
+    """Đoạn việc dời ngắn nhất và ngày đích trong bảy ngày sau. Không sửa kế hoạch.
+
+    reserved là giờ đã hứa cho ngày đích bởi các ngày vượt trước trong cùng lần gọi.
+    """
 
     load = day_load(plans, day, today)
     budget = day_budget(day)
@@ -484,13 +488,18 @@ def propose_load_moves(
     if not cleared:
         return ()
     assigned: dict[date, int] = {}
+    held = {} if reserved is None else reserved
     moves: list[ProposedMove] = []
     for plan, item in chosen:
         hours = task_hours(item)
         destination: date | None = None
         for offset in range(1, 8):
             target = day + timedelta(days=offset)
-            already = day_load(plans, target, today).total + assigned.get(target, 0)
+            already = (
+                day_load(plans, target, today).total
+                + assigned.get(target, 0)
+                + held.get(target, 0)
+            )
             if already + hours <= day_budget(target):
                 destination = target
                 break

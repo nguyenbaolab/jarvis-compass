@@ -19,6 +19,8 @@ from core.plans import (
 )
 from tests.fakes.memory_plan_store import MemoryPlanStore
 from tests.helpers import _UUID
+from tools.base import TurnContext
+from tools.plan_tools import add_subtask
 
 _STAMP = datetime(2026, 11, 6, 8, 0, tzinfo=timezone(timedelta(hours=2)))
 _DAY = date(2026, 11, 6)
@@ -629,3 +631,69 @@ async def _new_subtask_with_date_writes_no_history_row(store: PlanStore) -> None
     await store.replace(_saved(plan, (existing, added)), moved_at=_STAMP)
     assert await _history(store, plan.id, added.id) == []
     assert await _history(store, plan.id, existing.id) == []
+
+
+def test_two_moves_on_one_plan_keep_both_destinations(plan_store: PlanStore) -> None:
+    asyncio.run(_two_moves_on_one_plan_keep_both_destinations(plan_store))
+
+
+async def _two_moves_on_one_plan_keep_both_destinations(store: PlanStore) -> None:
+    """Hai lần replace của cùng kế hoạch giữ cả hai ngày đích và đúng hai dòng lịch sử."""
+
+    first = _dated("Một", date(2026, 11, 8))
+    second = _dated("Hai", date(2026, 11, 8))
+    target = await store.add("Đích", (first, second))
+    owner = await store.add("Chủ", ())
+    await add_subtask(
+        owner.id,
+        "Xin",
+        scheduled_on="2026-11-07",
+        effort="S",
+        confirm=True,
+        load_moves=[
+            {"plan_id": target.id, "subtask_id": first.id, "scheduled_on": "2026-11-09"},
+            {"plan_id": target.id, "subtask_id": second.id, "scheduled_on": "2026-11-10"},
+        ],
+        store=store,
+        turn=TurnContext(instant=_STAMP),
+    )
+    opened = await store.get(target.id)
+    assert opened is not None
+    by_id = {item.id: item.scheduled_on for item in opened.subtasks}
+    assert (
+        by_id[first.id],
+        by_id[second.id],
+        len(await _history(store, target.id, first.id)),
+        len(await _history(store, target.id, second.id)),
+    ) == (date(2026, 11, 9), date(2026, 11, 10), 1, 1)
+
+
+def test_owner_add_and_one_move_on_the_same_plan(plan_store: PlanStore) -> None:
+    asyncio.run(_owner_add_and_one_move_on_the_same_plan(plan_store))
+
+
+async def _owner_add_and_one_move_on_the_same_plan(store: PlanStore) -> None:
+    """Việc vừa thêm không có lịch sử. Việc dời cùng kế hoạch có đúng một dòng."""
+
+    existing = _dated("Cũ", date(2026, 11, 8))
+    plan = await store.add("Một", (existing,))
+    await add_subtask(
+        plan.id,
+        "Mới",
+        scheduled_on="2026-11-07",
+        effort="S",
+        confirm=True,
+        load_moves=[
+            {"plan_id": plan.id, "subtask_id": existing.id, "scheduled_on": "2026-11-09"},
+        ],
+        store=store,
+        turn=TurnContext(instant=_STAMP),
+    )
+    opened = await store.get(plan.id)
+    assert opened is not None
+    added = next(item for item in opened.subtasks if item.title == "Mới")
+    moved = next(item for item in opened.subtasks if item.id == existing.id)
+    assert added.scheduled_on == date(2026, 11, 7)
+    assert await _history(store, plan.id, added.id) == []
+    assert moved.scheduled_on == date(2026, 11, 9)
+    assert len(await _history(store, plan.id, existing.id)) == 1

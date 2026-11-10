@@ -583,8 +583,8 @@ def test_duration_ms_uses_clock_around_complete(monkeypatch: pytest.MonkeyPatch)
     assert json.loads(logs[0])["duration_ms"] == 1500
 
 
-def test_system_prompt_has_version_seven_laws() -> None:
-    assert PROMPT_VERSION == 7
+def test_system_prompt_has_version_eight_laws() -> None:
+    assert PROMPT_VERSION == 8
     assert "get_plan_detail" not in SYSTEM_PROMPT
     assert "Friday" not in SYSTEM_PROMPT
     assert SYSTEM_PROMPT.count("trợ lý lập kế hoạch") == 1
@@ -673,6 +673,19 @@ def test_system_prompt_has_version_seven_laws() -> None:
         in SYSTEM_PROMPT
     )
     assert "Phỏng vấn, kỳ thi hay hạn gần không phải lý do để đặt priority." in SYSTEM_PROMPT
+    assert "không cộng giờ và không tự chọn việc dời" in SYSTEM_PROMPT
+    assert "Nói lại nguyên câu tool trả." in SYSTEM_PROMPT
+    assert "Chỉ đặt confirm true ở lượt sau." in SYSTEM_PROMPT
+    assert "Một cờ đó bao cả tải và trùng hạn khi cùng một câu tool đã nêu cả hai." in SYSTEM_PROMPT
+    assert "Gửi lại load_moves đúng danh sách chủ bot đã chốt, không thêm việc." in SYSTEM_PROMPT
+    assert (
+        "Ở lượt xác nhận, gọi lại đúng lời gọi lần trước, cùng kế hoạch, việc và ngày, "
+        "kèm confirm true."
+    ) in SYSTEM_PROMPT
+    assert (
+        "Mã kế hoạch và mã việc cho load_moves lấy từ get_plans trong lượt đó, "
+        "không hỏi chủ bot mã."
+    ) in SYSTEM_PROMPT
 
 
 def test_hung_store_returns_turn_inside_budget(monkeypatch: pytest.MonkeyPatch) -> None:

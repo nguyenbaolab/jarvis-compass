@@ -33,4 +33,4 @@ Thêm `load_moves` cùng kiểu trên. `changes` vẫn là lần chủ bot đang
 
 `execute_tool` đã nhận `turn`. `_create` và `_add` thôi bỏ `turn`. Hai handler truyền `turn`, `confirm` và `load_moves` khi khóa có trong input.
 
-Không có `turn` mà lần ghi có ngày hôm nay hoặc ngày sau: tool lỗi, kho không đổi. Không ngày cần xét: `turn` trống vẫn được ghi.
+Không có `turn` thì không xét tải và lần ghi đi đường cũ. Router luôn truyền `turn`; trường hợp này chỉ có khi gọi trực tiếp, trong test hoặc eval. `reschedule_subtasks` vẫn lỗi khi không có `turn` như trước. Không ngày cần xét: `turn` trống vẫn được ghi.

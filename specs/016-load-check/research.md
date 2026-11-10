@@ -67,7 +67,7 @@ Ba tool gọi các hàm đó rồi tự dựng câu, cùng kiểu `_clash_text`.
 
 Lần gọi không `confirm` bỏ qua `load_moves`, tính lại, và không ghi khi vượt. `confirm` true ở lượt sau ghi lần đang xin trước, rồi đúng các phần tử `load_moves` theo thứ tự mảng. Code không thêm phần tử. Đích là ngày trong phần tử, kể cả khi chủ bot đã sửa. Không mở lại cảnh báo vượt cho ngày vừa báo.
 
-Không `turn` mà lần ghi có ngày cần xét: lỗi tool, không ghi, không đoán mốc. Không ngày cần xét thì `turn` trống vẫn ghi, như các lời gọi test hiện tại.
+Không có `turn` thì không xét tải và lần ghi đi đường cũ. Router luôn truyền `turn`; trường hợp này chỉ có khi gọi trực tiếp, trong test hoặc eval. `reschedule_subtasks` vẫn lỗi khi không có `turn` như trước. Không ngày cần xét thì `turn` trống vẫn ghi, như các lời gọi test hiện tại.
 
 Cùng lượt: cả cảnh báo tải và trùng hạn đều đặt `turn.clash_reported`. Không thêm cờ. `confirm` trong cùng lượt, sau khi cờ đã đặt, vẫn ném câu `_CONFIRM_SAME_TURN` đang có. Lượt sau có `TurnContext` mới, cờ bắt đầu false. Đó là cơ chế D-026 mục 6 dùng lại.
 

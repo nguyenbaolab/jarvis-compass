@@ -76,15 +76,24 @@ async def _create(
     remaining: Remaining,
     turn: TurnContext | None,
 ) -> ToolResult:
-    """create_plan. Chuyển ưu tiên, ngày và sức khi khóa có mặt."""
+    """create_plan. Chuyển ưu tiên, ngày, sức, confirm và danh sách dời khi khóa có mặt."""
 
-    del turn
     kwargs: dict[str, object] = {}
     if "priority" in tool_input:
         kwargs["priority"] = tool_input["priority"]
     if "subtasks" in tool_input:
         kwargs["subtasks"] = tool_input["subtasks"]
-    return await create_plan(tool_input["goal"], store=store, remaining=remaining, **kwargs)
+    if "confirm" in tool_input:
+        kwargs["confirm"] = tool_input["confirm"]
+    if "load_moves" in tool_input:
+        kwargs["load_moves"] = tool_input["load_moves"]
+    return await create_plan(
+        tool_input["goal"],
+        store=store,
+        remaining=remaining,
+        turn=turn,
+        **kwargs,
+    )
 
 
 async def _list(
@@ -133,17 +142,21 @@ async def _add(
     remaining: Remaining,
     turn: TurnContext | None,
 ) -> ToolResult:
-    del turn
     kwargs: dict[str, object] = {}
     if "scheduled_on" in tool_input:
         kwargs["scheduled_on"] = tool_input["scheduled_on"]
     if "effort" in tool_input:
         kwargs["effort"] = tool_input["effort"]
+    if "confirm" in tool_input:
+        kwargs["confirm"] = tool_input["confirm"]
+    if "load_moves" in tool_input:
+        kwargs["load_moves"] = tool_input["load_moves"]
     return await add_subtask(
         tool_input["plan_id"],
         tool_input["title"],
         store=store,
         remaining=remaining,
+        turn=turn,
         **kwargs,
     )
 
@@ -206,6 +219,8 @@ async def _reschedule(
         kwargs["reason"] = tool_input["reason"]
     if "confirm" in tool_input:
         kwargs["confirm"] = tool_input["confirm"]
+    if "load_moves" in tool_input:
+        kwargs["load_moves"] = tool_input["load_moves"]
     return await reschedule_subtasks(
         tool_input["plan_id"],
         tool_input["changes"],
