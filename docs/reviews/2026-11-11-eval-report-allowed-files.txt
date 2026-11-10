@@ -1,0 +1,8 @@
+evals/report.py
+tests/test_eval_report.py
+docs/EVAL_REPORT.md
+docs/evals/report-notes.md
+docs/PRODUCT.md
+docs/DECISIONS.md
+evals/results/p9-d4-claude-haiku-5-5-2026-11-11.json
+docs/reviews/**
