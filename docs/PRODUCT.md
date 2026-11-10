@@ -75,6 +75,8 @@ Thứ tự làm tiếp (chốt 2026-11-03, sửa 2026-11-07 theo D-024), mỗi m
 6. Form nhập kế hoạch cùng F18 Telegram Mini App có lịch (D-019, D-024). F18 cần F17.
 7. Xếp lịch thích nghi (D-024).
 
+Điểm dừng (D-028, 2026-11-10): mốc v1 gồm các mục 1, 2, 3 và 5 của danh sách trên cùng phần việc còn lại ghi ở D-028 mục 1. Các mục 4 (đã chuyển sang D-027), 6 và 7 tạm dừng sau v1; thứ tự giữ nguyên làm hướng nếu làm tiếp. Mục 6 chỉ làm nếu dùng hằng ngày thấy nhập kế hoạch bằng chat vướng.
+
 ## §8 Pending — chưa chốt
 
 - Tên tool cụ thể trong jarvis-desktop tool_router (`manage_plan` hoặc tên khác) — cần viết prompt implement riêng cho jarvis-desktop sau khi jarvis-compass có hình hài cơ bản
