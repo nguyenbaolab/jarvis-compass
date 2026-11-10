@@ -1,0 +1,3 @@
+docs/DECISIONS.md
+docs/ARCHITECTURE.md
+docs/reviews/**
