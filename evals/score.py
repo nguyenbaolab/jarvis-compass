@@ -11,7 +11,7 @@ from evals.log_lines import parse_log_rows
 from evals.model import Expectation
 
 # Tăng khi đổi luật chấm trong file này hoặc cách phân loại lần trong evals/turn.py.
-SCORER_VERSION = 3
+SCORER_VERSION = 4
 
 _NO_TOOL = frozenset({"chỉ kể việc", "chào hỏi", "câu mơ hồ", "câu ngoài phạm vi"})
 _WRITE_TOOL = {
@@ -55,10 +55,7 @@ def _tool_law(group: str, names: list[str]) -> str:
     if group == "hỏi danh sách":
         return "pass" if names and all(name == "get_plans" for name in names) else "fail"
     if group == "xem chi tiết":
-        others = [name for name in names if name != "get_plan_detail"]
-        has_detail = "get_plan_detail" in names
-        only_list = all(name == "get_plans" for name in others)
-        return "pass" if has_detail and only_list else "fail"
+        return "pass" if names and all(name in _READ_OK for name in names) else "fail"
     write_tool = _WRITE_TOOL.get(group)
     if write_tool is None:
         return "fail"

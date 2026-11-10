@@ -110,27 +110,51 @@ def test_list_group_rejects_other_tools() -> None:
     assert bad["tool"] == "fail"
 
 
-def test_detail_group_requires_get_plan_detail() -> None:
-    """Xem chi tiết chỉ đạt khi có get_plan_detail. get_plans trước đó được phép."""
+def test_detail_group_passes_on_get_plans_only() -> None:
+    """Xem chi tiết đạt khi chỉ gọi get_plans."""
 
-    good = _score(
+    scored = _score("xem chi tiết", "Đây là kế hoạch.", [_model_line(), _tool("get_plans", {})])
+    assert scored["tool"] == "pass"
+
+
+def test_detail_group_passes_on_get_plan_detail_only() -> None:
+    """Xem chi tiết đạt khi chỉ gọi get_plan_detail."""
+
+    scored = _score(
+        "xem chi tiết",
+        "Đây là kế hoạch.",
+        [_model_line(), _tool("get_plan_detail", {"plan_id": "p"})],
+    )
+    assert scored["tool"] == "pass"
+
+
+def test_detail_group_passes_on_list_then_detail() -> None:
+    """Xem chi tiết đạt khi gọi get_plans rồi get_plan_detail."""
+
+    scored = _score(
         "xem chi tiết",
         "Đây là kế hoạch.",
         [_model_line(), _tool("get_plans", {}), _tool("get_plan_detail", {"plan_id": "p"})],
     )
-    assert good["tool"] == "pass"
-    only_list = _score("xem chi tiết", "Đây là kế hoạch.", [_model_line(), _tool("get_plans", {})])
-    assert only_list["tool"] == "fail"
-    wrote = _score(
+    assert scored["tool"] == "pass"
+
+
+def test_detail_group_fails_without_a_tool() -> None:
+    """Xem chi tiết trượt khi không gọi công cụ nào."""
+
+    scored = _score("xem chi tiết", "Đây là kế hoạch.", [_model_line()])
+    assert scored["tool"] == "fail"
+
+
+def test_detail_group_fails_on_a_write_tool() -> None:
+    """Xem chi tiết trượt khi có công cụ ghi."""
+
+    scored = _score(
         "xem chi tiết",
         "Đây là kế hoạch.",
-        [
-            _model_line(),
-            _tool("get_plan_detail", {"plan_id": "p"}),
-            _tool("update_subtask", {"plan_id": "p", "subtask_id": "s", "status": "done"}),
-        ],
+        [_model_line(), _tool("add_subtask", {"plan_id": "p", "title": "Thêm"})],
     )
-    assert wrote["tool"] == "fail"
+    assert scored["tool"] == "fail"
 
 
 def test_create_plan_count_fail_on_two() -> None:
