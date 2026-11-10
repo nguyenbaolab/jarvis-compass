@@ -523,3 +523,21 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 **Thứ tự (Starter chốt trong chat ngày 2026-11-09, sau khi D-027 được viết):** 1. quét tải (D-024 b), làm trong compass; 2. Mini App (F18) kèm bộ ghép ở backend; 3. routine; 4. nối routine vào bộ ghép. jarvis-android và jarvis-desktop chưa xếp vào thứ tự.
 
 **Chưa quyết:** cách bộ ghép đọc dữ liệu từ hai bot; routine dùng token Telegram riêng hay chung; tin 08:00 (khi có thời gian biểu ghép chỉ nên còn một tin sáng, tin của compass bỏ hoặc nhường chỗ); sự kiện đột xuất (nửa còn lại của (a)) nằm ở routine hay chỗ khác; tên chính thức; stack, hosting và auth của backend Mini App.
+
+## D-028 — Mốc v1 rồi tạm dừng để thử trợ lý mã nguồn mở; các hướng còn lại giữ nguyên
+
+**Date:** 2026-11-10
+**Status:** Accepted
+
+**Bối cảnh:** Sau F10 và F17 (digest 08:00 chạy thật từ 2026-11-08), Starter cùng một chat khác đánh giá lại hướng đi: compass nên có một mốc v1 rõ ràng rồi dừng, thay vì tiếp tục tự dựng phần vỏ trợ lý (Mini App, routine, app Android, bộ ghép liên thiết bị). D-019, D-024 và D-027 cùng mọi ý tưởng cũ giữ nguyên, không bị xóa và không bị thay thế; D-028 chỉ thêm một điểm dừng.
+
+**Quyết định (Starter chốt):**
+1. Mốc v1 gồm: F11 chạy thật, nhớ vài lượt gần nhất, chỉ nhận chữ (đã xong); bộ eval phiên bản 2 chạy xong kèm báo cáo tỉ lệ đạt theo loại lỗi; quét tải (D-024 b: quỹ 8 giờ mỗi ngày, ba mức ưu tiên, sức S, M, L là 1, 3, 6 giờ, dời kế hoạch ưu tiên thấp nhất trước) và digest 08:00 giờ Helsinki bằng script không gọi mô hình (digest đã xong); Starter tự dùng hằng ngày 1 đến 2 tuần; README, sơ đồ kiến trúc, báo cáo eval và một video demo ngắn.
+2. Sau v1 tạm dừng, không làm: jarvis-routine, app Android, group chat, bộ ghép liên thiết bị, thích ứng độ khó. Đây là tạm dừng, không phải bỏ: nội dung D-019, D-024 (xếp lịch thích nghi) và D-027 giữ nguyên, và thứ tự ở D-027 vẫn là hướng nếu sau này làm tiếp.
+3. Mini App (F18, form nhập kế hoạch) chỉ làm nếu sau 2 tuần dùng hằng ngày Starter thấy nhập kế hoạch bằng chat thật sự vướng.
+4. Quy tắc: chỉ thêm tính năng khi Starter thật sự thiếu lúc dùng hằng ngày, và ghi lại thiếu ở đâu. Không mở rộng phạm vi ngoài danh sách v1.
+5. Khi v1 xong thì dừng và dành khoảng một tuần thử cài một trợ lý mã nguồn mở (OpenClaw, Khoj, hoặc TopoClaw cho điện thoại và máy tính) trong Docker với quyền hẹp, cắm compass vào làm skill hoặc tool, cuối tuần đánh giá nó đáp ứng bao nhiêu phần tầm nhìn. Compass giữ phần lập kế hoạch riêng (việc con có điểm kết thúc đo được theo PRODUCT §9, tải 8 giờ, dời theo ưu tiên, eval và log) và không tự dựng thêm phần vỏ trợ lý.
+
+**Chưa kiểm chứng:** Thông tin về ba dự án mã nguồn mở đến từ blog và trang giới thiệu, chưa ai thử cài; tên dự án, khả năng cắm tool và mức quyền cần kiểm bằng thực tế ở bước thử. Mốc v1 ước tính 2 đến 3 tuần, không có số đo.
+
+**Chưa quyết:** sau tuần thử có tiếp tục các hướng đang tạm dừng hay đổi hướng; Mini App có làm không (mục 3); thứ tự cụ thể giữa các việc tạm dừng nếu làm tiếp.
