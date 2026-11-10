@@ -454,12 +454,14 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 
 **Trade-off:**
 - Tin có thể tới hơn một lần khi `mark_sent` ném lỗi.
-- Bản tin phụ thuộc gói `tzdata` ghim trong `pyproject.toml`, `uv.lock` và `pylock.toml`. Thiếu dữ liệu thì `helsinki_clock` ném `ZoneInfoNotFoundError` ngoài mọi `try` của `run_morning`: lần chạy `scheduled` lỗi, không có dòng `morning_digest` và không có hàng DB.
+- Bản tin phụ thuộc gói `tzdata` khai báo trong `pyproject.toml` và ghim số bản 2026.6 trong `uv.lock` và `pylock.toml`. Thiếu dữ liệu thì `helsinki_clock` ném `ZoneInfoNotFoundError` ngoài mọi `try` của `run_morning`: lần chạy `scheduled` lỗi, không có dòng `morning_digest` và không có hàng DB.
 - Độ lệch +2 của mùa đông trên cloud mới được suy từ việc không có hàng nào bắt đầu trước 08:00; dòng `before_eight` với `local_time` `07:00` chưa được đọc.
 - `claim`, `append_once` và `mark_sent` nhận cùng một `instant`, nên mốc thời gian trong DB không cho thấy thứ tự ghi ngữ cảnh trước khi gửi (D-022). Thứ tự đó chỉ có test `test_digest_writes_one_assistant_row_before_send` bảo đảm.
 - Hình dạng lịch sử mỗi dạng đo một lần, chỉ cho `claude-haiku-5-5`. Đổi model thì đo lại trước khi deploy.
 
 **Phương án đã bỏ:** bảng riêng cho ngày bản tin kèm đổi khóa ngoại của `telegram_context_messages` (đụng bảng đang chạy và cần RPC mới cho cùng một hành vi); dải mã dương dành riêng (mã update thật chỉ được biết là số dương, không có trần để chọn dải an toàn); bảng lệch UTC tự viết thay `tzdata` (ngày chuyển mùa đổi theo năm); cờ "bỏ qua 90 giây" trong `decide_receive` (cờ dùng chung dễ làm update thường mất câu chưa chắc); gộp vai cùng loại hoặc chèn tin `user` giả vào lịch sử (thêm mã mà API không đòi).
+
+**Cập nhật 2026-11-10:** Đã quan sát trên Worker thật sáng 2026-11-10: cron 05:00 UTC ghi `before_eight` với `local_time` `07:01`, cron 06:00 UTC ghi `sent` với `local_time` `08:00`, cron 07:00 UTC ghi `already_sent` với `local_time` `09:00`; cả ba cùng `update_id` -20261110 và cùng script version `6c17f7f7-bb16-4033-b43d-17a966eda0d6`, và Observability không có sự kiện `morning_digest` thứ tư. Supabase có đúng một hàng `telegram_updates` cho `-20261110` (bắt đầu và gửi lúc 08:00:52 giờ Helsinki, `reply` dài 66 ký tự) cùng đúng một hàng `telegram_context_messages` vai `assistant`. Vậy `before_eight` và `already_sent` đã được đọc, độ lệch +2 của mùa đông đã thấy trực tiếp ở `local_time` 07:01 lúc 05:00 UTC, và lần chạy 07:00 UTC không gửi tin thứ hai. Đã đo sau khi thêm `tzdata`: `Worker Startup Time` 2429 ms, upload 15.855 KiB (gzip 3.443 KiB). Dòng log trong Observability chỉ hiện năm khóa (`event`, `outcome`, `helsinki_date`, `local_time`, `update_id`) và không hiện `error_type`, `error_code` khi giá trị null; đọc log ở đó thì khóa vắng nghĩa là null. Còn chưa quan sát: đường nhiều phần của `split_utf16` trên cloud; đường mùa hè UTC+3 (đổi giờ 2027-03-28); nhánh đuôi ngày lấy từ `scheduled_on` (tin 2026-11-10 chỉ hiện một việc không có ngày).
 
 ## D-026 — Ngày, ưu tiên, sức và lịch sử dời việc: ngày ở việc con, hạn suy ra, lịch sử do SQL chèn
 
@@ -518,6 +520,6 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 7. LLM của routine chỉ ở khâu nhập (một lượt, không tool loop). Cảnh báo mềm nếu tổng việc quỹ 4 giờ của một ngày vượt 4 giờ.
 8. Spec quét tải (D-024 b) nhận capacity(ngày) làm tham số, mặc định 8; routine cấp số thật sau. compass không gọi routine.
 
-**Thứ tự:** compass (b) trước. Routine và Mini App sau; thứ tự giữa hai cái đó chưa chốt.
+**Thứ tự (Starter chốt trong chat ngày 2026-11-09, sau khi D-027 được viết):** 1. quét tải (D-024 b), làm trong compass; 2. Mini App (F18) kèm bộ ghép ở backend; 3. routine; 4. nối routine vào bộ ghép. jarvis-android và jarvis-desktop chưa xếp vào thứ tự.
 
 **Chưa quyết:** cách bộ ghép đọc dữ liệu từ hai bot; routine dùng token Telegram riêng hay chung; tin 08:00 (khi có thời gian biểu ghép chỉ nên còn một tin sáng, tin của compass bỏ hoặc nhường chỗ); sự kiện đột xuất (nửa còn lại của (a)) nằm ở routine hay chỗ khác; tên chính thức; stack, hosting và auth của backend Mini App.
