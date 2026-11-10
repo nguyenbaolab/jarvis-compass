@@ -1,6 +1,6 @@
 # Quickstart: Quét tải
 
-Chưa viết `tasks.md`. Chưa sửa `src/` và `docs/` ở bước plan.
+`tasks.md` đã có. Chưa sửa `src/` và `docs/` trước khi T001 xong.
 
 ## Trước khi sửa mã
 
