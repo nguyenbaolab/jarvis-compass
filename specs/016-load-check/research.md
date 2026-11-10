@@ -83,7 +83,7 @@ Lần dời lỗi sau khi đã ghi được một phần: dừng, không thử l
 
 **Decision:** Câu lần gọi đầu do tool dựng. Chữ khóa ở [contracts/load-warning.md](./contracts/load-warning.md). FR-006 là luật cho mô hình: nói lại câu tool, không cộng giờ, hỏi chủ bot, chỉ gọi lại với `confirm` ở lượt sau. Pytest khóa câu của tool. Tỉ lệ mô hình nói lại đúng đo bằng eval bộ v3, không phải một assert 100% trong pytest. SC-003 phần chữ mô hình là đích của tỉ lệ đó.
 
-`PROMPT_VERSION` lên 8. Giữ mọi câu bản 7. Thêm một đoạn: không cộng giờ và không tự chọn việc dời; nói lại câu tool; hỏi chủ bot; `confirm` true chỉ ở lượt sau; một cờ đó bao cả tải và trùng hạn khi cùng một câu tool đã nêu cả hai; gửi lại `load_moves` đúng danh sách chủ bot đã chốt, không thêm việc. Hằng không chứa ngày.
+`PROMPT_VERSION` lên 8. Giữ mọi câu bản 7. Thêm một đoạn: không cộng giờ và không tự chọn việc dời; nói lại câu tool; hỏi chủ bot; `confirm` true chỉ ở lượt sau; một cờ đó bao cả tải và trùng hạn khi cùng một câu tool đã nêu cả hai; gửi lại `load_moves` đúng danh sách chủ bot đã chốt, không thêm việc. Ở lượt xác nhận, gọi lại đúng lời gọi lần trước, cùng kế hoạch, việc và ngày, kèm confirm true. Mã kế hoạch và mã việc cho load_moves lấy từ get_plans trong lượt đó, không hỏi chủ bot mã. Hằng không chứa ngày.
 
 `DEFINITIONS_VERSION` lên 4. Vẫn chín tool. Không tool mới. Schema thêm khóa ở [contracts/tools.md](./contracts/tools.md). Test `test_system_prompt_has_version_seven_laws` đổi tên theo bản 8. Test khóa `DEFINITIONS_VERSION == 3` đổi thành 4.
 

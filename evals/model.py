@@ -30,6 +30,14 @@ class Group(StrEnum):
     UU_TIEN_NGUOI_DUNG = "ưu tiên do người dùng nêu"
     DAT_UU_TIEN = "đặt ưu tiên"
     DAT_SUC = "đặt sức"
+    QUA_TRONG_QUY = "quét tải: trong quỹ"
+    QUA_VUOT = "quét tải: vượt quỹ"
+    QUA_XONG = "quét tải: việc xong"
+    QUA_SUC = "quét tải: sức"
+    QUA_CAU = "quét tải: câu cảnh báo"
+    QUA_THU_TU = "quét tải: thứ tự dời"
+    QUA_XAC_NHAN = "quét tải: xác nhận"
+    QUA_TU_CHOI = "quét tải: từ chối"
 
 
 @dataclass(frozen=True)

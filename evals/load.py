@@ -32,7 +32,35 @@ _KIND = {
     Group.UU_TIEN_NGUOI_DUNG: "create_with_priority",
     Group.DAT_UU_TIEN: "set_priority_existing",
     Group.DAT_SUC: "set_effort_existing",
+    Group.QUA_TRONG_QUY: "load_within_budget",
+    Group.QUA_VUOT: "load_over_budget",
+    Group.QUA_XONG: "load_done_skipped",
+    Group.QUA_SUC: "load_effort_hours",
+    Group.QUA_CAU: "load_warning_sentence",
+    Group.QUA_THU_TU: "load_move_order",
+    Group.QUA_XAC_NHAN: "load_confirm_write",
+    Group.QUA_TU_CHOI: "load_refusal",
 }
+_V3_GOAL = frozenset({
+    "load_within_budget",
+    "load_over_budget",
+    "load_done_skipped",
+    "load_confirm_write",
+})
+_V3_TITLE = frozenset({"load_within_budget", "load_done_skipped", "load_confirm_write"})
+_V3_DATES = frozenset({
+    "load_within_budget",
+    "load_done_skipped",
+    "load_move_order",
+    "load_confirm_write",
+})
+_V3_NOTE = frozenset({
+    "load_over_budget",
+    "load_effort_hours",
+    "load_warning_sentence",
+    "load_move_order",
+    "load_refusal",
+})
 _EXTRA = {
     "update_status": ("goal", "title", "status"),
     "add_subtask": ("goal", "title"),
@@ -226,12 +254,32 @@ def _expectation(group: Group, raw: object) -> Expectation:
         effort = _optional_choice(raw, "effort", _EFFORTS)
         if effort is None:
             raise LoadError("Kỳ vọng thiếu effort.")
+    note = values.get("note")
+    if kind in _V3_GOAL:
+        goal = _need_str(raw, "goal")
+        if goal == "":
+            raise LoadError("Kỳ vọng goal rỗng.")
+    if kind in _V3_TITLE:
+        title = _need_str(raw, "title")
+        if title == "":
+            raise LoadError("Kỳ vọng title rỗng.")
+    if kind == "load_confirm_write":
+        other_goal = _need_str(raw, "other_goal")
+        if other_goal == "":
+            raise LoadError("Kỳ vọng other_goal rỗng.")
+        history_moves = _history_moves(raw)
+    if kind in _V3_DATES:
+        dates = _date_pairs(raw)
+    if kind in _V3_NOTE:
+        note = _need_str(raw, "note")
+        if note == "":
+            raise LoadError("Kỳ vọng note rỗng.")
     return Expectation(
         kind=kind,
         goal=goal,
         title=title,
         status=values.get("status"),
-        note=values.get("note"),
+        note=note,
         deadline=deadline,
         titles=titles,
         other_goal=other_goal,
@@ -297,9 +345,16 @@ def _expectation_refers(dataset: Dataset, expectation: Expectation) -> None:
     if expectation.other_goal is not None and expectation.other_goal not in goals:
         raise LoadError("Kỳ vọng trỏ mục tiêu không có.")
     plan = goals.get(expectation.goal or "")
-    if expectation.dates is not None and plan is not None:
-        titles = {item.title for item in plan.subtasks}
-        if any(title not in titles for title, _day in expectation.dates):
+    if expectation.kind == "load_move_order" and expectation.dates is not None:
+        known = {item.title for seeded in dataset.plans for item in seeded.subtasks}
+        if any(title not in known for title, _day in expectation.dates):
+            raise LoadError("Kỳ vọng trỏ tiêu đề không có.")
+    elif expectation.dates is not None and plan is not None:
+        known = {item.title for item in plan.subtasks}
+        added = {expectation.title} if expectation.title else set()
+        if expectation.kind not in {"load_within_budget", "load_done_skipped", "load_confirm_write"}:
+            added = set()
+        if any(title not in known and title not in added for title, _day in expectation.dates):
             raise LoadError("Kỳ vọng trỏ tiêu đề không có.")
     if expectation.goal is None or plan is None:
         return
@@ -361,7 +416,7 @@ def load_suite(cases_path: Path, datasets_dir: Path) -> Suite:
         dataset_name = _need_str(raw, "dataset")
         instant = _aware_instant(raw)
         follow_up = _follow_up(raw)
-        if version == 2 and instant is None:
+        if version >= 2 and instant is None:
             raise LoadError("Ca v2 thiếu instant.")
         if "/" in dataset_name or "\\" in dataset_name:
             raise LoadError("Tên bộ dữ liệu có đường dẫn.")
@@ -381,6 +436,10 @@ def load_suite(cases_path: Path, datasets_dir: Path) -> Suite:
             raise LoadError("Kỳ vọng trỏ mục tiêu không có.")
         if expectation.kind == "clash_two_turn" and (follow_up is None or dataset is None):
             raise LoadError("Ca trùng thiếu follow_up hoặc bộ dữ liệu.")
+        if expectation.kind in {"load_confirm_write", "load_refusal"} and (
+            follow_up is None or dataset is None
+        ):
+            raise LoadError("Ca hai lượt thiếu follow_up hoặc bộ dữ liệu.")
         cases.append(
             Case(
                 id=case_id,

@@ -1,0 +1,66 @@
+{
+  "name": "qua_tai",
+  "plans": [
+    {
+      "goal": "Azure",
+      "priority": "low",
+      "subtasks": [
+        {"title": "Học module 3", "status": "pending", "note": null, "scheduled_on": "2026-11-12", "effort": "L"}
+      ]
+    },
+    {
+      "goal": "Phần Lan",
+      "priority": "medium",
+      "subtasks": [
+        {"title": "Luyện nói", "status": "pending", "note": null, "scheduled_on": "2026-11-12", "effort": "M"}
+      ]
+    },
+    {
+      "goal": "Cao",
+      "priority": "high",
+      "subtasks": [
+        {"title": "Giữ một", "status": "pending", "note": null, "scheduled_on": "2026-11-12"},
+        {"title": "Giữ hai", "status": "pending", "note": null, "scheduled_on": "2026-11-12"}
+      ]
+    },
+    {
+      "goal": "Đệm",
+      "subtasks": [
+        {"title": "Chặn", "status": "pending", "note": null, "scheduled_on": "2026-11-13", "effort": "L"}
+      ]
+    },
+    {
+      "goal": "Nhẹ",
+      "subtasks": [
+        {"title": "Đọc", "status": "pending", "note": null, "scheduled_on": "2026-11-20", "effort": "S"}
+      ]
+    },
+    {
+      "goal": "Đầy",
+      "subtasks": [
+        {"title": "Sẵn", "status": "pending", "note": null, "scheduled_on": "2026-11-19", "effort": "L"}
+      ]
+    },
+    {
+      "goal": "Xong",
+      "subtasks": [
+        {"title": "Đã xong", "status": "done", "note": null, "scheduled_on": "2026-11-18", "effort": "L"},
+        {"title": "Bỏ", "status": "skipped", "note": null, "scheduled_on": "2026-11-18", "effort": "L"},
+        {"title": "Còn", "status": "pending", "note": null, "scheduled_on": "2026-11-18", "effort": "S"}
+      ]
+    },
+    {
+      "goal": "Một",
+      "subtasks": [
+        {"title": "A", "status": "pending", "note": null, "scheduled_on": "2026-11-17", "effort": "L"},
+        {"title": "B", "status": "pending", "note": null, "scheduled_on": "2026-11-17", "effort": "L"}
+      ]
+    },
+    {
+      "goal": "Nộp",
+      "subtasks": [
+        {"title": "Nộp bài", "status": "pending", "note": null, "scheduled_on": "2026-11-18", "effort": "S"}
+      ]
+    }
+  ]
+}

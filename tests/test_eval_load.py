@@ -528,3 +528,18 @@ def test_v2_expected_dates_follow_the_rules() -> None:
     assert third.expectation.deadline == sunday_of_next_week(third.instant.date()).isoformat()
     assert fourth.expectation.deadline == next_monday(fourth.instant.date()).isoformat()
     assert fifth.expectation.deadline == friday_of_next_week(fifth.instant.date()).isoformat()
+
+
+def test_v3_file_has_eight_cases() -> None:
+    """File v3 đúng tám id, mỗi ca có mốc, ca 7 và ca 8 có câu lượt sau."""
+
+    root = Path(__file__).parents[1]
+    suite = load_suite(root / "evals" / "cases" / "v3.json", root / "evals" / "datasets")
+    assert suite.cases_version == 3
+    assert [case.id for case in suite.cases] == [f"V3-{index:02d}" for index in range(1, 9)]
+    assert all(case.instant is not None for case in suite.cases)
+    by_id = {case.id: case for case in suite.cases}
+    assert by_id["V3-07"].follow_up == "Ừ, ghi và dời như vậy."
+    assert by_id["V3-07"].dataset == "qua_tai"
+    assert by_id["V3-08"].follow_up == "Thôi không thêm nữa."
+    assert {plan.goal for plan in suite.datasets["qua_tai"].plans} >= {"Một", "Nộp", "Đầy"}

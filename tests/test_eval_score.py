@@ -1041,3 +1041,76 @@ def test_set_effort_existing_store_fails() -> None:
     )
     laws = _v2("set_effort_existing", [_model_line()], detail=detail, opening=opening, closing=closing)
     assert laws["store"] == "fail"
+
+
+def test_load_refusal_store_passes() -> None:
+    """Ca từ chối đạt khi kho sau lượt hai bằng kho lúc mở."""
+
+    from evals.model import Expectation
+
+    opening = _image(_one("Đầy", _item("Sẵn", "pending", "2026-11-19", "L")))
+    detail = Expectation(kind="load_refusal", note="12 giờ trên quỹ 8 giờ")
+    laws = _score(
+        "quét tải: từ chối",
+        "Lần này chưa ghi. Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ.",
+        [_model_line()],
+        cases_version=3,
+        detail=detail,
+        opening=opening,
+        closing=opening,
+    )
+    assert laws["store"] == "pass"
+
+
+def test_load_refusal_store_fails() -> None:
+    """Ca từ chối trượt khi kho đổi, kể cả khi lời gọi có confirm true."""
+
+    from evals.model import Expectation
+
+    opening = _image(_one("Đầy", _item("Sẵn", "pending", "2026-11-19", "L")))
+    closing = _image(
+        _one(
+            "Đầy",
+            _item("Sẵn", "pending", "2026-11-19", "L"),
+            _item("Thêm", "pending", "2026-11-19", "L"),
+        )
+    )
+    detail = Expectation(kind="load_refusal", note="12 giờ trên quỹ 8 giờ")
+    laws = _score(
+        "quét tải: từ chối",
+        "Lần này chưa ghi. Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ.",
+        [
+            _model_line(),
+            _tool("add_subtask", {"plan_id": "p", "title": "Thêm", "confirm": True}),
+        ],
+        cases_version=3,
+        detail=detail,
+        opening=opening,
+        closing=closing,
+    )
+    assert laws["store"] == "fail"
+
+
+def test_load_over_budget_store_ignores_confirm() -> None:
+    """Cờ confirm true không làm ca vượt quỹ trượt khi kho không đổi."""
+
+    from evals.model import Expectation
+
+    opening = _image(_one("Đầy", _item("Sẵn", "pending", "2026-11-19", "L")))
+    detail = Expectation(kind="load_over_budget", goal="Đầy", note="12 giờ trên quỹ 8 giờ")
+    laws = _score(
+        "quét tải: vượt quỹ",
+        "Lần này chưa ghi. Ngày 19/11 sẽ có 12 giờ trên quỹ 8 giờ.",
+        [
+            _model_line(),
+            _tool(
+                "add_subtask",
+                {"plan_id": "p", "title": "Thêm", "scheduled_on": "2026-11-19", "effort": "L", "confirm": True},
+            ),
+        ],
+        cases_version=3,
+        detail=detail,
+        opening=opening,
+        closing=opening,
+    )
+    assert laws["store"] == "pass"

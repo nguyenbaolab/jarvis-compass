@@ -11,7 +11,7 @@ from evals.log_lines import parse_log_rows
 from evals.model import Expectation
 
 # Tăng khi đổi luật chấm trong file này hoặc cách phân loại lần trong evals/turn.py.
-SCORER_VERSION = 2
+SCORER_VERSION = 3
 
 _NO_TOOL = frozenset({"chỉ kể việc", "chào hỏi", "câu mơ hồ", "câu ngoài phạm vi"})
 _WRITE_TOOL = {
@@ -194,8 +194,21 @@ async def law_results(
 ) -> dict[str, str]:
     """Bảy luật. Ca v1 không đọc ngày, sức, ưu tiên hay lịch sử."""
 
-    if cases_version >= 2:
+    if cases_version == 2:
         return _v2_laws(
+            reply,
+            lines,
+            detail=detail,
+            opening=opening,
+            after_first=after_first,
+            closing=closing,
+            earlier_lines=earlier_lines,
+            earlier_reply=earlier_reply,
+            history_count=history_count,
+            dataset_titles=dataset_titles,
+        )
+    if cases_version == 3:
+        return _v3_laws(
             reply,
             lines,
             detail=detail,
@@ -573,4 +586,163 @@ def _v2_laws(
         "markdown": _mark(all(_markdown_law(item) == "pass" for item in replies)),
         "self_name": _mark(all(_self_name_law(item) == "pass" for item in replies)),
         "store": _v2_store(detail, opening, after_first, closing, history_count),
+    }
+
+
+_V3_TOOLS = _READ_OK | {"add_subtask", "create_plan", "reschedule_subtasks"}
+_V3_CREATE = frozenset({"load_effort_hours", "load_warning_sentence"})
+_WARNING = "Lần này chưa ghi"
+_MOVE_CLAUSE = "Nếu vẫn ghi thì dời"
+
+
+def _day_mark(iso: str) -> str:
+    _year, month, day = iso.split("-")
+    return f"{int(day):02d}/{int(month):02d}"
+
+
+def _reply_moves(reply: str, dates: tuple[tuple[str, str], ...] | None) -> bool:
+    if not dates:
+        return False
+    cursor = 0
+    for title, iso in dates:
+        title_at = reply.find(title, cursor)
+        if title_at < 0:
+            return False
+        day_at = reply.find(_day_mark(iso), title_at)
+        if day_at < 0:
+            return False
+        cursor = day_at
+    return "3. " not in reply
+
+
+def _note_ok(reply: str, detail: Expectation) -> bool:
+    return detail.note is None or detail.note in reply
+
+
+def _parsed_rows(lines: list[str] | None) -> list[dict[str, object]]:
+    return parse_log_rows(lines or [])
+
+
+def _v3_tool(
+    kind: str,
+    lines: list[str],
+    earlier_lines: list[str] | None,
+    reply: str,
+    earlier_reply: str | None,
+    detail: Expectation | None,
+) -> str:
+    if detail is None:
+        return "fail"
+    rows = _tool_rows(_parsed_rows(lines))
+    names = _names(_parsed_rows(lines))
+    if any(name not in _V3_TOOLS for name in names):
+        return "fail"
+    if kind in {"load_within_budget", "load_done_skipped"}:
+        return _mark("add_subtask" in names and _WARNING not in reply)
+    if kind == "load_over_budget":
+        called = "add_subtask" in names or "create_plan" in names
+        return _mark(called and _WARNING in reply and _note_ok(reply, detail))
+    if kind == "load_effort_hours":
+        return _mark("create_plan" in names and _note_ok(reply, detail))
+    if kind == "load_warning_sentence":
+        said = _WARNING in reply and _MOVE_CLAUSE not in reply and _note_ok(reply, detail)
+        return _mark("create_plan" in names and said)
+    if kind == "load_move_order":
+        return _mark(_WARNING in reply and _note_ok(reply, detail) and _reply_moves(reply, detail.dates))
+    if kind == "load_confirm_write":
+        first_rows = _tool_rows(_parsed_rows(earlier_lines))
+        second_ok = "get_plans" in names and any(_confirm_true(row) for row in rows)
+        first_clean = not any(_confirm_true(row) for row in first_rows)
+        warned = earlier_reply is not None and _WARNING in earlier_reply
+        return _mark(second_ok and first_clean and warned)
+    if kind == "load_refusal":
+        text = earlier_reply if earlier_reply is not None else reply
+        return _mark(_WARNING in text and _note_ok(text, detail))
+    return "fail"
+
+
+def _v3_count(kind: str, lines: list[str], earlier_lines: list[str] | None) -> str:
+    names = _names(_parsed_rows(lines)) + _names(_parsed_rows(earlier_lines))
+    count = sum(1 for name in names if name == "create_plan")
+    return _mark(count == (1 if kind in _V3_CREATE else 0))
+
+
+def _turn_confirmed(lines: list[str], earlier_lines: list[str] | None) -> bool:
+    rows = _tool_rows(_parsed_rows(lines)) + _tool_rows(_parsed_rows(earlier_lines))
+    return any(_confirm_true(row) for row in rows)
+
+
+def _v3_store(
+    kind: str,
+    detail: Expectation | None,
+    opening: tuple[object, ...] | None,
+    closing: tuple[object, ...] | None,
+    after_first: tuple[object, ...] | None,
+    history_count: int,
+    confirmed: bool = False,
+) -> str:
+    if detail is None or opening is None or closing is None:
+        return "fail"
+    if kind == "load_refusal":
+        return _mark(closing == opening)
+    if kind in {"load_over_budget", "load_effort_hours", "load_warning_sentence", "load_move_order"}:
+        return _mark(closing == opening and history_count == 0)
+    if kind in {"load_within_budget", "load_done_skipped"}:
+        if detail.goal is None:
+            return "fail"
+        plan = _plan_named(closing, detail.goal)
+        return _mark(
+            history_count == 0
+            and plan is not None
+            and _dates_match(plan, detail.dates)
+            and _others_same(opening, closing, detail.goal)
+        )
+    if kind == "load_confirm_write":
+        if after_first != opening or detail.goal is None or detail.history_moves is None:
+            return "fail"
+        plan = _plan_named(closing, detail.goal)
+        other = _plan_named(closing, detail.other_goal or "")
+        was = _plan_named(opening, detail.other_goal or "")
+        return _mark(
+            history_count == detail.history_moves
+            and plan is not None
+            and _dates_match(plan, detail.dates)
+            and other is not None
+            and other == was
+        )
+    return "fail"
+
+
+def _v3_laws(
+    reply: str,
+    lines: list[str],
+    *,
+    detail: Expectation | None,
+    opening: tuple[object, ...] | None,
+    after_first: tuple[object, ...] | None,
+    closing: tuple[object, ...] | None,
+    earlier_lines: list[str] | None,
+    earlier_reply: str | None,
+    history_count: int,
+    dataset_titles: frozenset[str],
+) -> dict[str, str]:
+    kind = "" if detail is None else detail.kind
+    rows = parse_log_rows(earlier_lines or []) + parse_log_rows(lines)
+    replies = (reply,) if earlier_reply is None else (earlier_reply, reply)
+    return {
+        "tool": _v3_tool(kind, lines, earlier_lines, reply, earlier_reply, detail),
+        "create_plan_count": _v3_count(kind, lines, earlier_lines),
+        "required": _required_law(rows),
+        "prefix": _prefix_law(_new_titles(rows, dataset_titles)),
+        "markdown": _mark(all(_markdown_law(item) == "pass" for item in replies)),
+        "self_name": _mark(all(_self_name_law(item) == "pass" for item in replies)),
+        "store": _v3_store(
+            kind,
+            detail,
+            opening,
+            closing,
+            after_first,
+            history_count,
+            confirmed=_turn_confirmed(lines, earlier_lines),
+        ),
     }

@@ -1,0 +1,110 @@
+{
+  "cases_version": 3,
+  "cases": [
+    {
+      "id": "V3-01",
+      "group": "quét tải: trong quỹ",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Thêm việc Viết, sức S, vào kế hoạch Nhẹ, ngày 2026-11-20.",
+      "dataset": "qua_tai",
+      "expectation": {
+        "kind": "load_within_budget",
+        "goal": "Nhẹ",
+        "title": "Viết",
+        "dates": [["Đọc", "2026-11-20"], ["Viết", "2026-11-20"]]
+      }
+    },
+    {
+      "id": "V3-02",
+      "group": "quét tải: vượt quỹ",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Thêm việc Thêm, sức L, vào kế hoạch Đầy, ngày 2026-11-19.",
+      "dataset": "qua_tai",
+      "expectation": {
+        "kind": "load_over_budget",
+        "goal": "Đầy",
+        "note": "12 giờ trên quỹ 8 giờ"
+      }
+    },
+    {
+      "id": "V3-03",
+      "group": "quét tải: việc xong",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Thêm việc Mới, sức S, vào kế hoạch Xong, ngày 2026-11-18.",
+      "dataset": "qua_tai",
+      "expectation": {
+        "kind": "load_done_skipped",
+        "goal": "Xong",
+        "title": "Mới",
+        "dates": [
+          ["Đã xong", "2026-11-18"],
+          ["Bỏ", "2026-11-18"],
+          ["Còn", "2026-11-18"],
+          ["Mới", "2026-11-18"]
+        ]
+      }
+    },
+    {
+      "id": "V3-04",
+      "group": "quét tải: sức",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Lập kế hoạch Bốn việc, hạn 2026-11-22. Bốn việc cùng ngày 2026-11-22: Đọc sức S, Viết sức M, Nghe sức L, Ôn không có sức.",
+      "dataset": "",
+      "expectation": {
+        "kind": "load_effort_hours",
+        "note": "13 giờ trên quỹ 8 giờ (tính tạm: 1 việc chưa có sức, mỗi việc tính 3 giờ)"
+      }
+    },
+    {
+      "id": "V3-05",
+      "group": "quét tải: câu cảnh báo",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Lập kế hoạch Ba việc, hạn 2026-11-21. Ba việc cùng ngày 2026-11-21, không nói sức: Đọc, Viết, Nghe.",
+      "dataset": "",
+      "expectation": {
+        "kind": "load_warning_sentence",
+        "note": "9 giờ trên quỹ 8 giờ (tính tạm: 3 việc chưa có sức, mỗi việc tính 3 giờ)"
+      }
+    },
+    {
+      "id": "V3-06",
+      "group": "quét tải: thứ tự dời",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Thêm việc Việc mới, sức S, vào kế hoạch Azure, ngày 2026-11-12.",
+      "dataset": "qua_tai",
+      "expectation": {
+        "kind": "load_move_order",
+        "note": "16 giờ trên quỹ 8 giờ (tính tạm: 2 việc chưa có sức, mỗi việc tính 3 giờ)",
+        "dates": [["Học module 3", "2026-11-14"], ["Luyện nói", "2026-11-15"]]
+      }
+    },
+    {
+      "id": "V3-07",
+      "group": "quét tải: xác nhận",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Thêm việc C, sức S, vào kế hoạch Một, ngày 2026-11-17.",
+      "follow_up": "Ừ, ghi và dời như vậy.",
+      "dataset": "qua_tai",
+      "expectation": {
+        "kind": "load_confirm_write",
+        "goal": "Một",
+        "title": "C",
+        "other_goal": "Nộp",
+        "history_moves": 1,
+        "dates": [["A", "2026-11-17"], ["B", "2026-11-18"], ["C", "2026-11-17"]]
+      }
+    },
+    {
+      "id": "V3-08",
+      "group": "quét tải: từ chối",
+      "instant": "2026-11-10T10:00:00+02:00",
+      "user_message": "Thêm việc Thêm, sức L, vào kế hoạch Đầy, ngày 2026-11-19.",
+      "follow_up": "Thôi không thêm nữa.",
+      "dataset": "qua_tai",
+      "expectation": {
+        "kind": "load_refusal",
+        "note": "12 giờ trên quỹ 8 giờ"
+      }
+    }
+  ]
+}

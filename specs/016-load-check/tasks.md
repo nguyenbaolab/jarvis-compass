@@ -36,7 +36,7 @@ description: "Task list for Quét tải"
 
 - [X] T001 DỪNG: chưa có chữ D-029 do chat viết thì không sửa `src/` và không sửa `docs/DECISIONS.md`. Chat viết mục đó theo sáu điểm ở `research.md` mục 6. Cursor không tự viết. Khi chat đã đưa chữ, Cursor chép đúng chữ đó vào `docs/DECISIONS.md`, rồi mới được T002
 
-- [X] T002 Sửa `src/core/plans.py` (phụ thuộc T001). Không thêm trường hay kiểu của `Plan` và `Subtask`. Thêm hàm thuần, chỉ thư viện chuẩn. `day_budget(day) -> int` trả 8 với mọi ngày. `task_hours`: việc chưa làm S = 1, M = 3, L = 6, không sức = 3. Việc đã xong và bỏ qua = 0. `day_load(plans, day, today)`: ngày trước `today` có tổng 0 và số việc tính tạm 0. Hôm nay và ngày sau cộng mọi việc chưa làm mang đúng ngày đó, mọi kế hoạch. Hàm chọn việc dời theo `data-model.md`: ứng viên chỉ là việc chưa làm đã có trên ngày vượt từ trước lần ghi. Việc vừa đặt không phải ứng viên và vẫn nằm trong tổng. Thứ tự thấp, rồi trống cùng vừa, rồi cao. Giá trị ưu tiên đã lưu không đổi. Cùng mức thì hạn muộn hơn trước. Cùng hạn thì `created_order` nhỏ hơn đứng trước. Cùng kế hoạch thì việc đứng sau trong `subtasks` đứng trước. Số giờ không đổi thứ tự. Đoạn đề xuất là đoạn đầu ngắn nhất để tổng còn lại không còn lớn hơn quỹ. Không tách giờ của một việc. Ngày đích là ngày gần nhất còn đủ quỹ trong bảy ngày lịch ngay sau ngày vượt. Hết bảy ngày thì việc ở lại ngày gốc và không vào danh sách. Không tìm ngày thứ tám. Core không đọc đồng hồ và không import `tools` hay `db`
+- [X] T002 Sửa `src/core/plans.py` (phụ thuộc T001). Không thêm trường hay kiểu của `Plan` và `Subtask`. Thêm hàm thuần, chỉ thư viện chuẩn. `day_budget(day) -> int` trả 8 với mọi ngày. `task_hours`: việc chưa làm S = 1, M = 3, L = 6, không sức = 3. Việc đã xong và bỏ qua = 0. `day_load(plans, day, today)`: ngày trước `today` có tổng 0 và số việc tính tạm 0. Hôm nay và ngày sau cộng mọi việc chưa làm mang đúng ngày đó, mọi kế hoạch. Hàm chọn việc dời theo `data-model.md`: ứng viên chỉ là việc chưa làm đã có trên ngày vượt từ trước lần ghi. Việc vừa đặt không phải ứng viên và vẫn nằm trong tổng. Thứ tự thấp, rồi trống cùng vừa, rồi cao. Giá trị ưu tiên đã lưu không đổi. Cùng mức thì hạn muộn hơn trước. Cùng hạn thì `created_order` nhỏ hơn đứng trước. Cùng kế hoạch thì việc đứng sau trong `subtasks` đứng trước. Số giờ không đổi thứ tự. Đoạn đề xuất là đoạn đầu ngắn nhất để tổng còn lại không còn lớn hơn quỹ. Không tách giờ của một việc. Ngày đích là ngày gần nhất còn đủ quỹ trong bảy ngày lịch ngay sau ngày vượt. `propose_load_moves` nhận `reserved` tùy chọn: giờ đã hứa cho ngày đích bởi các ngày vượt trước trong cùng lần gọi, cộng vào phép đủ quỹ cùng giờ đã gán trong danh sách đang xét. Hết bảy ngày thì việc ở lại ngày gốc và không vào danh sách. Không tìm ngày thứ tám. Core không đọc đồng hồ và không import `tools` hay `db`
 
 - [X] T003 Tạo `tests/test_load_check.py` (phụ thuộc T002). Mỗi tên dưới đây là một hàm. `test_day_budget_is_eight_for_every_date`. `test_task_hours_are_one_three_six_and_missing_is_three`. `test_done_and_skipped_add_zero`. `test_past_day_load_is_zero`. `test_today_load_counts`. `test_equal_budget_is_not_overload`. `test_move_order_low_then_empty_with_medium_then_high`. `test_same_plan_later_stored_order_moves_first`. `test_destination_is_nearest_day_within_seven`. `test_no_room_in_seven_days_stays`. `test_newly_placed_task_is_not_a_candidate`. `test_same_level_later_plan_deadline_moves_first`. `test_same_level_and_deadline_earlier_created_plan_moves_first`. `test_empty_priority_stays_empty_after_ordering`. `test_earlier_proposed_moves_count_toward_destination`. `test_no_prefix_clears_the_day_proposes_nothing`. `test_reserved_hours_count_toward_destination`. Không gọi kho
 
@@ -64,7 +64,7 @@ Chép file sang thư mục tạm và ghi SHA256. Sửa đúng một chỗ, chạ
 
 - [X] T009 [P] Sửa `src/tools/tool_definitions.py` (phụ thuộc T005). `DEFINITIONS_VERSION` là 4. Vẫn chín tool. `create_plan` và `add_subtask` thêm `confirm` và `load_moves` đúng `contracts/tools.md`. `reschedule_subtasks` thêm `load_moves`. `additionalProperties` vẫn false. Cùng task sửa `tests/test_tool_router.py`: khóa số 4 thay cho số 3, và schema mới của ba tool
 
-- [X] T010 [P] Sửa `src/core/system_prompt.py` (phụ thuộc T005). `PROMPT_VERSION` là 8. Giữ mọi câu bản 7. Thêm một đoạn: không cộng giờ và không tự chọn việc dời. Nói lại nguyên câu tool trả. Hỏi chủ bot. `confirm` true chỉ ở lượt sau. Một cờ đó bao cả tải và trùng hạn khi cùng một câu tool đã nêu cả hai. Gửi lại `load_moves` đúng danh sách chủ bot đã chốt, không thêm việc. Hằng không chứa ngày. Cùng task, trong `tests/test_llm_turn.py`, đổi `test_system_prompt_has_version_seven_laws` thành `test_system_prompt_has_version_eight_laws`. Khóa số 8 và khóa đoạn mới. Không gọi mô hình thật
+- [X] T010 [P] Sửa `src/core/system_prompt.py` (phụ thuộc T005). `PROMPT_VERSION` là 8. Giữ mọi câu bản 7. Thêm một đoạn: không cộng giờ và không tự chọn việc dời. Nói lại nguyên câu tool trả. Hỏi chủ bot. `confirm` true chỉ ở lượt sau. Một cờ đó bao cả tải và trùng hạn khi cùng một câu tool đã nêu cả hai. Gửi lại `load_moves` đúng danh sách chủ bot đã chốt, không thêm việc. Ở lượt xác nhận, gọi lại đúng lời gọi lần trước, cùng kế hoạch, việc và ngày, kèm confirm true. Mã kế hoạch và mã việc cho load_moves lấy từ get_plans trong lượt đó, không hỏi chủ bot mã. Hằng không chứa ngày. Cùng task, trong `tests/test_llm_turn.py`, đổi `test_system_prompt_has_version_seven_laws` thành `test_system_prompt_has_version_eight_laws`. Khóa số 8 và khóa đoạn mới. Không gọi mô hình thật
 
 - [X] T011 Thêm hai hàm vào `tests/test_plan_store_contract.py` (phụ thuộc T007, T008). Fixture `plan_store` đã chạy mỗi ca trên bộ nhớ và trên Supabase local, nên hai ca này dùng fixture đó, không viết kho thứ hai. Gọi tool, không gọi `replace` bằng tay với bản đã sửa sẵn. `test_two_moves_on_one_plan_keep_both_destinations`: hai phần tử `load_moves` cùng một kế hoạch. Kết quả có đúng ngày đích của cả hai và đúng hai dòng lịch sử. `test_owner_add_and_one_move_on_the_same_plan`: lần xin của chủ bot và một việc dời cùng kế hoạch. Việc vừa thêm còn, đúng ngày. Dòng lịch sử của việc vừa thêm là 0. Dòng lịch sử của việc dời là 1. Lịch sử đọc bằng `_history` đang có
 
@@ -80,7 +80,7 @@ Cùng cách T004. Hai chỗ, hai file lần lượt.
 
   Kết quả: đỏ `assert (datetime.date(2026, 11, 8), datetime.date(2026, 11, 8), 2, 0) == (datetime.date(2026, 11, 9), datetime.date(2026, 11, 10), 1, 1)`. SHA256 trước 348B177509E8BCFCB47B056F71974178C0B6EE5AF9E8E65F73AD3E84A2AF6554. SHA256 sau 348B177509E8BCFCB47B056F71974178C0B6EE5AF9E8E65F73AD3E84A2AF6554.
 
-- [ ] T014 DỪNG: chat đọc diff `src/tools/plan_tools.py`, `src/tools/tool_router.py`, `src/tools/tool_definitions.py`, `src/core/system_prompt.py`, `tests/test_load_tools.py` và `tests/test_plan_store_contract.py`. Không bắt đầu lô 3 trước khi chat nói tiếp
+- [X] T014 DỪNG: chat đọc diff `src/tools/plan_tools.py`, `src/tools/tool_router.py`, `src/tools/tool_definitions.py`, `src/core/system_prompt.py`, `tests/test_load_tools.py` và `tests/test_plan_store_contract.py`. Không bắt đầu lô 3 trước khi chat nói tiếp
 
 ## Phase 3: Lô 3 — Đo và docs
 
@@ -88,25 +88,27 @@ Cùng cách T004. Hai chỗ, hai file lần lượt.
 
 **Independent check**: Pytest của scorer: nhánh v1 và v2 không đổi luật. Ca từ chối trượt khi kho đổi. `docs/PRODUCT.md` có hàng F20. `docs/ARCHITECTURE.md` §2 nói bản 8 và catalog 4.
 
-- [ ] T015 Sửa `evals/model.py` (phụ thuộc T014). `cases_version` 3 được nhận. Thêm trường kỳ vọng chỉ khi tám ca của User Story 7 chưa diễn được bằng trường bản 2. Trường mới có mặc định trống và bản 1, bản 2 không đọc. Không đổi thứ tự `LAW_NAMES` của bản 1
+- [X] T015 Sửa `evals/model.py` (phụ thuộc T014). `cases_version` 3 được nhận. Thêm trường kỳ vọng chỉ khi tám ca của User Story 7 chưa diễn được bằng trường bản 2. Trường mới có mặc định trống và bản 1, bản 2 không đọc. Không đổi thứ tự `LAW_NAMES` của bản 1
 
-- [ ] T016 Sửa `evals/load.py` (phụ thuộc T015). `cases_version` 3 hợp lệ. Bộ 1 và bộ 2 vẫn từ chối hay nhận đúng như hiện tại. Khóa mới vắng là trống
+- [X] T016 Sửa `evals/load.py` (phụ thuộc T015). `cases_version` 3 hợp lệ. Bộ 1 và bộ 2 vẫn từ chối hay nhận đúng như hiện tại. Khóa mới vắng là trống
 
-- [ ] T017 Sửa `evals/score.py` (phụ thuộc T015, T016). `SCORER_VERSION` là 3. `cases_version` 1 đi đúng hàm bản 1. `cases_version` 2 đi đúng hàm bản 2. Bộ 3 chấm tám ca của User Story 7. Ca vượt không lấy bản thân cờ `confirm` làm chuẩn đạt. Ca thứ tám: kho sau lượt hai bằng kho lúc mở thì đạt. Kho đổi thì trượt. Không sửa `evals/runner.py` nếu đối số đường dẫn bộ câu đã có
+- [X] T017 Sửa `evals/score.py` (phụ thuộc T015, T016). `SCORER_VERSION` là 3. `cases_version` 1 đi đúng hàm bản 1. `cases_version` 2 đi đúng hàm bản 2. Bộ 3 chấm tám ca của User Story 7. Ca vượt không lấy bản thân cờ `confirm` làm chuẩn đạt. Ca thứ tám: kho sau lượt hai bằng kho lúc mở thì đạt. Kho đổi thì trượt. Không sửa `evals/runner.py` nếu đối số đường dẫn bộ câu đã có
 
-- [ ] T018 Tạo `evals/cases/v3.json` và `evals/datasets/qua_tai.json` (phụ thuộc T016). `cases_version` là 3. Đủ tám ca của User Story 7, không thêm không bớt. Ca 8 có lượt hai, câu từ chối là thôi không thêm nữa. Seed nằm ở `qua_tai.json`. Không sửa `evals/store.py` nếu seed đã nhận `scheduled_on`, `effort` và `priority`
+- [X] T018 Tạo `evals/cases/v3.json` và `evals/datasets/qua_tai.json` (phụ thuộc T016). `cases_version` là 3. Đủ tám ca của User Story 7, không thêm không bớt. Ca 8 có lượt hai, câu từ chối là thôi không thêm nữa. Seed nằm ở `qua_tai.json`. Không sửa `evals/store.py` nếu seed đã nhận `scheduled_on`, `effort` và `priority`
 
-- [ ] T019 Sửa `tests/test_eval_score.py` và `tests/test_eval_load.py` (phụ thuộc T017, T018). Một hàm đạt và một hàm trượt cho ca từ chối: kho không đổi thì đạt, kho đổi thì trượt. Một hàm khóa bộ v3 có tám ca. Không đổi assert của ca v1 và ca v2
+- [X] T019 Sửa `tests/test_eval_score.py` và `tests/test_eval_load.py` (phụ thuộc T017, T018). Một hàm đạt và một hàm trượt cho ca từ chối: kho không đổi thì đạt, kho đổi thì trượt. Một hàm khóa bộ v3 có tám ca. Không đổi assert của ca v1 và ca v2
 
-- [ ] T020 [P] Sửa `docs/PRODUCT.md` (phụ thuộc T014). Thêm hàng F20 ở §3: quét tải, cảnh báo mềm khi ngày vượt quỹ, không tự dời. §7 mục 5 gọi tên F20. §8 bỏ quét tải khỏi nhóm chưa cấp số
+- [X] T020 [P] Sửa `docs/PRODUCT.md` (phụ thuộc T014). Thêm hàng F20 ở §3: quét tải, cảnh báo mềm khi ngày vượt quỹ, không tự dời. §7 mục 5 gọi tên F20. §8 bỏ quét tải khỏi nhóm chưa cấp số
 
-- [ ] T021 [P] Sửa `docs/ARCHITECTURE.md` §2 (phụ thuộc T009, T010). Chín tool, `DEFINITIONS_VERSION` 4, `PROMPT_VERSION` 8, hàm tải trong `src/core/plans.py`. Không sửa diagram
+- [X] T021 [P] Sửa `docs/ARCHITECTURE.md` §2 (phụ thuộc T009, T010). Chín tool, `DEFINITIONS_VERSION` 4, `PROMPT_VERSION` 8, hàm tải trong `src/core/plans.py`. Không sửa diagram
 
 ### Đột biến lô 3
 
 Cùng cách T004.
 
-- [ ] T022 Trong `evals/score.py`, ca từ chối coi cờ `confirm` là đạt (phụ thuộc T019). Hàm ca từ chối trong `tests/test_eval_score.py` phải đỏ vì chuẩn đạt là kho không đổi. Hoàn tác
+- [X] T022 Trong `evals/score.py`, ca từ chối coi cờ `confirm` là đạt (phụ thuộc T019). Hàm ca từ chối trong `tests/test_eval_score.py` phải đỏ vì chuẩn đạt là kho không đổi. Hoàn tác
+
+  Kết quả: đỏ `assert 'pass' == 'fail'`. SHA256 trước AB56EEFC7FEF17FA6497107C7A44ECA73F805C52891B485898D211D4626A6A77. SHA256 sau AB56EEFC7FEF17FA6497107C7A44ECA73F805C52891B485898D211D4626A6A77.
 
 - [ ] T023 Chạy `.\scripts\check.ps1 -AllowList specs/016-load-check/allowed-files.txt` (phụ thuộc T019, T020, T021, T022). Ghi mã thoát và cả bảng. Không chạy eval. Không `db push`. Không deploy
 
