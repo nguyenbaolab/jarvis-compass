@@ -53,7 +53,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 
 ## §5 Non-functional requirements
 
-- Cost: MVP dùng Claude Haiku 5.5 (D-004). Ở mức 15 lượt/ngày khoảng 0,1 đến 0,4 USD/tháng, tính từ token đo ở smoke test 2026-10-26 (lượt không tool khoảng 1.500 token, lượt có một lần tool khoảng 5.200 token) theo giá 0,10 USD vào và 0,50 USD ra mỗi triệu token. Cộng 5 USD/tháng gói Workers Paid từ F11 (D-018).
+- Chi phí: MVP dùng Claude Haiku 5.5 (D-004). Đo ở bộ eval v1 ngày 2026-11-11 (lời hướng dẫn bản 9, catalog bản 4): trung bình khoảng 13.500 token vào và 350 token ra mỗi lượt, tức khoảng 0,0015 USD mỗi lượt theo giá 0,10 USD vào và 0,50 USD ra mỗi triệu token. Ở mức 15 lượt mỗi ngày là khoảng 0,7 USD mỗi tháng, cộng 5 USD mỗi tháng gói Workers Paid từ F11 (D-018). Lời hướng dẫn và catalog cố định chiếm khoảng 6.200 token mỗi lần gọi mô hình.
 - Các yêu cầu còn lại (thông báo chủ động, chạy 24/7, độ trễ khi desktop gọi sang, giữ ngữ cảnh session, đổi model) nằm trong .specify/memory/constitution.md và docs/DECISIONS.md.
 
 ## §6 Kiến trúc tổng thể (tham chiếu)
