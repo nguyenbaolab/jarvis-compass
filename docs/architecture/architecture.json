@@ -2,46 +2,432 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "jarvis-compass — kiến trúc trên main",
+    "title": "jarvis-compass — architecture on main",
+    "locale": "en",
     "output": "docs/architecture/architecture.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/nguyenbaolab/jarvis-compass.git",
-      "revision": "852c6e0a2a4400409121e5a1990e2bd0f3e081f7"
+      "revision": "8da974eeac837c6b17a5ea1f787ebb171044f69b"
     }
   },
   "components": [
     {
-      "id": "desktop",
+      "id": "telegram",
       "type": "external",
-      "label": "planned · jarvis-desktop",
-      "sublabel": "client của F14",
-      "pos": [40, 140],
-      "size": [200, 60],
-      "sources": [{ "path": "src/api/routes_planning.py", "line": 1, "label": "docstring: endpoint cho jarvis-desktop" }]
+      "label": "Telegram Bot API",
+      "sublabel": "webhook in, sendMessage out",
+      "pos": [
+        920,
+        320
+      ],
+      "size": [
+        220,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/api/routes_telegram.py",
+          "line": 149,
+          "end_line": 150,
+          "label": "POST /telegram"
+        },
+        {
+          "path": "src/clients/telegram.py",
+          "line": 28,
+          "label": "sendMessage URL"
+        }
+      ]
     },
     {
-      "id": "tgapi",
-      "type": "external",
-      "label": "planned · Telegram Bot API",
-      "sublabel": "webhook vào, gửi tin ra (F11)",
-      "pos": [40, 290],
-      "size": [200, 60],
+      "id": "cron",
+      "type": "cloud",
+      "label": "Cloudflare Cron Triggers",
+      "sublabel": "0 5, 0 6, 0 7 UTC daily",
+      "pos": [
+        24,
+        24
+      ],
+      "size": [
+        190,
+        64
+      ],
       "sources": [
-        { "path": "src/api/routes_telegram.py", "line": 1, "label": "docstring: webhook Telegram Bot API" },
-        { "path": "src/clients/telegram.py", "line": 1, "label": "docstring: gọi Telegram Bot API" }
+        {
+          "path": "wrangler.jsonc",
+          "line": 7,
+          "label": "crons 05, 06, 07 UTC"
+        }
       ]
     },
     {
       "id": "claude",
       "type": "external",
       "label": "Claude API",
-      "sublabel": "api.anthropic.com (F12)",
-      "pos": [970, 40],
-      "size": [200, 60],
+      "sublabel": "api.anthropic.com",
+      "pos": [
+        820,
+        1320
+      ],
+      "size": [
+        220,
+        64
+      ],
       "sources": [
-        { "path": "src/clients/anthropic_model.py", "line": 30, "end_line": 43, "label": "AsyncAnthropic + messages.create" },
-        { "path": "pyproject.toml", "line": 5, "end_line": 9, "label": "anthropic có trong dependencies" }
+        {
+          "path": "src/clients/anthropic_model.py",
+          "line": 43,
+          "end_line": 45,
+          "label": "base_url and messages.create"
+        }
+      ]
+    },
+    {
+      "id": "supabase",
+      "type": "database",
+      "label": "Supabase Postgres",
+      "sublabel": "six migrations, RLS on, no anon access",
+      "pos": [
+        720,
+        1540
+      ],
+      "size": [
+        280,
+        68
+      ],
+      "sources": [
+        {
+          "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql",
+          "line": 9,
+          "end_line": 181,
+          "label": "plans, subtasks, RLS, revoke"
+        },
+        {
+          "path": "supabase/migrations/20261104143000_telegram_channel.sql",
+          "line": 3,
+          "end_line": 145,
+          "label": "channel tables, RLS, revoke"
+        },
+        {
+          "path": "supabase/migrations/20261109120000_plan_dates_priority.sql",
+          "line": 18,
+          "end_line": 171,
+          "label": "moves table, trigger, version"
+        }
+      ]
+    },
+    {
+      "id": "worker-entry",
+      "type": "cloud",
+      "label": "Worker entry · Default",
+      "sublabel": "fetch → ASGI, scheduled → run_morning",
+      "pos": [
+        290,
+        24
+      ],
+      "size": [
+        230,
+        68
+      ],
+      "sources": [
+        {
+          "path": "src/entry.py",
+          "line": 3,
+          "end_line": 16,
+          "label": "workers import, fetch, scheduled"
+        },
+        {
+          "path": "wrangler.jsonc",
+          "line": 3,
+          "label": "main src/entry.py"
+        }
+      ]
+    },
+    {
+      "id": "fastapi-app",
+      "type": "backend",
+      "label": "FastAPI app",
+      "sublabel": "/health + Telegram router",
+      "pos": [
+        610,
+        24
+      ],
+      "size": [
+        210,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/app.py",
+          "line": 27,
+          "end_line": 33,
+          "label": "app, include_router, /health"
+        }
+      ]
+    },
+    {
+      "id": "routes-telegram",
+      "type": "backend",
+      "label": "Webhook route",
+      "sublabel": "POST /telegram: secret, token, owner checks",
+      "pos": [
+        920,
+        24
+      ],
+      "size": [
+        270,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/api/routes_telegram.py",
+          "line": 70,
+          "label": "current_deps"
+        },
+        {
+          "path": "src/api/routes_telegram.py",
+          "line": 138,
+          "end_line": 142,
+          "label": "_open_production"
+        },
+        {
+          "path": "src/api/routes_telegram.py",
+          "line": 149,
+          "end_line": 210,
+          "label": "route, checks, lazy clients"
+        }
+      ]
+    },
+    {
+      "id": "handle-update",
+      "type": "backend",
+      "label": "handle_update",
+      "sublabel": "claim → decide → /next or run_turn → save → send",
+      "pos": [
+        430,
+        420
+      ],
+      "size": [
+        300,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/api/telegram_update.py",
+          "line": 136,
+          "end_line": 175,
+          "label": "save, context, then send"
+        },
+        {
+          "path": "src/api/telegram_update.py",
+          "line": 197,
+          "end_line": 228,
+          "label": "claim, then decide_receive"
+        },
+        {
+          "path": "src/api/telegram_update.py",
+          "line": 271,
+          "end_line": 313,
+          "label": "/next or run_turn"
+        }
+      ]
+    },
+    {
+      "id": "channel-rules",
+      "type": "backend",
+      "label": "core/telegram_channel",
+      "sublabel": "decide_receive, split_utf16, dead-after 90 s",
+      "pos": [
+        430,
+        200
+      ],
+      "size": [
+        270,
+        68
+      ],
+      "sources": [
+        {
+          "path": "src/core/telegram_channel.py",
+          "line": 9,
+          "end_line": 19,
+          "label": "90s and Decision enum"
+        },
+        {
+          "path": "src/core/telegram_channel.py",
+          "line": 82,
+          "label": "split_utf16 limit 4096"
+        },
+        {
+          "path": "src/core/telegram_channel.py",
+          "line": 113,
+          "label": "decide_receive"
+        }
+      ]
+    },
+    {
+      "id": "morning-core",
+      "type": "backend",
+      "label": "core/morning",
+      "sublabel": "decide_digest, render_digest, /next match",
+      "pos": [
+        24,
+        420
+      ],
+      "size": [
+        270,
+        68
+      ],
+      "sources": [
+        {
+          "path": "src/core/morning.py",
+          "line": 22,
+          "end_line": 61,
+          "label": "render, /next, negative id, decide"
+        },
+        {
+          "path": "scripts/check.ps1",
+          "line": 423,
+          "end_line": 425,
+          "label": "Core imports check"
+        }
+      ]
+    },
+    {
+      "id": "clock",
+      "type": "backend",
+      "label": "core/clock + core/log_line",
+      "sublabel": "helsinki_clock; one JSON log line",
+      "pos": [
+        24,
+        640
+      ],
+      "size": [
+        250,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/core/clock.py",
+          "line": 25,
+          "label": "helsinki_clock"
+        },
+        {
+          "path": "src/core/log_line.py",
+          "line": 10,
+          "end_line": 39,
+          "label": "error code, default log, JSON line"
+        }
+      ]
+    },
+    {
+      "id": "scheduler-morning",
+      "type": "backend",
+      "label": "scheduler/morning · run_morning",
+      "sublabel": "cron path, 08:00 gate, no model call",
+      "pos": [
+        24,
+        200
+      ],
+      "size": [
+        270,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/scheduler/morning.py",
+          "line": 1,
+          "end_line": 11,
+          "label": "no model call; _EIGHT"
+        },
+        {
+          "path": "src/scheduler/morning.py",
+          "line": 24,
+          "end_line": 97,
+          "label": "ports, run_morning, 08:00 gate"
+        },
+        {
+          "path": "src/scheduler/morning.py",
+          "line": 128,
+          "end_line": 134,
+          "label": "split_utf16, send, mark_sent"
+        }
+      ]
+    },
+    {
+      "id": "llm-turn",
+      "type": "backend",
+      "label": "turns/llm_turn · run_turn",
+      "sublabel": "20 s budget, max 3 tool rounds",
+      "pos": [
+        800,
+        420
+      ],
+      "size": [
+        240,
+        68
+      ],
+      "sources": [
+        {
+          "path": "src/turns/llm_turn.py",
+          "line": 7,
+          "end_line": 26,
+          "label": "imports, 20s budget, 3 rounds"
+        },
+        {
+          "path": "src/turns/llm_turn.py",
+          "line": 103,
+          "end_line": 155,
+          "label": "compose on abnormal end"
+        },
+        {
+          "path": "src/turns/llm_turn.py",
+          "line": 175,
+          "label": "run_turn"
+        }
+      ]
+    },
+    {
+      "id": "system-prompt",
+      "type": "backend",
+      "label": "core/system_prompt",
+      "sublabel": "prompt version 9",
+      "pos": [
+        820,
+        660
+      ],
+      "size": [
+        230,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/core/system_prompt.py",
+          "line": 3,
+          "end_line": 5,
+          "label": "PROMPT_VERSION 9, SYSTEM_PROMPT"
+        }
+      ]
+    },
+    {
+      "id": "llm-port",
+      "type": "backend",
+      "label": "core/llm · ModelClient",
+      "sublabel": "provider-neutral port",
+      "pos": [
+        820,
+        880
+      ],
+      "size": [
+        230,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/core/llm.py",
+          "line": 40,
+          "end_line": 80,
+          "label": "request, response, ModelClient"
+        }
       ]
     },
     {
@@ -49,344 +435,691 @@
       "type": "backend",
       "label": "AnthropicModel · adapter",
       "sublabel": "src/clients/anthropic_model.py",
-      "pos": [1280, 40],
-      "size": [200, 60],
+      "pos": [
+        820,
+        1100
+      ],
+      "size": [
+        250,
+        64
+      ],
       "sources": [
-        { "path": "src/clients/anthropic_model.py", "line": 3, "label": "import AsyncAnthropic" },
-        { "path": "src/clients/anthropic_model.py", "line": 11, "end_line": 46, "label": "AnthropicModel.complete" },
-        { "path": "src/clients/anthropic_model.py", "line": 100, "end_line": 115, "label": "_response: dịch phản hồi SDK" }
-      ]
-    },
-    {
-      "id": "routes-planning",
-      "type": "backend",
-      "label": "planned · routes (F14)",
-      "sublabel": "src/api/routes_planning.py",
-      "pos": [350, 140],
-      "size": [200, 60],
-      "sources": [{ "path": "src/api/routes_planning.py", "line": 1, "label": "stub docstring, chưa có code" }]
-    },
-    {
-      "id": "routes-telegram",
-      "type": "backend",
-      "label": "planned · webhook (F11)",
-      "sublabel": "src/api/routes_telegram.py",
-      "pos": [350, 290],
-      "size": [200, 60],
-      "sources": [{ "path": "src/api/routes_telegram.py", "line": 1, "label": "stub docstring, chưa có code" }]
-    },
-    {
-      "id": "clarify",
-      "type": "backend",
-      "label": "planned · clarify + session",
-      "sublabel": "src/core/planning.py + session.py",
-      "pos": [660, 215],
-      "size": [200, 60],
-      "sources": [
-        { "path": "src/core/planning.py", "line": 1, "label": "stub docstring (F01, F02)" },
-        { "path": "src/core/session.py", "line": 1, "label": "stub docstring (F02)" }
-      ]
-    },
-    {
-      "id": "system-prompt",
-      "type": "backend",
-      "label": "core/system_prompt",
-      "sublabel": "src/core/system_prompt.py",
-      "pos": [970, 215],
-      "size": [200, 60],
-      "sources": [
-        { "path": "src/core/system_prompt.py", "line": 3, "label": "PROMPT_VERSION" },
-        { "path": "src/core/system_prompt.py", "line": 5, "end_line": 16, "label": "SYSTEM_PROMPT" }
-      ]
-    },
-    {
-      "id": "llm-port",
-      "type": "backend",
-      "label": "core/llm · ModelClient",
-      "sublabel": "src/core/llm.py",
-      "pos": [1280, 215],
-      "size": [200, 60],
-      "sources": [
-        { "path": "src/core/llm.py", "line": 69, "end_line": 81, "label": "ModelClient.complete (Protocol)" },
-        { "path": "src/core/llm.py", "line": 39, "end_line": 58, "label": "ModelRequest, ModelResponse" },
-        { "path": "src/core/llm.py", "line": 61, "end_line": 66, "label": "ModelError(class_name)" }
-      ]
-    },
-    {
-      "id": "llm-turn",
-      "type": "backend",
-      "label": "llm_turn · run_turn",
-      "sublabel": "src/turns/llm_turn.py",
-      "pos": [1280, 380],
-      "size": [200, 60],
-      "sources": [
-        { "path": "src/turns/llm_turn.py", "line": 148, "end_line": 209, "label": "run_turn: vòng một lượt" },
-        { "path": "src/turns/llm_turn.py", "line": 107, "end_line": 133, "label": "_run_tools: gọi execute_tool tuần tự" },
-        { "path": "src/turns/llm_turn.py", "line": 136, "end_line": 145, "label": "_finish: end_turn, trần 3 vòng, lỗi" }
+        {
+          "path": "src/clients/anthropic_model.py",
+          "line": 6,
+          "label": "only anthropic SDK import"
+        },
+        {
+          "path": "src/clients/anthropic_model.py",
+          "line": 20,
+          "label": "class AnthropicModel"
+        },
+        {
+          "path": "src/clients/anthropic_model.py",
+          "line": 43,
+          "end_line": 45,
+          "label": "base_url and messages.create"
+        }
       ]
     },
     {
       "id": "tool-router",
       "type": "backend",
       "label": "tool_router · execute_tool",
-      "sublabel": "src/tools/tool_router.py",
-      "pos": [1280, 540],
-      "size": [200, 60],
+      "sublabel": "validate input, dispatch, log",
+      "pos": [
+        430,
+        880
+      ],
+      "size": [
+        240,
+        64
+      ],
       "sources": [
-        { "path": "src/tools/tool_router.py", "line": 251, "end_line": 263, "label": "execute_tool: lối vào tool call" },
-        { "path": "src/tools/tool_router.py", "line": 112, "end_line": 119, "label": "_DISPATCH: tên tool → hàm plan_tools" },
-        { "path": "src/tools/tool_router.py", "line": 140, "end_line": 168, "label": "_invalid_input: kiểm theo TOOL_DEFINITIONS" }
+        {
+          "path": "src/tools/tool_router.py",
+          "line": 7,
+          "end_line": 22,
+          "label": "imports base, catalog, plan tools"
+        },
+        {
+          "path": "src/tools/tool_router.py",
+          "line": 234,
+          "end_line": 350,
+          "label": "dispatch, coerce, validate"
+        },
+        {
+          "path": "src/tools/tool_router.py",
+          "line": 435,
+          "end_line": 465,
+          "label": "_run and execute_tool"
+        }
       ]
     },
     {
       "id": "tool-definitions",
       "type": "backend",
       "label": "tool_definitions · catalog",
-      "sublabel": "src/tools/tool_definitions.py",
-      "pos": [1280, 680],
-      "size": [200, 60],
+      "sublabel": "nine tools, definitions version 4",
+      "pos": [
+        430,
+        1100
+      ],
+      "size": [
+        250,
+        64
+      ],
       "sources": [
-        { "path": "src/tools/tool_definitions.py", "line": 3, "label": "DEFINITIONS_VERSION" },
-        { "path": "src/tools/tool_definitions.py", "line": 5, "end_line": 78, "label": "TOOL_DEFINITIONS (sáu tool)" }
+        {
+          "path": "src/tools/tool_definitions.py",
+          "line": 3,
+          "end_line": 5,
+          "label": "DEFINITIONS_VERSION 4, catalog"
+        }
       ]
     },
     {
-      "id": "checkin",
+      "id": "plan-tools",
       "type": "backend",
-      "label": "planned · check-in (F10)",
-      "sublabel": "src/scheduler/checkin.py",
-      "pos": [660, 400],
-      "size": [200, 60],
-      "sources": [{ "path": "src/scheduler/checkin.py", "line": 1, "label": "stub docstring, chưa có code" }]
-    },
-    {
-      "id": "tg-client",
-      "type": "backend",
-      "label": "planned · Telegram (F11)",
-      "sublabel": "src/clients/telegram.py",
-      "pos": [350, 400],
-      "size": [200, 60],
-      "sources": [{ "path": "src/clients/telegram.py", "line": 1, "label": "stub docstring, chưa có code" }]
-    },
-    {
-      "id": "db-client",
-      "type": "backend",
-      "label": "db/client · PostgREST",
-      "sublabel": "src/db/client.py",
-      "pos": [40, 540],
-      "size": [200, 60],
+      "label": "plan_tools · nine tools",
+      "sublabel": "writes + load check",
+      "pos": [
+        24,
+        1120
+      ],
+      "size": [
+        250,
+        64
+      ],
       "sources": [
-        { "path": "src/db/client.py", "line": 21, "end_line": 25, "label": "postgrest_client" },
-        { "path": "src/db/client.py", "line": 46, "end_line": 100, "label": "add_plan, list_plans, get_plan, replace_plan" }
+        {
+          "path": "src/tools/plan_tools.py",
+          "line": 280,
+          "end_line": 375,
+          "label": "_overloads and _write_moves"
+        },
+        {
+          "path": "src/tools/plan_tools.py",
+          "line": 376,
+          "end_line": 646,
+          "label": "create, add, confirm next turn"
+        },
+        {
+          "path": "src/tools/plan_tools.py",
+          "line": 680,
+          "end_line": 739,
+          "label": "reschedule_subtasks confirm"
+        }
+      ]
+    },
+    {
+      "id": "saved-reply",
+      "type": "backend",
+      "label": "saved_reply + tools/base",
+      "sublabel": "compose what was saved on an abnormal turn",
+      "pos": [
+        24,
+        880
+      ],
+      "size": [
+        280,
+        68
+      ],
+      "sources": [
+        {
+          "path": "src/tools/saved_reply.py",
+          "line": 6,
+          "end_line": 90,
+          "label": "sentences and compose"
+        },
+        {
+          "path": "src/tools/base.py",
+          "line": 12,
+          "end_line": 36,
+          "label": "TurnContext through ToolError"
+        }
+      ]
+    },
+    {
+      "id": "core-plans",
+      "type": "backend",
+      "label": "core/plans",
+      "sublabel": "Plan, Subtask, PlanStore port, day load and move proposal",
+      "pos": [
+        430,
+        560
+      ],
+      "size": [
+        320,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/core/plans.py",
+          "line": 57,
+          "end_line": 80,
+          "label": "Subtask, Plan, PlanStore"
+        },
+        {
+          "path": "src/core/plans.py",
+          "line": 335,
+          "end_line": 348,
+          "label": "plan_deadline, deadline_clash"
+        },
+        {
+          "path": "src/core/plans.py",
+          "line": 395,
+          "end_line": 453,
+          "label": "day_budget, day_load, propose"
+        }
       ]
     },
     {
       "id": "plan-store",
       "type": "backend",
       "label": "SupabasePlanStore",
-      "sublabel": "src/db/plan_store.py",
-      "pos": [350, 540],
-      "size": [200, 60],
+      "sublabel": "implements PlanStore",
+      "pos": [
+        24,
+        1540
+      ],
+      "size": [
+        250,
+        64
+      ],
       "sources": [
-        { "path": "src/db/plan_store.py", "line": 92, "end_line": 129, "label": "SupabasePlanStore" },
-        { "path": "src/db/plan_store.py", "line": 32, "end_line": 77, "label": "plan_from_row" },
-        { "path": "src/db/models.py", "line": 6, "end_line": 24, "label": "SubtaskRow, PlanRow" }
+        {
+          "path": "src/db/plan_store.py",
+          "line": 7,
+          "end_line": 28,
+          "label": "PlanStore types and RPC imports"
+        },
+        {
+          "path": "src/db/plan_store.py",
+          "line": 54,
+          "end_line": 122,
+          "label": "plan_from_row, SupabasePlanStore"
+        },
+        {
+          "path": "src/db/plan_store.py",
+          "line": 158,
+          "end_line": 175,
+          "label": "replace sends plan.version"
+        }
       ]
     },
     {
-      "id": "core",
+      "id": "channel-store",
       "type": "backend",
-      "label": "core/plans · Plan, PlanStore",
-      "sublabel": "src/core/plans.py",
-      "pos": [660, 540],
-      "size": [200, 60],
+      "label": "SupabaseTelegramChannel",
+      "sublabel": "updates and context",
+      "pos": [
+        24,
+        1760
+      ],
+      "size": [
+        250,
+        64
+      ],
       "sources": [
-        { "path": "src/core/plans.py", "line": 26, "end_line": 59, "label": "Subtask, Plan, PlanStore" },
-        { "path": "src/core/plans.py", "line": 84, "end_line": 97, "label": "normalize_new_plan" },
-        { "path": "scripts/check.ps1", "line": 347, "end_line": 349, "label": "luật core không import tools/db" }
+        {
+          "path": "src/db/telegram_channel_store.py",
+          "line": 6,
+          "label": "ClaimResult, StoredMessage"
+        },
+        {
+          "path": "src/db/telegram_channel_store.py",
+          "line": 57,
+          "label": "class SupabaseTelegramChannel"
+        }
       ]
     },
     {
-      "id": "plan-tools",
+      "id": "db-client",
       "type": "backend",
-      "label": "plan_tools (6 tool, async)",
-      "sublabel": "src/tools/plan_tools.py",
-      "pos": [970, 540],
-      "size": [200, 60],
+      "label": "db/client · PostgREST",
+      "sublabel": "only database caller: 7 RPCs, 2 plan reads",
+      "pos": [
+        360,
+        1540
+      ],
+      "size": [
+        280,
+        68
+      ],
       "sources": [
-        { "path": "src/tools/plan_tools.py", "line": 94, "end_line": 181, "label": "create_plan … set_subtask_note" },
-        { "path": "src/tools/base.py", "line": 6, "end_line": 17, "label": "ToolResult, ToolError" },
-        { "path": "src/tools/schemas.py", "line": 8, "end_line": 28, "label": "SubtaskJson, PlanJson, PlansJson" }
+        {
+          "path": "src/db/client.py",
+          "line": 1,
+          "end_line": 39,
+          "label": "only PostgREST client, /rest/v1"
+        },
+        {
+          "path": "src/db/client.py",
+          "line": 70,
+          "end_line": 129,
+          "label": "add, list, get, replace_plan"
+        },
+        {
+          "path": "src/db/client.py",
+          "line": 167,
+          "end_line": 237,
+          "label": "five Telegram channel RPCs"
+        }
       ]
     },
     {
-      "id": "supabase",
-      "type": "database",
-      "label": "Supabase Postgres",
-      "sublabel": "supabase/migrations/*.sql",
-      "pos": [40, 680],
-      "size": [200, 60],
+      "id": "tg-client",
+      "type": "backend",
+      "label": "TelegramSenderClient",
+      "sublabel": "one sendMessage part",
+      "pos": [
+        920,
+        540
+      ],
+      "size": [
+        220,
+        64
+      ],
       "sources": [
-        { "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql", "line": 9, "end_line": 27, "label": "bảng plans, subtasks" },
-        { "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql", "line": 53, "end_line": 59, "label": "RPC add_plan" },
-        { "path": "supabase/migrations/20261025021100_plans_and_subtasks.sql", "line": 116, "end_line": 123, "label": "RPC replace_plan" }
+        {
+          "path": "src/clients/telegram.py",
+          "line": 17,
+          "end_line": 28,
+          "label": "client and sendMessage"
+        }
       ]
     },
     {
       "id": "settings",
       "type": "backend",
-      "label": "require_supabase()",
-      "sublabel": "src/config/settings.py",
-      "pos": [350, 680],
-      "size": [200, 60],
-      "sources": [{ "path": "src/config/settings.py", "line": 25, "end_line": 38, "label": "require_supabase, SettingsError" }]
-    },
-    {
-      "id": "http-client",
-      "type": "external",
-      "label": "HTTP client",
-      "sublabel": "GET /health",
-      "pos": [40, 800],
-      "size": [200, 60],
-      "sources": [{ "path": "src/app.py", "line": 30, "end_line": 33, "label": "route /health" }]
-    },
-    {
-      "id": "worker-entry",
-      "type": "cloud",
-      "label": "Worker entry · Default",
-      "sublabel": "src/entry.py",
-      "pos": [350, 800],
-      "size": [200, 60],
+      "label": "config/settings",
+      "sublabel": "require_* read from request env",
+      "pos": [
+        760,
+        200
+      ],
+      "size": [
+        220,
+        64
+      ],
       "sources": [
-        { "path": "src/entry.py", "line": 1, "end_line": 6, "label": "Default = asgi.entrypoint(app)" },
-        { "path": "wrangler.jsonc", "line": 1, "end_line": 6, "label": "main: src/entry.py" }
+        {
+          "path": "src/config/settings.py",
+          "line": 6,
+          "label": "SettingsError"
+        },
+        {
+          "path": "src/config/settings.py",
+          "line": 24,
+          "label": "require_supabase"
+        },
+        {
+          "path": "src/config/settings.py",
+          "line": 47,
+          "end_line": 53,
+          "label": "webhook secret and bot token"
+        }
       ]
     },
     {
-      "id": "fastapi-app",
+      "id": "routes-planning",
       "type": "backend",
-      "label": "FastAPI app · health()",
-      "sublabel": "src/app.py",
-      "pos": [660, 800],
-      "size": [200, 60],
-      "sources": [{ "path": "src/app.py", "line": 27, "end_line": 33, "label": "app, health" }]
+      "label": "Stub · planning endpoint (F14)",
+      "sublabel": "one-line docstring, no code",
+      "pos": [
+        80,
+        2000
+      ],
+      "size": [
+        250,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/api/routes_planning.py",
+          "line": 1,
+          "label": "stub docstring, no code"
+        }
+      ]
+    },
+    {
+      "id": "clarify",
+      "type": "backend",
+      "label": "Stub · clarify + session (F01, F02)",
+      "sublabel": "one-line docstrings, no code",
+      "pos": [
+        380,
+        2000
+      ],
+      "size": [
+        270,
+        64
+      ],
+      "sources": [
+        {
+          "path": "src/core/planning.py",
+          "line": 1,
+          "label": "stub docstring, no code"
+        },
+        {
+          "path": "src/core/session.py",
+          "line": 1,
+          "label": "stub docstring, no code"
+        }
+      ]
+    },
+    {
+      "id": "checkin",
+      "type": "backend",
+      "label": "Stub · check-in (F10)",
+      "sublabel": "one-line docstring; the morning digest lives in scheduler/morning",
+      "pos": [
+        700,
+        2000
+      ],
+      "size": [
+        420,
+        68
+      ],
+      "sources": [
+        {
+          "path": "src/scheduler/checkin.py",
+          "line": 1,
+          "label": "stub docstring, no code"
+        }
+      ]
     }
   ],
   "boundaries": [
     {
       "kind": "region",
-      "label": "PLANNED — file stub, chưa có logic (src/)",
-      "wraps": ["routes-planning", "routes-telegram", "clarify", "checkin", "tg-client"]
+      "label": "NOT BUILT: one-line stub files in src/",
+      "wraps": [
+        "routes-planning",
+        "clarify",
+        "checkin"
+      ]
     }
   ],
   "connections": [
-    { "id": "desktop-to-routes", "from": "desktop", "to": "routes-planning", "label": "HTTP", "variant": "dashed" },
-    { "id": "tgapi-to-webhook", "from": "tgapi", "to": "routes-telegram", "label": "webhook", "variant": "dashed" },
-    { "id": "routes-to-clarify", "from": "routes-planning", "to": "clarify", "label": "yêu cầu", "variant": "dashed", "fromSide": "right", "toSide": "top" },
-    { "id": "webhook-to-clarify", "from": "routes-telegram", "to": "clarify", "label": "tin nhắn", "variant": "dashed", "fromSide": "right", "toSide": "bottom" },
-    { "id": "clarify-to-turn", "from": "clarify", "to": "llm-turn", "label": "một lượt", "variant": "dashed", "fromSide": "right", "toSide": "left", "via": [[930, 245], [930, 410]] },
-    { "id": "turn-to-port", "from": "llm-turn", "to": "llm-port", "label": "dùng cổng", "fromSide": "top", "toSide": "bottom" },
-    { "id": "turn-to-prompt", "from": "llm-turn", "to": "system-prompt", "label": "SYSTEM_PROMPT + version", "fromSide": "top", "toSide": "bottom" },
-    { "id": "turn-to-router", "from": "llm-turn", "to": "tool-router", "label": "gọi execute_tool", "fromSide": "bottom", "toSide": "top" },
-    { "id": "turn-to-definitions", "from": "llm-turn", "to": "tool-definitions", "label": "catalog + version", "fromSide": "right", "toSide": "right", "via": [[1530, 410], [1530, 710]] },
-    { "id": "anthropic-to-port", "from": "anthropic-model", "to": "llm-port", "label": "cài ModelClient", "fromSide": "bottom", "toSide": "top" },
-    { "id": "anthropic-to-claude", "from": "anthropic-model", "to": "claude", "label": "HTTPS", "fromSide": "left", "toSide": "right" },
-    { "id": "router-to-tools", "from": "tool-router", "to": "plan-tools", "label": "execute_tool", "fromSide": "left", "toSide": "right" },
-    { "id": "router-to-definitions", "from": "tool-router", "to": "tool-definitions", "label": "đọc schema + version" },
-    { "id": "checkin-to-tg", "from": "checkin", "to": "tg-client", "label": "gửi nhắc", "variant": "dashed" },
-    { "id": "tg-to-tgapi", "from": "tg-client", "to": "tgapi", "label": "Bot API", "variant": "dashed", "fromSide": "left", "toSide": "bottom" },
-    { "id": "checkin-to-core", "from": "checkin", "to": "core", "label": "dùng Plan", "variant": "dashed" },
-    { "id": "tools-to-core", "from": "plan-tools", "to": "core", "label": "gọi core" },
-    { "id": "store-to-core", "from": "plan-store", "to": "core", "label": "cài PlanStore" },
-    { "id": "store-to-client", "from": "plan-store", "to": "db-client", "label": "gọi client" },
-    { "id": "store-to-settings", "from": "plan-store", "to": "settings", "label": "require_supabase" },
-    { "id": "client-to-supabase", "from": "db-client", "to": "supabase", "label": "HTTPS · /rest/v1" },
-    { "id": "http-to-entry", "from": "http-client", "to": "worker-entry", "label": "GET /health" },
-    { "id": "entry-to-app", "from": "worker-entry", "to": "fastapi-app", "label": "ASGI" }
+    {
+      "id": "e01",
+      "from": "telegram",
+      "to": "routes-telegram",
+      "label": "webhook"
+    },
+    {
+      "id": "e02",
+      "from": "cron",
+      "to": "worker-entry",
+      "label": "scheduled"
+    },
+    {
+      "id": "e03",
+      "from": "worker-entry",
+      "to": "fastapi-app",
+      "label": "ASGI fetch"
+    },
+    {
+      "id": "e04",
+      "from": "worker-entry",
+      "to": "scheduler-morning",
+      "label": "run_morning; constructs ports"
+    },
+    {
+      "id": "e05",
+      "from": "fastapi-app",
+      "to": "routes-telegram",
+      "label": "include_router"
+    },
+    {
+      "id": "e06",
+      "from": "routes-telegram",
+      "to": "settings",
+      "label": "require_*"
+    },
+    {
+      "id": "e07",
+      "from": "routes-telegram",
+      "to": "handle-update",
+      "label": "handle_update; lazy clients"
+    },
+    {
+      "id": "e12",
+      "from": "handle-update",
+      "to": "channel-rules",
+      "label": "decide_receive, split_utf16"
+    },
+    {
+      "id": "e13",
+      "from": "handle-update",
+      "to": "morning-core",
+      "label": "/next digest"
+    },
+    {
+      "id": "e14",
+      "from": "handle-update",
+      "to": "llm-turn",
+      "label": "run_turn"
+    },
+    {
+      "id": "e15",
+      "from": "handle-update",
+      "to": "core-plans",
+      "label": "PlanStore port (for /next)"
+    },
+    {
+      "id": "e17",
+      "from": "scheduler-morning",
+      "to": "morning-core",
+      "label": "decide_digest, render_digest"
+    },
+    {
+      "id": "e18",
+      "from": "scheduler-morning",
+      "to": "channel-rules",
+      "label": "split_utf16, UpdateView"
+    },
+    {
+      "id": "e22",
+      "from": "scheduler-morning",
+      "to": "settings",
+      "label": "require_*"
+    },
+    {
+      "id": "e23",
+      "from": "morning-core",
+      "to": "clock",
+      "label": "helsinki_clock"
+    },
+    {
+      "id": "e24",
+      "from": "morning-core",
+      "to": "core-plans",
+      "label": "render_digest(Plan)"
+    },
+    {
+      "id": "e25",
+      "from": "llm-turn",
+      "to": "llm-port",
+      "label": "uses port"
+    },
+    {
+      "id": "e26",
+      "from": "llm-turn",
+      "to": "system-prompt",
+      "label": "SYSTEM_PROMPT + version"
+    },
+    {
+      "id": "e27",
+      "from": "llm-turn",
+      "to": "tool-router",
+      "label": "execute_tool"
+    },
+    {
+      "id": "e28",
+      "from": "llm-turn",
+      "to": "tool-definitions",
+      "label": "catalog + version"
+    },
+    {
+      "id": "e29",
+      "from": "llm-turn",
+      "to": "saved-reply",
+      "label": "compose on abnormal turn"
+    },
+    {
+      "id": "e31",
+      "from": "tool-router",
+      "to": "plan-tools",
+      "label": "dispatch"
+    },
+    {
+      "id": "e32",
+      "from": "tool-router",
+      "to": "tool-definitions",
+      "label": "schema + version"
+    },
+    {
+      "id": "e33",
+      "from": "tool-router",
+      "to": "saved-reply",
+      "label": "ToolResult, ToolError"
+    },
+    {
+      "id": "e34",
+      "from": "plan-tools",
+      "to": "core-plans",
+      "label": "pure rules and load check"
+    },
+    {
+      "id": "e35",
+      "from": "plan-tools",
+      "to": "clock",
+      "label": "helsinki_clock"
+    },
+    {
+      "id": "e36",
+      "from": "plan-tools",
+      "to": "saved-reply",
+      "label": "saved lines"
+    },
+    {
+      "id": "e37",
+      "from": "plan-store",
+      "to": "core-plans",
+      "label": "implements PlanStore",
+      "variant": "dashed"
+    },
+    {
+      "id": "e38",
+      "from": "plan-store",
+      "to": "db-client",
+      "label": "RPC calls"
+    },
+    {
+      "id": "e39",
+      "from": "plan-store",
+      "to": "settings",
+      "label": "require_supabase"
+    },
+    {
+      "id": "e40",
+      "from": "channel-store",
+      "to": "channel-rules",
+      "label": "ClaimResult, StoredMessage"
+    },
+    {
+      "id": "e41",
+      "from": "channel-store",
+      "to": "db-client",
+      "label": "RPC calls"
+    },
+    {
+      "id": "e43",
+      "from": "db-client",
+      "to": "supabase",
+      "label": "HTTPS · PostgREST: RPC + plan reads"
+    },
+    {
+      "id": "e44",
+      "from": "tg-client",
+      "to": "telegram",
+      "label": "sendMessage"
+    },
+    {
+      "id": "e45",
+      "from": "anthropic-model",
+      "to": "llm-port",
+      "label": "implements ModelClient",
+      "variant": "dashed"
+    },
+    {
+      "id": "e46",
+      "from": "anthropic-model",
+      "to": "claude",
+      "label": "HTTPS"
+    }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Đã có code — hai cụm chưa nối nhau",
+      "title": "Layering",
       "items": [
-        "Cụm 1: chỉ có route GET /health (src/app.py:30-33).",
-        "Cụm 2: run_turn → execute_tool → plan_tools → core ← SupabasePlanStore → db/client → Supabase; run_turn và tool_router cùng đọc tool_definitions; AnthropicModel cài cổng core/llm và gọi Claude API.",
-        "app.py chỉ import các module, nay có thêm db.plan_store (src/app.py:19); không import turns, core.system_prompt hay clients.anthropic_model, và không route nào gọi run_turn, execute_tool, plan_tools hay SupabasePlanStore.",
-        "src/ chưa có composition root: không nơi nào dựng SupabasePlanStore hay AnthropicModel, cũng không nơi nào truyền store, api_key và client vào run_turn."
+        "src/core imports the standard library and other core modules. check.ps1 lines 423-425 forbid fastapi, pydantic, tools, and db there.",
+        "The Anthropic SDK is imported only in src/clients/anthropic_model.py.",
+        "workers is imported only in src/entry.py.",
+        "postgrest is imported only in src/db/client.py."
       ]
     },
     {
       "dot": "emerald",
-      "title": "Phân lớp (D-011, D-012, D-015)",
+      "title": "Telegram channel",
       "items": [
-        "D-011: tools import core; core chỉ dùng thư viện chuẩn, không import tools hay db; PlanStore cài ở src/db/.",
-        "D-015: vòng lượt nằm ở src/turns vì core không được import tools; llm_turn import core.llm, core.plans, core.system_prompt, tools.tool_definitions và tools.tool_router (src/turns/llm_turn.py:7-19).",
-        "scripts/check.ps1:347-349 kiểm luật core bằng git grep trên src/core.",
-        "D-012: bốn phương thức PlanStore và tool có gọi store là async def."
-      ]
-    },
-    {
-      "dot": "violet",
-      "title": "Lưu trữ (D-010, D-013)",
-      "items": [
-        "D-010: truy cập Supabase qua PostgREST (postgrest-py), không dùng driver TCP.",
-        "D-013: add và replace mỗi cái một RPC; CHECK trạng thái; RLS bật, chỉ service_role được grant.",
-        "src/db/client.py là chỗ duy nhất trong src/ tạo AsyncPostgrestClient."
-      ]
-    },
-    {
-      "dot": "orange",
-      "title": "Lượt mô hình (D-015, spec 008)",
-      "items": [
-        "run_turn(user_message, history, *, store, api_key, client, log=None) -> str (src/turns/llm_turn.py:148-156); chưa có caller trong src/.",
-        "api_key do người gọi đưa; None hoặc rỗng thì ném MissingKeyError (159-160). ANTHROPIC_API_KEY chỉ còn là chữ trong thông điệp lỗi (dòng 25), không file nào trong src/ đọc biến này.",
-        "Ngân sách 20 giây (_BUDGET_SECONDS, dòng 21), tối đa 3 vòng tool (_MAX_ROUNDS, dòng 22); mỗi complete nhận timeout bằng phần ngân sách còn lại (101-104, 177).",
-        "_finish (136-145): end_turn → trả text; tool_use mà đã đủ 3 vòng → câu _CAP; tool_use có yêu cầu tool → chạy tiếp; còn lại → _MODEL_ERROR.",
-        "_run_tools (107-133): gọi execute_tool tuần tự (120-125); hết ngân sách thì trả câu lỗi, không bắt đầu tool kế.",
-        "complete ném Exception thì ghi một dòng log rồi trả _MODEL_ERROR (176-188). Mỗi lần complete xong ghi một dòng JSON tám khóa qua hàm log (74-98); hàm log hỏng thì bị nuốt (64-71)."
-      ]
-    },
-    {
-      "dot": "orange",
-      "title": "Cổng mô hình và adapter (D-004, F12)",
-      "items": [
-        "src/core/llm.py chỉ import thư viện chuẩn (dòng 3-4): TextMessage, ToolRequest, ToolResultMessage, ModelRequest, ModelResponse, ModelError và Protocol ModelClient.complete(request, *, api_key, timeout) (69-81).",
-        "src/core/system_prompt.py: SYSTEM_PROMPT (5-16) và PROMPT_VERSION = 1 (dòng 3); hằng chuỗi, không import gì.",
-        "AnthropicModel (src/clients/anthropic_model.py:11-46) có model và complete cùng hình dạng với ModelClient; không khai kế thừa và không import ModelClient (dòng 5).",
-        "Mỗi complete mở một AsyncAnthropic (max_retries=0, base_url https://api.anthropic.com, dòng 30-35) và gọi messages.create một lần với claude-haiku-5-5, max_tokens 2048, thinking tắt (dòng 7-8, 36-43).",
-        "Mọi Exception của SDK đổi thành ModelError(tên lớp), không giữ thông điệp (dòng 44-45). Khối tool_use chỉ thành ToolRequest khi stop_reason là tool_use (dòng 122, 132).",
-        "anthropic_model.py:3 là chỗ duy nhất trong src/ import anthropic."
-      ]
-    },
-    {
-      "dot": "rose",
-      "title": "Tool router (D-014, spec 007)",
-      "items": [
-        "execute_tool(name, tool_input, *, store, log) là lối vào tool call từ LLM (src/tools/tool_router.py:251-263); caller duy nhất trong src/ là _run_tools của llm_turn (src/turns/llm_turn.py:120).",
-        "_run (225-248): tên lạ → unknown_tool; đầu vào không phải object → invalid_input; _invalid_input (140-168) kiểm theo input_schema của TOOL_DEFINITIONS; rồi _invoke tra _DISPATCH (112-119) gọi sáu hàm của plan_tools.",
-        "ToolError và PlanDomainError → domain; Exception khác → unexpected, detail chỉ là tên lớp exception.",
-        "_write_log (195-222): mỗi lần gọi ghi đúng một dòng JSON bảy khóa qua hàm log truyền vào, mặc định print; hàm log ném Exception thì nuốt, kết quả vẫn trả. Đổi khóa thì tăng DEFINITIONS_VERSION hoặc ghi quyết định mới.",
-        "src/tools/tool_definitions.py: TOOL_DEFINITIONS (sáu tool: description + input_schema, dòng 5-78) và DEFINITIONS_VERSION = 1 (dòng 3); tool_router (tool_router.py:17) và llm_turn (llm_turn.py:18) import."
+        "Each update is claimed before it is handled.",
+        "decide_receive returns Done, Resend, Defer, or SaveUncertain.",
+        "The reply is saved, context is written, then each part is sent.",
+        "Outbound text is split at 4096 UTF-16 units.",
+        "A claim older than 90 seconds is dead."
       ]
     },
     {
       "dot": "amber",
-      "title": "Planned — suy ra từ docstring và docs",
+      "title": "Morning digest",
       "items": [
-        "Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), checkin (F10), clients/telegram (F11).",
-        "Nét đứt = planned. Các cạnh này lấy từ docs/ARCHITECTURE.md §3-§4 (gồm cạnh clarify → llm_turn) và D-011 (scheduler dùng lại Plan), không từ code.",
-        "D-004: lớp LLM là cổng trung lập src/core/llm.py cộng adapter theo nhà cung cấp (cập nhật 2026-10-26). D-007: check-in qua remote push, Telegram ở giai đoạn 1.",
-        "wrangler.jsonc chưa khai báo Cron Trigger.",
-        "settings.py:46 khai báo TELEGRAM_BOT_TOKEN; chưa file nào trong src/ đọc."
+        "Three crons fire at 05:00, 06:00, and 07:00 UTC.",
+        "Before 08:00 Helsinki the run only logs before_eight.",
+        "One row per Helsinki day uses a negative update_id.",
+        "The morning path does not call the model."
       ]
     },
     {
-      "dot": "slate",
-      "title": "Ngoài src/",
+      "dot": "violet",
+      "title": "Model turn",
       "items": [
-        "tests/fakes/memory_plan_store.py: MemoryPlanStore, bản PlanStore chỉ dùng cho test.",
-        "tests/test_llm_turn.py và tests/test_anthropic_model.py: test của lượt mô hình và adapter.",
-        "db/models.py (PlanRow, SubtaskRow), tools/base.py và tools/schemas.py gộp vào node cha ở phần sources."
+        "A turn has a 20 second budget and at most three tool rounds.",
+        "replace_plan writes only when version matches, then increments it.",
+        "An abnormal end after a save returns the composed saved lines."
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Load check",
+      "items": [
+        "Code computes the day load and proposes moves.",
+        "The first call does not write. A write waits for confirm on a later turn.",
+        "Each move goes through replace_plan and leaves an append-only history row."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Persistence",
+      "items": [
+        "Plan writes and all Telegram channel state use seven RPCs: add_plan, replace_plan, claim_telegram_update, save_telegram_reply, mark_telegram_sent, append_telegram_context, and list_telegram_context.",
+        "Plan reads are two selects on plans with its subtasks: list_plans and get_plan.",
+        "All five tables enable RLS. Migrations revoke table and function rights from public, anon, and authenticated.",
+        "subtask_date_moves is append-only: a trigger blocks update and delete."
       ]
     }
   ]
