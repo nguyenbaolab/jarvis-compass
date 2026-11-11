@@ -1,0 +1,3 @@
+docs/PRODUCT.md
+docs/ARCHITECTURE.md
+docs/reviews/**

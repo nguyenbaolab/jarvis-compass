@@ -28,7 +28,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F07 | Planning tool — update_subtask | Done và skip đặt qua update_subtask; note đặt qua set_subtask_note |
 | F08 | Planning tool — add_subtask | Thêm subtask vào plan đang có |
 | F09 | Planning tool — revise_plan | Xem lại và đề xuất điều chỉnh plan |
-| F10 | Proactive check-in (remote push) | Cron job server-side nhắc việc sáng/tối, luôn remote push, không phụ thuộc client có mở app hay không |
+| F10 | Proactive check-in (remote push) | Cron server-side gửi tin sáng 08:00 giờ Helsinki bằng script không gọi mô hình (D-025); chưa có tin tối. Luôn remote push, không phụ thuộc client có mở app hay không |
 | F11 | Telegram Bot interface (MVP client) | Nhận tin chữ của chủ bot và trả lời trong cuộc trò chuyện riêng; tin không phải chữ (voice, ảnh, file, sticker) nhận một câu cố định, voice làm riêng ở F19; nhận scheduled check-in qua Telegram Bot API |
 | F12 | Model-agnostic LLM layer | Cổng trung lập và adapter Anthropic |
 | F13 | Streaming response + barge-in support | Hỗ trợ streaming response cho client voice (Mức 1 real-time: STT VAD → streaming → TTS từng câu → barge-in) |
@@ -38,7 +38,7 @@ Vấn đề cốt lõi cần giải quyết: không phải "AI lập kế hoạc
 | F17 | Ngày, ưu tiên, sức và lịch sử dời | Mỗi việc con có ngày và sức. Mỗi kế hoạch có ưu tiên. Lịch sử dời chỉ thêm khi ngày đổi sang một ngày khác. Hạn sau lần dời trùng hạn kế hoạch khác thì bot báo và chưa ghi cho đến khi chủ bot đồng ý |
 | F18 | Telegram Mini App có lịch | Trang web mở trong Telegram, xem việc con theo lịch ngày (cần F17). Worker của F11 phục vụ, xác thực bằng initData của Telegram. Là bản đầu của jarvis-android, dùng chung API với app Android riêng (F16) |
 | F19 | Nhận tin voice qua Telegram | Nhận tin voice của chủ bot, phiên âm thành chữ rồi chạy như tin chữ. Cách phiên âm chưa chọn: cần kiểm Bot API có gửi sẵn bản chữ cho bot không, nếu không thì cần một cách phiên âm riêng. Làm sau F11, chưa xếp vào thứ tự ở §7 |
-| F20 | Quét tải | Cảnh báo mềm khi một ngày vượt quỹ. Không tự dời việc |
+| F20 | Quét tải | Cảnh báo mềm khi một ngày vượt quỹ 8 giờ. Code đề xuất danh sách việc dời; việc chỉ được ghi và dời sau khi chủ bot xác nhận ở lượt sau, không tự dời (D-029) |
 
 ## §4 Negative scope — cố ý KHÔNG làm
 
