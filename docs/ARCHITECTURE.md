@@ -32,13 +32,13 @@ Stack bắt buộc: xem .specify/memory/constitution.md, mục Ràng buộc kỹ
 
 > **Lưu ý cấu trúc:** Cloudflare Python Workers chỉ bundle các module nằm cùng cấp hoặc bên trong thư mục chứa entry point (src/entry.py) — đặt package của Worker ở root sẽ gây `ModuleNotFoundError` khi deploy. Vì vậy mọi package của Worker nằm trong `src/`. `evals/` nằm ở root, ngoài bundle Worker, và `src/` không import nó. Chỉ src/entry.py được import workers (runtime Cloudflare); app FastAPI nằm ở src/app.py để test được trên Python thường.
 
-- `src/api/` — FastAPI routes HTTP: endpoint jarvis-desktop lập kế hoạch (F14), `routes_telegram.py` nhận `POST /telegram`, `telegram_update.py` là `handle_update` (F11). Điều phối không import `db`, `clients`, hay `config`.
-- `src/core/` — Logic lõi: clarify/orchestration (F01, F02). `llm.py` là cổng trung lập, chỉ thư viện chuẩn. `system_prompt.py` là hằng prompt và `PROMPT_VERSION` 9. `clock.py` định nghĩa `helsinki_clock`. `telegram_channel.py` là luật thuần của kênh: tách UTF-16, cửa sổ 20 tin / 24 giờ, quyết định nhận, hằng 90 giây. Model miền dùng chung (`Plan` có `version`, `Subtask`, `PlanStore`, `PlanConflictError`, chuẩn hóa NFC) ở `src/core/plans.py`. Hàm tải một ngày, quỹ, giờ và danh sách dời (`day_budget`, `task_hours`, `day_load`, `propose_load_moves`) cũng ở `src/core/plans.py`
+- `src/api/` — FastAPI routes HTTP: `routes_planning.py` là stub một dòng docstring cho endpoint jarvis-desktop lập kế hoạch (F14), chưa có endpoint; `routes_telegram.py` nhận `POST /telegram`, `telegram_update.py` là `handle_update` (F11). Điều phối không import `db`, `clients`, hay `config`.
+- `src/core/` — Logic lõi. `planning.py` (orchestration clarify, F01, F02) và `session.py` (session_id, F02) là stub một dòng docstring; việc hỏi lại để làm rõ nằm ở lời hướng dẫn, không ở mã phiên. `morning.py` là luật thuần của tin sáng: `decide_digest`, `render_digest`, `digest_update_id` và `is_next_command`. `log_line.py` dựng dòng log JSON: `default_log`, `write_json_line` và `error_code_of`. `llm.py` là cổng trung lập, chỉ thư viện chuẩn. `system_prompt.py` là hằng prompt và `PROMPT_VERSION` 9. `clock.py` định nghĩa `helsinki_clock`. `telegram_channel.py` là luật thuần của kênh: tách UTF-16, cửa sổ 20 tin / 24 giờ, quyết định nhận, hằng 90 giây. Model miền dùng chung (`Plan` có `version`, `Subtask`, `PlanStore`, `PlanConflictError`, chuẩn hóa NFC) ở `src/core/plans.py`. Hàm tải một ngày, quỹ, giờ và danh sách dời (`day_budget`, `task_hours`, `day_load`, `propose_load_moves`) cũng ở `src/core/plans.py`
 - `src/turns/` — Vòng lặp của một lượt, gọi `execute_tool`, không import SDK.
 - `src/tools/` — Planning tools phía server (F04–F09). `tool_definitions.py` là catalog tên, mô tả, schema đầu vào, chín tool và `DEFINITIONS_VERSION` 4. `tool_router.py` kiểm đầu vào rồi gọi `plan_tools`. `plan_tools` gọi core, đổi kết quả thành `ToolResult`, áp hạn chờ cho mỗi lời gọi kho bằng `asyncio.wait_for` (chỗ duy nhất trong `src/`) và đổi xung đột phiên bản thành câu từ chối. `saved_reply.py` giữ ba câu cố định, mười một mẫu dòng và hàm ghép bản tóm đã lưu cho lượt không kết thúc bình thường (D-021).
 - `src/db/` — `client.py` là chỗ duy nhất trong `src/` gọi PostgREST, gồm năm RPC của kênh. `plan_store.py` là bản cổng kế hoạch. `telegram_channel_store.py` là bản cổng update và ngữ cảnh. `models.py` là dòng DB. Hai mốc thời gian chỉ ở bảng việc con. Session HTTP có trần 20 giây mỗi pha, chỉ để giải phóng kết nối, không phải hạn của lượt. Cột `plans.version` và hàm `replace_plan(..., expected_version)` khóa lạc quan (D-021). Hàm kênh không gọi `now()`. Mọi hàm RPC mà `client.py` gọi trả giá trị, không `void`, vì httpx trên Worker đọc body của mọi phản hồi và PostgREST trả 204 khi hàm SQL là `void` (D-023).
 - `src/clients/` — Kênh client ngoài: `telegram.py` gửi `sendMessage` với đúng `chat_id` và `text`, timeout 10 giây một phần. Adapter Anthropic nằm cạnh Telegram và dịch cổng sang SDK.
-- `src/scheduler/` — Proactive check-in cron (F10)
+- `src/scheduler/` — `morning.py` chạy tin sáng của cron (F10, D-025): cổng 08:00 giờ Helsinki nằm ở code, không gọi mô hình. `checkin.py` là stub một dòng docstring
 - `src/config/` — `settings.py` đọc `SUPABASE_URL`, `SUPABASE_KEY`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_OWNER_ID`, và `ANTHROPIC_API_KEY` từ nguồn người gọi truyền vào, dict hoặc env của Worker, không bằng `os.getenv`
 - `evals/` — Bộ đánh giá tool-call, chạy bằng lệnh tay ngoài bundle Worker. `src/` không import package này.
 - `tests/` — Unit tests
@@ -56,7 +56,7 @@ Client (jarvis-desktop hoặc Telegram)
 → Trả response về client. Telegram trả body rỗng: 401 từ chối, 503 hoãn, 200 bỏ qua hoặc xong
 
 
-## §4 Proactive check-in flow (cron, không phải HTTP)
+## §4 Luồng tin sáng (cron, không phải HTTP)
 
 Cloudflare Cron Trigger (`0 5 * * *`, `0 6 * * *`, `0 7 * * *`)
 → `entry.scheduled`
