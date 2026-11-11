@@ -1,0 +1,4 @@
+docs/architecture/architecture.json
+docs/architecture/architecture.html
+docs/architecture/architecture.delivery.json
+docs/reviews/**

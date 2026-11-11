@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="archify 3.2.0">
   <meta name="archify-reader-contract" content="declared-wide-v1">
-  <title>jarvis-compass — kiến trúc trên main Diagram</title>
+  <title>jarvis-compass — architecture on main Diagram</title>
   <script>
     // Resolve the theme before first paint so light-preference users don't
     // see a dark flash. The toolbar script below re-applies with UI state.
@@ -5194,17 +5194,17 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
            data-preset-badge-blueprint="BLUEPRINT / REV 01"
            data-preset-badge-editorial="EDITORIAL / FIELD NOTE">
         <div class="pulse-dot"></div>
-        <h1>jarvis-compass — kiến trúc trên main</h1>
+        <h1>jarvis-compass — architecture on main</h1>
       </div>
     </div>
 
-    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/nguyenbaolab/jarvis-compass","revision":"852c6e0a2a4400409121e5a1990e2bd0f3e081f7","shortRevision":"852c6e0","label":"nguyenbaolab/jarvis-compass","href":"https://github.com/nguyenbaolab/jarvis-compass/tree/852c6e0a2a4400409121e5a1990e2bd0f3e081f7"},"referenceCount":46,"nodes":{"desktop":[{"path":"src/api/routes_planning.py","line":1,"label":"docstring: endpoint cho jarvis-desktop","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/api/routes_planning.py#L1"}],"tgapi":[{"path":"src/api/routes_telegram.py","line":1,"label":"docstring: webhook Telegram Bot API","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/api/routes_telegram.py#L1"},{"path":"src/clients/telegram.py","line":1,"label":"docstring: gọi Telegram Bot API","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/clients/telegram.py#L1"}],"claude":[{"path":"src/clients/anthropic_model.py","line":30,"endLine":43,"label":"AsyncAnthropic + messages.create","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/clients/anthropic_model.py#L30-L43"},{"path":"pyproject.toml","line":5,"endLine":9,"label":"anthropic có trong dependencies","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/pyproject.toml#L5-L9"}],"anthropic-model":[{"path":"src/clients/anthropic_model.py","line":3,"label":"import AsyncAnthropic","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/clients/anthropic_model.py#L3"},{"path":"src/clients/anthropic_model.py","line":11,"endLine":46,"label":"AnthropicModel.complete","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/clients/anthropic_model.py#L11-L46"},{"path":"src/clients/anthropic_model.py","line":100,"endLine":115,"label":"_response: dịch phản hồi SDK","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/clients/anthropic_model.py#L100-L115"}],"routes-planning":[{"path":"src/api/routes_planning.py","line":1,"label":"stub docstring, chưa có code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/api/routes_planning.py#L1"}],"routes-telegram":[{"path":"src/api/routes_telegram.py","line":1,"label":"stub docstring, chưa có code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/api/routes_telegram.py#L1"}],"clarify":[{"path":"src/core/planning.py","line":1,"label":"stub docstring (F01, F02)","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/planning.py#L1"},{"path":"src/core/session.py","line":1,"label":"stub docstring (F02)","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/session.py#L1"}],"system-prompt":[{"path":"src/core/system_prompt.py","line":3,"label":"PROMPT_VERSION","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/system_prompt.py#L3"},{"path":"src/core/system_prompt.py","line":5,"endLine":16,"label":"SYSTEM_PROMPT","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/system_prompt.py#L5-L16"}],"llm-port":[{"path":"src/core/llm.py","line":69,"endLine":81,"label":"ModelClient.complete (Protocol)","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/llm.py#L69-L81"},{"path":"src/core/llm.py","line":39,"endLine":58,"label":"ModelRequest, ModelResponse","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/llm.py#L39-L58"},{"path":"src/core/llm.py","line":61,"endLine":66,"label":"ModelError(class_name)","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/llm.py#L61-L66"}],"llm-turn":[{"path":"src/turns/llm_turn.py","line":148,"endLine":209,"label":"run_turn: vòng một lượt","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/turns/llm_turn.py#L148-L209"},{"path":"src/turns/llm_turn.py","line":107,"endLine":133,"label":"_run_tools: gọi execute_tool tuần tự","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/turns/llm_turn.py#L107-L133"},{"path":"src/turns/llm_turn.py","line":136,"endLine":145,"label":"_finish: end_turn, trần 3 vòng, lỗi","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/turns/llm_turn.py#L136-L145"}],"tool-router":[{"path":"src/tools/tool_router.py","line":251,"endLine":263,"label":"execute_tool: lối vào tool call","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/tool_router.py#L251-L263"},{"path":"src/tools/tool_router.py","line":112,"endLine":119,"label":"_DISPATCH: tên tool → hàm plan_tools","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/tool_router.py#L112-L119"},{"path":"src/tools/tool_router.py","line":140,"endLine":168,"label":"_invalid_input: kiểm theo TOOL_DEFINITIONS","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/tool_router.py#L140-L168"}],"tool-definitions":[{"path":"src/tools/tool_definitions.py","line":3,"label":"DEFINITIONS_VERSION","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/tool_definitions.py#L3"},{"path":"src/tools/tool_definitions.py","line":5,"endLine":78,"label":"TOOL_DEFINITIONS (sáu tool)","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/tool_definitions.py#L5-L78"}],"checkin":[{"path":"src/scheduler/checkin.py","line":1,"label":"stub docstring, chưa có code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/scheduler/checkin.py#L1"}],"tg-client":[{"path":"src/clients/telegram.py","line":1,"label":"stub docstring, chưa có code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/clients/telegram.py#L1"}],"db-client":[{"path":"src/db/client.py","line":21,"endLine":25,"label":"postgrest_client","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/db/client.py#L21-L25"},{"path":"src/db/client.py","line":46,"endLine":100,"label":"add_plan, list_plans, get_plan, replace_plan","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/db/client.py#L46-L100"}],"plan-store":[{"path":"src/db/plan_store.py","line":92,"endLine":129,"label":"SupabasePlanStore","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/db/plan_store.py#L92-L129"},{"path":"src/db/plan_store.py","line":32,"endLine":77,"label":"plan_from_row","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/db/plan_store.py#L32-L77"},{"path":"src/db/models.py","line":6,"endLine":24,"label":"SubtaskRow, PlanRow","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/db/models.py#L6-L24"}],"core":[{"path":"src/core/plans.py","line":26,"endLine":59,"label":"Subtask, Plan, PlanStore","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/plans.py#L26-L59"},{"path":"src/core/plans.py","line":84,"endLine":97,"label":"normalize_new_plan","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/core/plans.py#L84-L97"},{"path":"scripts/check.ps1","line":347,"endLine":349,"label":"luật core không import tools/db","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/scripts/check.ps1#L347-L349"}],"plan-tools":[{"path":"src/tools/plan_tools.py","line":94,"endLine":181,"label":"create_plan … set_subtask_note","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/plan_tools.py#L94-L181"},{"path":"src/tools/base.py","line":6,"endLine":17,"label":"ToolResult, ToolError","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/base.py#L6-L17"},{"path":"src/tools/schemas.py","line":8,"endLine":28,"label":"SubtaskJson, PlanJson, PlansJson","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/tools/schemas.py#L8-L28"}],"supabase":[{"path":"supabase/migrations/20261025021100_plans_and_subtasks.sql","line":9,"endLine":27,"label":"bảng plans, subtasks","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/supabase/migrations/20261025021100_plans_and_subtasks.sql#L9-L27"},{"path":"supabase/migrations/20261025021100_plans_and_subtasks.sql","line":53,"endLine":59,"label":"RPC add_plan","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/supabase/migrations/20261025021100_plans_and_subtasks.sql#L53-L59"},{"path":"supabase/migrations/20261025021100_plans_and_subtasks.sql","line":116,"endLine":123,"label":"RPC replace_plan","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/supabase/migrations/20261025021100_plans_and_subtasks.sql#L116-L123"}],"settings":[{"path":"src/config/settings.py","line":25,"endLine":38,"label":"require_supabase, SettingsError","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/config/settings.py#L25-L38"}],"http-client":[{"path":"src/app.py","line":30,"endLine":33,"label":"route /health","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/app.py#L30-L33"}],"worker-entry":[{"path":"src/entry.py","line":1,"endLine":6,"label":"Default = asgi.entrypoint(app)","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/entry.py#L1-L6"},{"path":"wrangler.jsonc","line":1,"endLine":6,"label":"main: src/entry.py","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/wrangler.jsonc#L1-L6"}],"fastapi-app":[{"path":"src/app.py","line":27,"endLine":33,"label":"app, health","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/852c6e0a2a4400409121e5a1990e2bd0f3e081f7/src/app.py#L27-L33"}]}}</script>
+    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/nguyenbaolab/jarvis-compass","revision":"8da974eeac837c6b17a5ea1f787ebb171044f69b","shortRevision":"8da974e","label":"nguyenbaolab/jarvis-compass","href":"https://github.com/nguyenbaolab/jarvis-compass/tree/8da974eeac837c6b17a5ea1f787ebb171044f69b"},"referenceCount":62,"nodes":{"telegram":[{"path":"src/api/routes_telegram.py","line":149,"endLine":150,"label":"POST /telegram","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/routes_telegram.py#L149-L150"},{"path":"src/clients/telegram.py","line":28,"label":"sendMessage URL","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/clients/telegram.py#L28"}],"cron":[{"path":"wrangler.jsonc","line":7,"label":"crons 05, 06, 07 UTC","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/wrangler.jsonc#L7"}],"claude":[{"path":"src/clients/anthropic_model.py","line":43,"endLine":45,"label":"base_url and messages.create","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/clients/anthropic_model.py#L43-L45"}],"supabase":[{"path":"supabase/migrations/20261025021100_plans_and_subtasks.sql","line":9,"endLine":181,"label":"plans, subtasks, RLS, revoke","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/supabase/migrations/20261025021100_plans_and_subtasks.sql#L9-L181"},{"path":"supabase/migrations/20261104143000_telegram_channel.sql","line":3,"endLine":145,"label":"channel tables, RLS, revoke","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/supabase/migrations/20261104143000_telegram_channel.sql#L3-L145"},{"path":"supabase/migrations/20261109120000_plan_dates_priority.sql","line":18,"endLine":171,"label":"moves table, trigger, version","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/supabase/migrations/20261109120000_plan_dates_priority.sql#L18-L171"}],"worker-entry":[{"path":"src/entry.py","line":3,"endLine":16,"label":"workers import, fetch, scheduled","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/entry.py#L3-L16"},{"path":"wrangler.jsonc","line":3,"label":"main src/entry.py","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/wrangler.jsonc#L3"}],"fastapi-app":[{"path":"src/app.py","line":27,"endLine":33,"label":"app, include_router, /health","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/app.py#L27-L33"}],"routes-telegram":[{"path":"src/api/routes_telegram.py","line":70,"label":"current_deps","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/routes_telegram.py#L70"},{"path":"src/api/routes_telegram.py","line":138,"endLine":142,"label":"_open_production","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/routes_telegram.py#L138-L142"},{"path":"src/api/routes_telegram.py","line":149,"endLine":210,"label":"route, checks, lazy clients","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/routes_telegram.py#L149-L210"}],"handle-update":[{"path":"src/api/telegram_update.py","line":136,"endLine":175,"label":"save, context, then send","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/telegram_update.py#L136-L175"},{"path":"src/api/telegram_update.py","line":197,"endLine":228,"label":"claim, then decide_receive","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/telegram_update.py#L197-L228"},{"path":"src/api/telegram_update.py","line":271,"endLine":313,"label":"/next or run_turn","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/telegram_update.py#L271-L313"}],"channel-rules":[{"path":"src/core/telegram_channel.py","line":9,"endLine":19,"label":"90s and Decision enum","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/telegram_channel.py#L9-L19"},{"path":"src/core/telegram_channel.py","line":82,"label":"split_utf16 limit 4096","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/telegram_channel.py#L82"},{"path":"src/core/telegram_channel.py","line":113,"label":"decide_receive","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/telegram_channel.py#L113"}],"morning-core":[{"path":"src/core/morning.py","line":22,"endLine":61,"label":"render, /next, negative id, decide","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/morning.py#L22-L61"},{"path":"scripts/check.ps1","line":423,"endLine":425,"label":"Core imports check","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/scripts/check.ps1#L423-L425"}],"clock":[{"path":"src/core/clock.py","line":25,"label":"helsinki_clock","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/clock.py#L25"},{"path":"src/core/log_line.py","line":10,"endLine":39,"label":"error code, default log, JSON line","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/log_line.py#L10-L39"}],"scheduler-morning":[{"path":"src/scheduler/morning.py","line":1,"endLine":11,"label":"no model call; _EIGHT","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/scheduler/morning.py#L1-L11"},{"path":"src/scheduler/morning.py","line":24,"endLine":97,"label":"ports, run_morning, 08:00 gate","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/scheduler/morning.py#L24-L97"},{"path":"src/scheduler/morning.py","line":128,"endLine":134,"label":"split_utf16, send, mark_sent","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/scheduler/morning.py#L128-L134"}],"llm-turn":[{"path":"src/turns/llm_turn.py","line":7,"endLine":26,"label":"imports, 20s budget, 3 rounds","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/turns/llm_turn.py#L7-L26"},{"path":"src/turns/llm_turn.py","line":103,"endLine":155,"label":"compose on abnormal end","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/turns/llm_turn.py#L103-L155"},{"path":"src/turns/llm_turn.py","line":175,"label":"run_turn","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/turns/llm_turn.py#L175"}],"system-prompt":[{"path":"src/core/system_prompt.py","line":3,"endLine":5,"label":"PROMPT_VERSION 9, SYSTEM_PROMPT","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/system_prompt.py#L3-L5"}],"llm-port":[{"path":"src/core/llm.py","line":40,"endLine":80,"label":"request, response, ModelClient","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/llm.py#L40-L80"}],"anthropic-model":[{"path":"src/clients/anthropic_model.py","line":6,"label":"only anthropic SDK import","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/clients/anthropic_model.py#L6"},{"path":"src/clients/anthropic_model.py","line":20,"label":"class AnthropicModel","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/clients/anthropic_model.py#L20"},{"path":"src/clients/anthropic_model.py","line":43,"endLine":45,"label":"base_url and messages.create","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/clients/anthropic_model.py#L43-L45"}],"tool-router":[{"path":"src/tools/tool_router.py","line":7,"endLine":22,"label":"imports base, catalog, plan tools","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/tool_router.py#L7-L22"},{"path":"src/tools/tool_router.py","line":234,"endLine":350,"label":"dispatch, coerce, validate","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/tool_router.py#L234-L350"},{"path":"src/tools/tool_router.py","line":435,"endLine":465,"label":"_run and execute_tool","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/tool_router.py#L435-L465"}],"tool-definitions":[{"path":"src/tools/tool_definitions.py","line":3,"endLine":5,"label":"DEFINITIONS_VERSION 4, catalog","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/tool_definitions.py#L3-L5"}],"plan-tools":[{"path":"src/tools/plan_tools.py","line":280,"endLine":375,"label":"_overloads and _write_moves","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/plan_tools.py#L280-L375"},{"path":"src/tools/plan_tools.py","line":376,"endLine":646,"label":"create, add, confirm next turn","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/plan_tools.py#L376-L646"},{"path":"src/tools/plan_tools.py","line":680,"endLine":739,"label":"reschedule_subtasks confirm","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/plan_tools.py#L680-L739"}],"saved-reply":[{"path":"src/tools/saved_reply.py","line":6,"endLine":90,"label":"sentences and compose","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/saved_reply.py#L6-L90"},{"path":"src/tools/base.py","line":12,"endLine":36,"label":"TurnContext through ToolError","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/tools/base.py#L12-L36"}],"core-plans":[{"path":"src/core/plans.py","line":57,"endLine":80,"label":"Subtask, Plan, PlanStore","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/plans.py#L57-L80"},{"path":"src/core/plans.py","line":335,"endLine":348,"label":"plan_deadline, deadline_clash","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/plans.py#L335-L348"},{"path":"src/core/plans.py","line":395,"endLine":453,"label":"day_budget, day_load, propose","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/plans.py#L395-L453"}],"plan-store":[{"path":"src/db/plan_store.py","line":7,"endLine":28,"label":"PlanStore types and RPC imports","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/plan_store.py#L7-L28"},{"path":"src/db/plan_store.py","line":54,"endLine":122,"label":"plan_from_row, SupabasePlanStore","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/plan_store.py#L54-L122"},{"path":"src/db/plan_store.py","line":158,"endLine":175,"label":"replace sends plan.version","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/plan_store.py#L158-L175"}],"channel-store":[{"path":"src/db/telegram_channel_store.py","line":6,"label":"ClaimResult, StoredMessage","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/telegram_channel_store.py#L6"},{"path":"src/db/telegram_channel_store.py","line":57,"label":"class SupabaseTelegramChannel","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/telegram_channel_store.py#L57"}],"db-client":[{"path":"src/db/client.py","line":1,"endLine":39,"label":"only PostgREST client, /rest/v1","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/client.py#L1-L39"},{"path":"src/db/client.py","line":70,"endLine":129,"label":"add, list, get, replace_plan","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/client.py#L70-L129"},{"path":"src/db/client.py","line":167,"endLine":237,"label":"five Telegram channel RPCs","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/db/client.py#L167-L237"}],"tg-client":[{"path":"src/clients/telegram.py","line":17,"endLine":28,"label":"client and sendMessage","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/clients/telegram.py#L17-L28"}],"settings":[{"path":"src/config/settings.py","line":6,"label":"SettingsError","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/config/settings.py#L6"},{"path":"src/config/settings.py","line":24,"label":"require_supabase","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/config/settings.py#L24"},{"path":"src/config/settings.py","line":47,"endLine":53,"label":"webhook secret and bot token","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/config/settings.py#L47-L53"}],"routes-planning":[{"path":"src/api/routes_planning.py","line":1,"label":"stub docstring, no code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/api/routes_planning.py#L1"}],"clarify":[{"path":"src/core/planning.py","line":1,"label":"stub docstring, no code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/planning.py#L1"},{"path":"src/core/session.py","line":1,"label":"stub docstring, no code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/core/session.py#L1"}],"checkin":[{"path":"src/scheduler/checkin.py","line":1,"label":"stub docstring, no code","href":"https://github.com/nguyenbaolab/jarvis-compass/blob/8da974eeac837c6b17a5ea1f787ebb171044f69b/src/scheduler/checkin.py#L1"}]}}</script>
     <script id="archify-i18n-data" type="application/json">{"locale":"en","messages":{"viewer.kind.frontend":"Frontend","viewer.kind.backend":"Backend","viewer.kind.database":"Database","viewer.kind.cloud":"Cloud","viewer.kind.security":"Security","viewer.kind.messagebus":"Message bus","viewer.kind.external":"External","viewer.kind.neutral":"Neutral","viewer.kind.node":"Node","viewer.kind.start":"Start","viewer.kind.active":"Active","viewer.kind.waiting":"Waiting","viewer.kind.decision":"Decision","viewer.kind.success":"Success","viewer.kind.failure":"Failure","viewer.toolbar.actions":"Diagram actions","viewer.theme.toggle.title":"Toggle theme (T)","viewer.theme.toggle":"Toggle color theme","viewer.theme.dark":"Dark","viewer.theme.light":"Light","viewer.preset.choose.title":"Choose visual style (S cycles)","viewer.preset.choose":"Choose visual style","viewer.preset.style":"Style","viewer.preset.menu":"Visual style","viewer.preset.identity":"Visual identity","viewer.preset.cycles":"to cycle","viewer.preset.classic":"Classic","viewer.preset.classic.short":"Classic","viewer.preset.classic.hint":"Stable technical default","viewer.preset.flow":"Signal Flow","viewer.preset.flow.short":"Flow","viewer.preset.flow.hint":"Motion-forward presentation","viewer.preset.blueprint":"Blueprint","viewer.preset.blueprint.hint":"Engineering review","viewer.preset.editorial":"Editorial","viewer.preset.editorial.hint":"Publication and launch notes","viewer.preset.badge.signalFlow":"SIGNAL FLOW","viewer.preset.badge.blueprint":"BLUEPRINT / REV 01","viewer.preset.badge.editorial":"EDITORIAL / FIELD NOTE","viewer.preset.badge.editorialPlate":"ARCHIFY / PLATE 04","viewer.preset.current":"Visual style: {style}. Choose visual style","viewer.motion.live":"Live","viewer.motion.still":"Still","viewer.motion.pause":"Pause motion","viewer.motion.resume":"Resume motion","viewer.motion.reduced":"Motion paused by reduced-motion preference","viewer.motion.hidden":"Motion paused while this page is hidden","viewer.motion.yielding":"Pause motion; currently yielding to {owner}","viewer.motion.yielding.title":"Live preview enabled · yielding to {owner}","viewer.owner.route":"Route Probe","viewer.owner.lens":"Semantic Lens","viewer.owner.relationship":"Relationship Preview","viewer.owner.intent":"Intent Trace","viewer.owner.focus":"semantic focus","viewer.owner.legend":"legend preview","viewer.owner.reader":"reader interaction","viewer.present.enter":"Enter presentation stage","viewer.present.enter.title":"Presentation stage (F)","viewer.present.exit":"Exit presentation stage","viewer.present.exit.title":"Exit presentation stage (F or Escape)","viewer.present.present":"Present","viewer.present.exit.label":"Exit","viewer.export.button":"Export","viewer.export.button.title":"Export diagram (E)","viewer.export.diagram":"Export diagram","viewer.export.menu":"Export","viewer.export.subtitle":"Portable, clean outputs","viewer.export.share":"Share","viewer.export.shareCard":"Share Card","viewer.export.routeShareCard":"Route Share Card","viewer.export.reachShareCard":"Reach Share Card","viewer.export.copyDiagram":"Copy diagram","viewer.export.clipboardPng":"PNG to clipboard","viewer.export.raster":"Raster images","viewer.export.image":"Image","viewer.export.lossless":"Lossless image","viewer.export.compact":"Compact image","viewer.export.modern":"Modern image","viewer.export.vectorMotion":"Vector and motion","viewer.export.vectorMotion.heading":"Vector \u0026 motion","viewer.export.editable":"Editable vector","viewer.export.svg.auto":"SVG · Auto","viewer.export.svg.auto.hint":"Matches host theme","viewer.export.svg.light":"SVG · Light","viewer.export.svg.light.hint":"Always light","viewer.export.svg.dark":"SVG · Dark","viewer.export.svg.dark.hint":"Always dark","viewer.export.motion6s":"6s motion","viewer.export.unsupported":"Not supported by this browser","viewer.export.clipboardUnsupported":"Clipboard image write not supported by this browser","viewer.export.clipboardUnsupported.short":"Clipboard image write not supported in this browser.","viewer.export.motionUnavailable":"Motion capture unavailable in this browser","viewer.export.webmUnavailable":"WebM unavailable in this browser","viewer.export.failed":"Export failed: {message}","viewer.export.unknownVariant":"Unknown Share Card variant: {variant}","viewer.export.routeRequired":"Trace a route before exporting a Route Share Card","viewer.export.reachRequired":"Trace authored reach before exporting a Reach Share Card","viewer.export.unknown":"unknown","viewer.export.routeFailed":"Route Share Card export failed: {message}","viewer.export.reachFailed":"Reach Share Card export failed: {message}","viewer.export.copyFailed":"Copy failed: {message}","viewer.export.copiedPng":"Copied PNG to clipboard","viewer.export.downloadedRoute":"Downloaded Route Share Card","viewer.export.downloadedReach":"Downloaded Reach Share Card","viewer.export.downloadedWebm":"Downloaded WebM","viewer.export.recording":"Recording 6 seconds of motion…","viewer.export.card.routeSummary.one":"Path: {source} → {target} · {count} step","viewer.export.card.routeSummary.other":"Path: {source} → {target} · {count} steps","viewer.export.card.reachSummary":"Authored {direction} from {origin} · {nodes} · {links} · max {hops}","viewer.export.card.node.one":"{count} node","viewer.export.card.node.other":"{count} nodes","viewer.export.card.link.one":"{count} link","viewer.export.card.link.other":"{count} links","viewer.export.card.hop.one":"{count} hop","viewer.export.card.hop.other":"{count} hops","viewer.export.card.routeBadge":"ARCHIFY · ROUTE · {hops}","viewer.export.card.reachBadge":"ARCHIFY · {direction} REACH","viewer.export.direction.upstream":"Upstream","viewer.export.direction.downstream":"Downstream","viewer.export.error.canvasUnavailable":"Canvas unavailable for {label}","viewer.export.error.contextUnavailable":"2D canvas context unavailable for {label}","viewer.export.error.toBlobUnavailable":"canvas.toBlob unavailable for {label}","viewer.export.error.toBlobNull":"canvas.toBlob returned no data for {label}","viewer.export.error.variantsCombined":"Share Card variants cannot be combined","viewer.export.error.viewerState":"Share Card export could not remove temporary viewer state","viewer.export.error.routeState":"Route Card export could not preserve the resolved route safely","viewer.export.error.reachState":"Reach Card export could not preserve authored reach safely","viewer.export.error.webmRequirements":"WebM motion export requires a trace animation and browser MediaRecorder support","viewer.export.error.mediaRecorder":"MediaRecorder failed","viewer.export.error.emptyWebm":"MediaRecorder produced an empty WebM","viewer.export.error.webmBackground":"SVG background could not be loaded for WebM export","viewer.guide.title":"Explore this system","viewer.focus.selectedNodes":"{count} selected nodes","viewer.guide.eyebrow":"Diagram guide","viewer.guide.close":"Close diagram guide","viewer.guide.inspecting":"Inspecting compiled semantics","viewer.guide.actions":"Diagram exploration actions","viewer.guide.find":"Find any node","viewer.guide.find.hint":"Search labels, responsibilities, kinds, and stable IDs.","viewer.guide.route":"Trace a route","viewer.guide.route.aria":"Trace a directed route","viewer.guide.route.hint":"Ask how two semantic nodes connect in authored direction.","viewer.guide.map":"See the whole system","viewer.guide.map.hint":"Open Semantic Radar with a live viewport and stable nodes.","viewer.guide.lens":"Compare semantic kinds","viewer.guide.lens.hint":"Count roles, reveal their traffic, and compare direct authored links.","viewer.guide.present":"Enter Presentation Stage","viewer.guide.present.hint":"Give the live diagram the viewport without changing export.","viewer.guide.shortcuts":"Additional keyboard shortcuts","viewer.guide.shortcut.export":"Export","viewer.guide.shortcut.theme":"Theme","viewer.guide.shortcut.style":"Style","viewer.guide.shortcut.reset":"Reset","viewer.guide.shortcut.zoomIn":"Zoom in","viewer.guide.shortcut.zoomOut":"Zoom out","viewer.guide.shortcut.close":"Close","viewer.guide.credit":"Find Archify useful? A star on GitHub helps","viewer.guide.star":"Star","viewer.guide.facts":"{nodes} · {relationships}","viewer.guide.fact.node.one":"{count} semantic node","viewer.guide.fact.node.other":"{count} semantic nodes","viewer.guide.fact.relationship.one":"{count} relationship","viewer.guide.fact.relationship.other":"{count} relationships","viewer.guide.open":"Open diagram guide","viewer.finder.title":"Find a node","viewer.finder.close":"Close node finder","viewer.finder.placeholder":"Search labels or IDs","viewer.finder.search":"Search diagram nodes","viewer.finder.results":"Diagram nodes","viewer.finder.empty":"No matching nodes","viewer.finder.result.focus":"Focus {label}","viewer.finder.result.routeStart":"Choose {label} as route start","viewer.finder.result.routeTarget":"Choose {label} as route destination, {links}","viewer.finder.status.empty":"No matching nodes","viewer.finder.status.count.one":"{count} matching node","viewer.finder.status.count.other":"{count} matching nodes","viewer.finder.noun.nodes":"nodes","viewer.finder.link.one":"{count} link","viewer.finder.link.other":"{count} links","viewer.finder.result.focus.one":"Focus {label}, {count} related connection","viewer.finder.result.focus.other":"Focus {label}, {count} related connections","viewer.finder.status.filtered":"{visible} of {available} {noun}","viewer.finder.status.all":"{available} {noun}","viewer.passport.eyebrow":"Semantic passport","viewer.passport.metadata":"Node metadata","viewer.passport.evidence":"Verified source evidence","viewer.passport.verified":"Verified source","viewer.passport.verificationScope":"Verified against local Git at the pinned revision. Remote access has not been checked.","viewer.passport.reach":"Authored reach","viewer.passport.reach.trace":"Trace authored reachability","viewer.passport.upstream":"Upstream","viewer.passport.downstream":"Downstream","viewer.passport.upstream.trace":"Trace upstream authored reachability","viewer.passport.downstream.trace":"Trace downstream authored reachability","viewer.passport.close":"Close semantic passport","viewer.passport.move":"Move semantic passport. Drag, use arrow keys, or press Home to reset.","viewer.passport.copy":"Copy link","viewer.passport.copy.focus":"Copy link to focused node","viewer.passport.relations":"Relations","viewer.passport.relations.show":"Show connected relationships","viewer.passport.relations.hide":"Hide connected relationships","viewer.passport.relations.list":"Connected relationships","viewer.passport.copyRelation":"Copy relation","viewer.passport.copyNode":"Copy node","viewer.passport.copyPinned":"Copy link to pinned relationship","viewer.passport.copySource":"Copy link to source node","viewer.passport.copy.focused.success":"Focused node link copied","viewer.passport.copy.pinned.success":"Pinned relationship link copied","viewer.passport.copy.focused.failed":"Could not copy focused node link","viewer.passport.copy.pinned.failed":"Could not copy pinned relationship link","viewer.passport.relationship.none":"No connected relationships","viewer.passport.relationship.count.one":"{count} relation","viewer.passport.relationship.count.other":"{count} relations","viewer.passport.relationship.show.one":"Show {count} connected relationship","viewer.passport.relationship.show.other":"Show {count} connected relationships","viewer.passport.relationship.summary":"{out} outgoing · {in} incoming{loops}","viewer.passport.relationship.loops":" · {count} loop","viewer.passport.relationship.explorer":"Direct relationship explorer","viewer.passport.relationship.help":"Use arrow keys to explore relationships. Press Enter or Space to pin details; Escape clears.","viewer.passport.relationship.loopsBack":"loops back","viewer.passport.relationship.connectsTo":"connects to","viewer.passport.relationship.connectsFrom":"connects from","viewer.passport.relationship.pinned":"Pinned relationship · {from} → {to} · {label}","viewer.passport.relationship.inspect":"Inspect relationship {index} of {total}: {from} to {to}, {label}. Press Enter for details.","viewer.passport.relationship.group.out":"Outgoing","viewer.passport.relationship.group.in":"Incoming","viewer.passport.relationship.group.loop":"Self loops","viewer.passport.relationship.row":"{group}: {relationship}, {neighbor}","viewer.passport.relationship.direction.out":"OUT →","viewer.passport.relationship.direction.in":"← IN","viewer.passport.relationship.direction.loop":"LOOP","viewer.passport.sourceCount.one":"{count} verified source reference","viewer.passport.sourceCount.other":"{count} verified source references","viewer.passport.repository.open":"Open verified repository revision {revision}","viewer.passport.source.open":"Open verified source {path} at revision {revision}","viewer.passport.source.openLink":"Open ↗","viewer.passport.reach.upstream.one":"Trace {count} upstream authored node","viewer.passport.reach.upstream.other":"Trace {count} upstream authored nodes","viewer.passport.reach.downstream.one":"Trace {count} downstream authored node","viewer.passport.reach.downstream.other":"Trace {count} downstream authored nodes","viewer.passport.reach.noUpstream":"No upstream authored nodes","viewer.passport.reach.noDownstream":"No downstream authored nodes","viewer.passport.reach.status":"{direction} · {nodes} nodes · {links} links · max {hops} hops","viewer.route.eyebrow":"Path","viewer.route.start":"Click where the path starts","viewer.route.start.find":"Find start","viewer.route.start.find.aria":"Find a route start","viewer.route.copy":"Copy link","viewer.route.copy.aria":"Copy link to traced route","viewer.route.clear":"Clear","viewer.route.clear.aria":"Clear route probe","viewer.route.traced":"Path","viewer.route.pickTwo":"Click two nodes on the diagram","viewer.route.pickOne":"Click a node on the diagram","viewer.route.controls":"Route journey controls","viewer.route.previous":"Previous route position","viewer.route.play":"Play route journey","viewer.route.pause":"Pause route journey","viewer.route.replay":"Replay route journey","viewer.route.next":"Next route position","viewer.route.journey":"Journey","viewer.route.pause.label":"Pause","viewer.route.replay.label":"Replay","viewer.route.overview":"Overview","viewer.route.overview.aria":"Show complete route overview","viewer.route.instructions":"Click a start, then an end. Paths follow the arrows.","viewer.route.destination":"Where does the path from {label} end?","viewer.route.destination.find":"Find target","viewer.route.destination.find.aria":"Find a reachable route destination","viewer.route.differentDestination":"Choose a different destination","viewer.route.distinct":"Pick two different nodes.","viewer.route.unreachable":"Cannot reach {label} from here","viewer.route.unreachable.detail":"{target} cannot be reached from {source} along the arrows. Pick a highlighted node.","viewer.route.start.instructions":"Next, pick the end. Only nodes you can reach will light up.","viewer.route.copy.success":"Traced route link copied","viewer.route.copy.failed":"Could not copy traced route link","viewer.route.position":"Route position {index} of {total}: {label}","viewer.route.step":"Step {index} of {total} · {phase} · {label}","viewer.route.motionRequired":"Automatic journey requires Live motion","viewer.route.trigger.clear":"Clear traced route","viewer.route.overview.status":"{nodes} · {hops} · shortest path","viewer.route.overview.node.one":"{count} node","viewer.route.overview.node.other":"{count} nodes","viewer.route.overview.hop.one":"{count} step","viewer.route.overview.hop.other":"{count} steps","viewer.route.phase.playing":"Playing","viewer.route.phase.complete":"Complete","viewer.route.phase.inspecting":"Inspecting","viewer.route.destination.count.one":"{count} reachable node is highlighted. Click it.","viewer.route.destination.count.other":"{count} reachable nodes are highlighted. Click one.","viewer.route.noOutgoing":"No arrows lead out of this node. Clear it and pick another start.","viewer.route.result.title":"{source} to {target}","viewer.route.finder.source.title":"Choose route start","viewer.route.finder.source.placeholder":"Search route sources","viewer.route.finder.source.empty":"No matching route sources","viewer.route.finder.source.results":"Nodes that can start a route","viewer.route.finder.source.noun":"route sources","viewer.route.finder.source.badge":"start","viewer.route.finder.target.title":"Destination from {label}","viewer.route.finder.target.placeholder":"Search reachable destinations","viewer.route.finder.target.empty":"No matching reachable destinations","viewer.route.finder.target.results":"Reachable route destinations","viewer.route.finder.target.noun":"reachable destinations","viewer.route.hop.one":"{count} hop","viewer.route.hop.other":"{count} hops","viewer.lens.eyebrow":"Semantic lens","viewer.lens.title":"Compare system roles","viewer.lens.close":"Close semantic lens","viewer.lens.instruction":"Choose up to two semantic kinds. One reveals its real traffic; two compare only direct authored relationships.","viewer.lens.kinds":"Semantic kinds","viewer.lens.choose":"Choose a kind to inspect its nodes and touching relationships.","viewer.lens.copy":"Copy link to semantic lens","viewer.lens.clear":"Clear semantic lens","viewer.lens.open":"Open semantic lens","viewer.lens.openActive":"Open active semantic lens","viewer.lens.legend":"Semantic legend","viewer.lens.legend.inspect.one":"Inspect {label}, {count} node","viewer.lens.legend.inspect.other":"Inspect {label}, {count} nodes","viewer.lens.kind.count.one":"{label}, {count} node","viewer.lens.kind.count.other":"{label}, {count} nodes","viewer.lens.compare.one":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationship","viewer.lens.compare.other":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationships","viewer.lens.single":"{nodes} · {relationships} · connected peers remain visible","viewer.lens.node.one":"{count} {label} node","viewer.lens.node.other":"{count} {label} nodes","viewer.lens.relationship.one":"{count} touching relationship","viewer.lens.relationship.other":"{count} touching relationships","viewer.radar.title":"Semantic radar","viewer.radar.building":"Building overview","viewer.radar.openFull":"Open full semantic radar","viewer.radar.open":"Open radar","viewer.radar.close":"Close semantic radar","viewer.radar.surface":"Diagram overview. Click a node to focus it, or use arrow keys to pan.","viewer.radar.click":"Click node","viewer.radar.drag":"Drag to pan","viewer.radar.space":"Semantic radar needs more MAP space.","viewer.radar.nodes":"Semantic diagram radar nodes","viewer.radar.focus":"Focus {label} from Semantic Radar","viewer.radar.status":"{count} nodes · {viewport}","viewer.radar.fullMap":"{count} nodes · full map","viewer.radar.compacted":"Radar compacted to avoid covering the Semantic Passport or MAP controls.","viewer.radar.cancelWaiting":"Cancel semantic radar waiting for more MAP space","viewer.radar.needsSpace":"Semantic radar needs more visible MAP space","viewer.radar.viewport.full":"full map","viewer.radar.viewport.width":"{percent}% width","viewer.radar.viewport.scale":"{percent}% viewport","viewer.nav.controls":"Diagram view controls","viewer.nav.route":"Trace a directed route","viewer.nav.route.title":"Trace route (R)","viewer.nav.route.short":"ROUTE","viewer.nav.radar":"Open semantic radar","viewer.nav.radar.title":"Semantic radar (M)","viewer.nav.radar.short":"MAP","viewer.nav.lens":"Open semantic lens","viewer.nav.lens.title":"Semantic lens (L)","viewer.nav.lens.short":"LENS","viewer.nav.find":"Find a node","viewer.nav.find.title":"Find a node (/)","viewer.outline.title":"Node index","viewer.rail.show":"Notes \u0026 index","viewer.rail.controls":"Side panel","viewer.rail.collapse":"Collapse side panel","viewer.rail.bottom":"Move panel below the diagram","viewer.rail.right":"Move panel beside the diagram","viewer.nav.guide":"Open diagram guide","viewer.nav.guide.title":"Diagram guide (?)","viewer.nav.zoomOut":"Zoom out","viewer.nav.zoomOut.title":"Zoom out (-)","viewer.nav.reset":"Reset diagram view","viewer.nav.reset.title":"Reset view (0)","viewer.nav.read":"READ","viewer.nav.zoomIn":"Zoom in","viewer.nav.zoomIn.title":"Zoom in (+)","viewer.nav.camera":"{hint}. Reset diagram view","viewer.nav.camera.title":"{semantic}{hint} · reset view (0)","viewer.nav.camera.semantic":"Semantic camera active · ","viewer.nav.level.map":"MAP","viewer.nav.level.read":"READ","viewer.nav.level.full":"FULL","viewer.nav.level.auto":"AUTO","viewer.nav.detail.map":"Zoom in to reveal relationship labels and node context","viewer.nav.detail.read":"Zoom in again to reveal tags and annotations","viewer.nav.detail.full":"Full diagram detail","viewer.intent.summary":"{label}. {out} outgoing, {in} incoming{loops}. {total} connections. Press Enter for details.","viewer.intent.loops":", {count} self loop","viewer.common.copied":"Copied","viewer.common.copyFailed":"Copy failed","viewer.common.copyLink":"Copy link","viewer.common.clear":"Clear","viewer.common.close":"Close"}}</script>
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="ARCHIFY / PLATE 04">
-      <svg viewBox="0 0 1616 928" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14">
-        <title id="archify-diagram-title">jarvis-compass — kiến trúc trên main</title>
+      <svg viewBox="0 0 1236 2156" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14">
+        <title id="archify-diagram-title">jarvis-compass — architecture on main</title>
         <desc id="archify-diagram-description">An architecture diagram generated by Archify.</desc>
         <!-- Definitions -->
         <defs>
@@ -5250,473 +5250,647 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Boundaries (behind everything) -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="PLANNED — file stub, chưa có logic (src/)" x="320" y="110" width="570" height="370" rx="12" class="c-region" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="region" data-composition-frame-id="0" data-composition-frame-label="NOT BUILT: one-line stub files in src/" x="50" y="1970" width="1100" height="118" rx="12" class="c-region" stroke-width="1"/>
 
         <!-- Connection paths (before components for correct z-order) -->
         <g data-graph-role="automatic-crossover" style="--step:0">
-          <path data-graph-role="automatic-crossover-underlay" d="M 240 170 L 350 170" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="desktop" data-edge-to="routes-planning" data-edge-label="HTTP" data-edge-key="0" data-edge-id="desktop-to-routes" data-composition-points="240,170;350,170" data-composition-crossover="halo" data-composition-independent="true" d="M 240 170 L 350 170" class="a-dashed" data-animate="edge" style="--step:0" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 1055 320 L 1055 96" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="telegram" data-edge-to="routes-telegram" data-edge-label="webhook" data-edge-key="0" data-edge-id="e01" data-composition-points="1055,320;1055,96" data-composition-crossover="halo" data-composition-independent="true" d="M 1055 320 L 1055 96" class="a-default" data-animate="edge" style="--step:0" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:1">
-          <path data-graph-role="automatic-crossover-underlay" d="M 240 320 L 350 320" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="tgapi" data-edge-to="routes-telegram" data-edge-label="webhook" data-edge-key="1" data-edge-id="tgapi-to-webhook" data-composition-points="240,320;350,320" data-composition-crossover="halo" data-composition-independent="true" d="M 240 320 L 350 320" class="a-dashed" data-animate="edge" style="--step:1" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 214 51 L 290 51" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="cron" data-edge-to="worker-entry" data-edge-label="scheduled" data-edge-key="1" data-edge-id="e02" data-composition-points="214,51;290,51" data-composition-crossover="halo" data-composition-independent="true" d="M 214 51 L 290 51" class="a-default" data-animate="edge" style="--step:1" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:2">
-          <path data-graph-role="automatic-crossover-underlay" d="M 550 170 L 752 170 Q 760 170 760 178 L 760 215" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="routes-planning" data-edge-to="clarify" data-edge-label="yêu cầu" data-edge-key="2" data-edge-id="routes-to-clarify" data-composition-points="550,170;760,170;760,215" data-composition-crossover="halo" data-composition-independent="true" d="M 550 170 L 752 170 Q 760 170 760 178 L 760 215" class="a-dashed" data-animate="edge" style="--step:2" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 520 58 L 610 58" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="worker-entry" data-edge-to="fastapi-app" data-edge-label="ASGI fetch" data-edge-key="2" data-edge-id="e03" data-composition-points="520,58;610,58" data-composition-crossover="halo" data-composition-independent="true" d="M 520 58 L 610 58" class="a-default" data-animate="edge" style="--step:2" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:3">
-          <path data-graph-role="automatic-crossover-underlay" d="M 550 320 L 752 320 Q 760 320 760 312 L 760 275" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="routes-telegram" data-edge-to="clarify" data-edge-label="tin nhắn" data-edge-key="3" data-edge-id="webhook-to-clarify" data-composition-points="550,320;760,320;760,275" data-composition-crossover="halo" data-composition-independent="true" d="M 550 320 L 752 320 Q 760 320 760 312 L 760 275" class="a-dashed" data-animate="edge" style="--step:3" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 306 92 L 306 210 Q 306 216 300 216 L 294 216" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="worker-entry" data-edge-to="scheduler-morning" data-edge-label="run_morning; constructs ports" data-edge-key="3" data-edge-id="e04" data-composition-points="306,92;306,216;294,216" data-composition-crossover="halo" data-composition-independent="true" d="M 306 92 L 306 210 Q 306 216 300 216 L 294 216" class="a-default" data-animate="edge" style="--step:3" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
-        <path data-edge-from="clarify" data-edge-to="llm-turn" data-edge-label="một lượt" data-edge-key="4" data-edge-id="clarify-to-turn" data-composition-points="860,245;930,245;930,410;1280,410" d="M 860 245 L 922 245 Q 930 245 930 253 L 930 402 Q 930 410 938 410 L 1280 410" class="a-dashed" data-animate="edge" style="--step:4" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        <g data-graph-role="automatic-crossover" style="--step:4">
+          <path data-graph-role="automatic-crossover-underlay" d="M 820 46 L 920 46" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="fastapi-app" data-edge-to="routes-telegram" data-edge-label="include_router" data-edge-key="4" data-edge-id="e05" data-composition-points="820,46;920,46" data-composition-crossover="halo" data-composition-independent="true" d="M 820 46 L 920 46" class="a-default" data-animate="edge" style="--step:4" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
         <g data-graph-role="automatic-crossover" style="--step:5">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1387 380 L 1387 275" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="llm-turn" data-edge-to="llm-port" data-edge-label="dùng cổng" data-edge-key="5" data-edge-id="turn-to-port" data-composition-points="1387,380;1387,275" data-composition-crossover="halo" data-composition-independent="true" d="M 1387 380 L 1387 275" class="a-default" data-animate="edge" style="--step:5" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 964 96 L 964 200" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="routes-telegram" data-edge-to="settings" data-edge-label="require_*" data-edge-key="5" data-edge-id="e06" data-composition-points="964,96;964,200" data-composition-crossover="halo" data-composition-independent="true" d="M 964 96 L 964 200" class="a-default" data-animate="edge" style="--step:5" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:6">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1373 380 L 1373 364 Q 1373 356 1365 356 L 1078 356 Q 1070 356 1070 348 L 1070 275" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="llm-turn" data-edge-to="system-prompt" data-edge-label="SYSTEM_PROMPT + version" data-edge-key="6" data-edge-id="turn-to-prompt" data-composition-points="1373,380;1373,356;1070,356;1070,275" data-composition-crossover="halo" data-composition-independent="true" d="M 1373 380 L 1373 364 Q 1373 356 1365 356 L 1078 356 Q 1070 356 1070 348 L 1070 275" class="a-default" data-animate="edge" style="--step:6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 1041 96 L 1041 282 Q 1041 290 1033 290 L 594 290 Q 586 290 586 298 L 586 420" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="routes-telegram" data-edge-to="handle-update" data-edge-label="handle_update; lazy clients" data-edge-key="6" data-edge-id="e07" data-composition-points="1041,96;1041,290;586,290;586,420" data-composition-crossover="halo" data-composition-independent="true" d="M 1041 96 L 1041 282 Q 1041 290 1033 290 L 594 290 Q 586 290 586 298 L 586 420" class="a-default" data-animate="edge" style="--step:6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:7">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1380 440 L 1380 540" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="llm-turn" data-edge-to="tool-router" data-edge-label="gọi execute_tool" data-edge-key="7" data-edge-id="turn-to-router" data-composition-points="1380,440;1380,540" data-composition-crossover="halo" data-composition-independent="true" d="M 1380 440 L 1380 540" class="a-default" data-animate="edge" style="--step:7" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 572 420 L 572 268" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="handle-update" data-edge-to="channel-rules" data-edge-label="decide_receive, split_utf16" data-edge-key="7" data-edge-id="e12" data-composition-points="572,420;572,268" data-composition-crossover="halo" data-composition-independent="true" d="M 572 420 L 572 268" class="a-default" data-animate="edge" style="--step:7" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
-        <path data-edge-from="llm-turn" data-edge-to="tool-definitions" data-edge-label="catalog + version" data-edge-key="8" data-edge-id="turn-to-definitions" data-composition-points="1480,410;1530,410;1530,710;1480,710" d="M 1480 410 L 1522 410 Q 1530 410 1530 418 L 1530 702 Q 1530 710 1522 710 L 1480 710" class="a-default" data-animate="edge" style="--step:8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <g data-graph-role="automatic-crossover" style="--step:8">
+          <path data-graph-role="automatic-crossover-underlay" d="M 430 447 L 294 447" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="handle-update" data-edge-to="morning-core" data-edge-label="/next digest" data-edge-key="8" data-edge-id="e13" data-composition-points="430,447;294,447" data-composition-crossover="halo" data-composition-independent="true" d="M 430 447 L 294 447" class="a-default" data-animate="edge" style="--step:8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
         <g data-graph-role="automatic-crossover" style="--step:9">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1380 100 L 1380 215" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="anthropic-model" data-edge-to="llm-port" data-edge-label="cài ModelClient" data-edge-key="9" data-edge-id="anthropic-to-port" data-composition-points="1380,100;1380,215" data-composition-crossover="halo" data-composition-independent="true" d="M 1380 100 L 1380 215" class="a-default" data-animate="edge" style="--step:9" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 730 447 L 800 447" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="handle-update" data-edge-to="llm-turn" data-edge-label="run_turn" data-edge-key="9" data-edge-id="e14" data-composition-points="730,447;800,447" data-composition-crossover="halo" data-composition-independent="true" d="M 730 447 L 800 447" class="a-default" data-animate="edge" style="--step:9" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:10">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1280 70 L 1170 70" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="anthropic-model" data-edge-to="claude" data-edge-label="HTTPS" data-edge-key="10" data-edge-id="anthropic-to-claude" data-composition-points="1280,70;1170,70" data-composition-crossover="halo" data-composition-independent="true" d="M 1280 70 L 1170 70" class="a-default" data-animate="edge" style="--step:10" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 580 492 L 580 560" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="handle-update" data-edge-to="core-plans" data-edge-label="PlanStore port (for /next)" data-edge-key="10" data-edge-id="e15" data-composition-points="580,492;580,560" data-composition-crossover="halo" data-composition-independent="true" d="M 580 492 L 580 560" class="a-default" data-animate="edge" style="--step:10" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:11">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1280 570 L 1170 570" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="tool-router" data-edge-to="plan-tools" data-edge-label="execute_tool" data-edge-key="11" data-edge-id="router-to-tools" data-composition-points="1280,570;1170,570" data-composition-crossover="halo" data-composition-independent="true" d="M 1280 570 L 1170 570" class="a-default" data-animate="edge" style="--step:11" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 159 272 L 159 420" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="scheduler-morning" data-edge-to="morning-core" data-edge-label="decide_digest, render_digest" data-edge-key="11" data-edge-id="e17" data-composition-points="159,272;159,420" data-composition-crossover="halo" data-composition-independent="true" d="M 159 272 L 159 420" class="a-default" data-animate="edge" style="--step:11" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:12">
-          <path data-graph-role="automatic-crossover-underlay" d="M 1380 600 L 1380 680" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="tool-router" data-edge-to="tool-definitions" data-edge-label="đọc schema + version" data-edge-key="12" data-edge-id="router-to-definitions" data-composition-points="1380,600;1380,680" data-composition-crossover="halo" data-composition-independent="true" d="M 1380 600 L 1380 680" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 294 250 L 430 250" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="scheduler-morning" data-edge-to="channel-rules" data-edge-label="split_utf16, UpdateView" data-edge-key="12" data-edge-id="e18" data-composition-points="294,250;430,250" data-composition-crossover="halo" data-composition-independent="true" d="M 294 250 L 430 250" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:13">
-          <path data-graph-role="automatic-crossover-underlay" d="M 660 430 L 550 430" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="checkin" data-edge-to="tg-client" data-edge-label="gửi nhắc" data-edge-key="13" data-edge-id="checkin-to-tg" data-composition-points="660,430;550,430" data-composition-crossover="halo" data-composition-independent="true" d="M 660 430 L 550 430" class="a-dashed" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 294 236 L 310 236 Q 318 236 318 228 L 318 184 Q 318 176 326 176 L 862 176 Q 870 176 870 184 L 870 200" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="scheduler-morning" data-edge-to="settings" data-edge-label="require_*" data-edge-key="13" data-edge-id="e22" data-composition-points="294,236;318,236;318,176;870,176;870,200" data-composition-crossover="halo" data-composition-independent="true" d="M 294 236 L 310 236 Q 318 236 318 228 L 318 184 Q 318 176 326 176 L 862 176 Q 870 176 870 184 L 870 200" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:14">
-          <path data-graph-role="automatic-crossover-underlay" d="M 350 430 L 148 430 Q 140 430 140 422 L 140 350" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="tg-client" data-edge-to="tgapi" data-edge-label="Bot API" data-edge-key="14" data-edge-id="tg-to-tgapi" data-composition-points="350,430;140,430;140,350" data-composition-crossover="halo" data-composition-independent="true" d="M 350 430 L 148 430 Q 140 430 140 422 L 140 350" class="a-dashed" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 159 488 L 159 640" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="morning-core" data-edge-to="clock" data-edge-label="helsinki_clock" data-edge-key="14" data-edge-id="e23" data-composition-points="159,488;159,640" data-composition-crossover="halo" data-composition-independent="true" d="M 159 488 L 159 640" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:15">
-          <path data-graph-role="automatic-crossover-underlay" d="M 760 460 L 760 540" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="checkin" data-edge-to="core" data-edge-label="dùng Plan" data-edge-key="15" data-edge-id="checkin-to-core" data-composition-points="760,460;760,540" data-composition-crossover="halo" data-composition-independent="true" d="M 760 460 L 760 540" class="a-dashed" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 278 488 L 278 568 Q 278 576 286 576 L 430 576" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="morning-core" data-edge-to="core-plans" data-edge-label="render_digest(Plan)" data-edge-key="15" data-edge-id="e24" data-composition-points="278,488;278,576;430,576" data-composition-crossover="halo" data-composition-independent="true" d="M 278 488 L 278 568 Q 278 576 286 576 L 430 576" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:16">
-          <path data-graph-role="automatic-crossover-underlay" d="M 970 570 L 860 570" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="plan-tools" data-edge-to="core" data-edge-label="gọi core" data-edge-key="16" data-edge-id="tools-to-core" data-composition-points="970,570;860,570" data-composition-crossover="halo" data-composition-independent="true" d="M 970 570 L 860 570" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 927 488 L 927 504 Q 927 512 919 512 L 804 512 Q 796 512 796 520 L 796 904 Q 796 912 804 912 L 820 912" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="llm-turn" data-edge-to="llm-port" data-edge-label="uses port" data-edge-key="16" data-edge-id="e25" data-composition-points="927,488;927,512;796,512;796,912;820,912" data-composition-crossover="halo" data-composition-independent="true" d="M 927 488 L 927 504 Q 927 512 919 512 L 804 512 Q 796 512 796 520 L 796 904 Q 796 912 804 912 L 820 912" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:17">
-          <path data-graph-role="automatic-crossover-underlay" d="M 550 570 L 660 570" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="plan-store" data-edge-to="core" data-edge-label="cài PlanStore" data-edge-key="17" data-edge-id="store-to-core" data-composition-points="550,570;660,570" data-composition-crossover="halo" data-composition-independent="true" d="M 550 570 L 660 570" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 941 488 L 941 529 Q 941 537 933 537 L 925 537 Q 917 537 917 545 L 917 628 Q 917 636 925 636 L 927 636 Q 935 636 935 644 L 935 660" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="llm-turn" data-edge-to="system-prompt" data-edge-label="SYSTEM_PROMPT + version" data-edge-key="17" data-edge-id="e26" data-composition-points="941,488;941,537;917,537;917,636;935,636;935,660" data-composition-crossover="halo" data-composition-independent="true" d="M 941 488 L 941 529 Q 941 537 933 537 L 925 537 Q 917 537 917 545 L 917 628 Q 917 636 925 636 L 927 636 Q 935 636 935 644 L 935 660" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:18">
-          <path data-graph-role="automatic-crossover-underlay" d="M 350 570 L 240 570" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="plan-store" data-edge-to="db-client" data-edge-label="gọi client" data-edge-key="18" data-edge-id="store-to-client" data-composition-points="350,570;240,570" data-composition-crossover="halo" data-composition-independent="true" d="M 350 570 L 240 570" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 816 488 L 816 888 Q 816 896 808 896 L 670 896" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="llm-turn" data-edge-to="tool-router" data-edge-label="execute_tool" data-edge-key="18" data-edge-id="e27" data-composition-points="816,488;816,896;670,896" data-composition-crossover="halo" data-composition-independent="true" d="M 816 488 L 816 888 Q 816 896 808 896 L 670 896" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:19">
-          <path data-graph-role="automatic-crossover-underlay" d="M 450 600 L 450 680" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="plan-store" data-edge-to="settings" data-edge-label="require_supabase" data-edge-key="19" data-edge-id="store-to-settings" data-composition-points="450,600;450,680" data-composition-crossover="halo" data-composition-independent="true" d="M 450 600 L 450 680" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 913 488 L 913 521 Q 913 529 905 529 L 435 529 Q 427 529 427 537 L 427 1068 Q 427 1076 435 1076 L 554 1076 Q 562 1076 562 1084 L 562 1100" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="llm-turn" data-edge-to="tool-definitions" data-edge-label="catalog + version" data-edge-key="19" data-edge-id="e28" data-composition-points="913,488;913,529;427,529;427,1076;562,1076;562,1100" data-composition-crossover="halo" data-composition-independent="true" d="M 913 488 L 913 521 Q 913 529 905 529 L 435 529 Q 427 529 427 537 L 427 1068 Q 427 1076 435 1076 L 554 1076 Q 562 1076 562 1084 L 562 1100" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:20">
-          <path data-graph-role="automatic-crossover-underlay" d="M 140 600 L 140 680" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="db-client" data-edge-to="supabase" data-edge-label="HTTPS · /rest/v1" data-edge-key="20" data-edge-id="client-to-supabase" data-composition-points="140,600;140,680" data-composition-crossover="halo" data-composition-independent="true" d="M 140 600 L 140 680" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 800 461 L 784 461 Q 776 461 776 469 L 776 840 Q 776 848 768 848 L 172 848 Q 164 848 164 856 L 164 880" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="llm-turn" data-edge-to="saved-reply" data-edge-label="compose on abnormal turn" data-edge-key="20" data-edge-id="e29" data-composition-points="800,461;776,461;776,848;164,848;164,880" data-composition-crossover="halo" data-composition-independent="true" d="M 800 461 L 784 461 Q 776 461 776 469 L 776 840 Q 776 848 768 848 L 172 848 Q 164 848 164 856 L 164 880" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:21">
-          <path data-graph-role="automatic-crossover-underlay" d="M 240 830 L 350 830" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="http-client" data-edge-to="worker-entry" data-edge-label="GET /health" data-edge-key="21" data-edge-id="http-to-entry" data-composition-points="240,830;350,830" data-composition-crossover="halo" data-composition-independent="true" d="M 240 830 L 350 830" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 430 919 L 414 919 Q 406 919 406 927 L 406 1144 Q 406 1152 398 1152 L 274 1152" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="tool-router" data-edge-to="plan-tools" data-edge-label="dispatch" data-edge-key="21" data-edge-id="e31" data-composition-points="430,919;406,919;406,1152;274,1152" data-composition-crossover="halo" data-composition-independent="true" d="M 430 919 L 414 919 Q 406 919 406 927 L 406 1144 Q 406 1152 398 1152 L 274 1152" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:22">
-          <path data-graph-role="automatic-crossover-underlay" d="M 550 830 L 660 830" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="worker-entry" data-edge-to="fastapi-app" data-edge-label="ASGI" data-edge-key="22" data-edge-id="entry-to-app" data-composition-points="550,830;660,830" data-composition-crossover="halo" data-composition-independent="true" d="M 550 830 L 660 830" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 548 944 L 548 1100" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="tool-router" data-edge-to="tool-definitions" data-edge-label="schema + version" data-edge-key="22" data-edge-id="e32" data-composition-points="548,944;548,1100" data-composition-crossover="halo" data-composition-independent="true" d="M 548 944 L 548 1100" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:23">
+          <path data-graph-role="automatic-crossover-underlay" d="M 430 905 L 304 905" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="tool-router" data-edge-to="saved-reply" data-edge-label="ToolResult, ToolError" data-edge-key="23" data-edge-id="e33" data-composition-points="430,905;304,905" data-composition-crossover="halo" data-composition-independent="true" d="M 430 905 L 304 905" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:24">
+          <path data-graph-role="automatic-crossover-underlay" d="M 274 1168 L 726 1168 Q 734 1168 734 1160 L 734 632" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="plan-tools" data-edge-to="core-plans" data-edge-label="pure rules and load check" data-edge-key="24" data-edge-id="e34" data-composition-points="274,1168;734,1168;734,632" data-composition-crossover="halo" data-composition-independent="true" d="M 274 1168 L 726 1168 Q 734 1168 734 1160 L 734 632" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:25">
+          <path data-graph-role="automatic-crossover-underlay" d="M 135 1120 L 135 1104 Q 135 1096 127 1096 L 29 1096 Q 21 1096 21 1088 L 21 736 Q 21 728 29 728 L 141 728 Q 149 728 149 720 L 149 704" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="plan-tools" data-edge-to="clock" data-edge-label="helsinki_clock" data-edge-key="25" data-edge-id="e35" data-composition-points="135,1120;135,1096;21,1096;21,728;149,728;149,704" data-composition-crossover="halo" data-composition-independent="true" d="M 135 1120 L 135 1104 Q 135 1096 127 1096 L 29 1096 Q 21 1096 21 1088 L 21 736 Q 21 728 29 728 L 141 728 Q 149 728 149 720 L 149 704" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:26">
+          <path data-graph-role="automatic-crossover-underlay" d="M 149 1120 L 149 948" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="plan-tools" data-edge-to="saved-reply" data-edge-label="saved lines" data-edge-key="26" data-edge-id="e36" data-composition-points="149,1120;149,948" data-composition-crossover="halo" data-composition-independent="true" d="M 149 1120 L 149 948" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:27">
+          <path data-graph-role="automatic-crossover-underlay" d="M 142 1540 L 142 1524 Q 142 1516 150 1516 L 766 1516 Q 774 1516 774 1508 L 774 604 Q 774 596 766 596 L 750 596" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="plan-store" data-edge-to="core-plans" data-edge-label="implements PlanStore" data-edge-key="27" data-edge-id="e37" data-composition-points="142,1540;142,1516;774,1516;774,596;750,596" data-composition-crossover="halo" data-composition-independent="true" d="M 142 1540 L 142 1524 Q 142 1516 150 1516 L 766 1516 Q 774 1516 774 1508 L 774 604 Q 774 596 766 596 L 750 596" class="a-dashed" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:28">
+          <path data-graph-role="automatic-crossover-underlay" d="M 274 1567 L 360 1567" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="plan-store" data-edge-to="db-client" data-edge-label="RPC calls" data-edge-key="28" data-edge-id="e38" data-composition-points="274,1567;360,1567" data-composition-crossover="halo" data-composition-independent="true" d="M 274 1567 L 360 1567" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:29">
+          <path data-graph-role="automatic-crossover-underlay" d="M 24 1572 L 8 1572 Q 0 1572 0 1564 L 0 296 Q 0 288 8 288 L 862 288 Q 870 288 870 280 L 870 264" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="plan-store" data-edge-to="settings" data-edge-label="require_supabase" data-edge-key="29" data-edge-id="e39" data-composition-points="24,1572;0,1572;0,288;870,288;870,264" data-composition-crossover="halo" data-composition-independent="true" d="M 24 1572 L 8 1572 Q 0 1572 0 1564 L 0 296 Q 0 288 8 288 L 862 288 Q 870 288 870 280 L 870 264" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:30">
+          <path data-graph-role="automatic-crossover-underlay" d="M 149 1760 L 149 1615 Q 149 1607 141 1607 L 11.599999999999994 1607 Q 3.5999999999999943 1607 3.5999999999999943 1599 L 3.5999999999999943 300 Q 3.5999999999999943 292 11.599999999999994 292 L 550 292 Q 558 292 558 284 L 558 268" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="channel-store" data-edge-to="channel-rules" data-edge-label="ClaimResult, StoredMessage" data-edge-key="30" data-edge-id="e40" data-composition-points="149,1760;149,1607;3.5999999999999943,1607;3.5999999999999943,292;558,292;558,268" data-composition-crossover="halo" data-composition-independent="true" d="M 149 1760 L 149 1615 Q 149 1607 141 1607 L 11.599999999999994 1607 Q 3.5999999999999943 1607 3.5999999999999943 1599 L 3.5999999999999943 300 Q 3.5999999999999943 292 11.599999999999994 292 L 550 292 Q 558 292 558 284 L 558 268" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:31">
+          <path data-graph-role="automatic-crossover-underlay" d="M 274 1776 L 368 1776 Q 376 1776 376 1768 L 376 1608" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="channel-store" data-edge-to="db-client" data-edge-label="RPC calls" data-edge-key="31" data-edge-id="e41" data-composition-points="274,1776;376,1776;376,1608" data-composition-crossover="halo" data-composition-independent="true" d="M 274 1776 L 368 1776 Q 376 1776 376 1768 L 376 1608" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:32">
+          <path data-graph-role="automatic-crossover-underlay" d="M 640 1574 L 656 1574 Q 664 1574 664 1582 L 664 1624 Q 664 1632 672 1632 L 852 1632 Q 860 1632 860 1624 L 860 1608" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="db-client" data-edge-to="supabase" data-edge-label="HTTPS · PostgREST: RPC + plan reads" data-edge-key="32" data-edge-id="e43" data-composition-points="640,1574;664,1574;664,1632;860,1632;860,1608" data-composition-crossover="halo" data-composition-independent="true" d="M 640 1574 L 656 1574 Q 664 1574 664 1582 L 664 1624 Q 664 1632 672 1632 L 852 1632 Q 860 1632 860 1624 L 860 1608" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:33">
+          <path data-graph-role="automatic-crossover-underlay" d="M 1140 572 L 1156 572 Q 1164 572 1164 564 L 1164 360 Q 1164 352 1156 352 L 1140 352" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="tg-client" data-edge-to="telegram" data-edge-label="sendMessage" data-edge-key="33" data-edge-id="e44" data-composition-points="1140,572;1164,572;1164,352;1140,352" data-composition-crossover="halo" data-composition-independent="true" d="M 1140 572 L 1156 572 Q 1164 572 1164 564 L 1164 360 Q 1164 352 1156 352 L 1140 352" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:34">
+          <path data-graph-role="automatic-crossover-underlay" d="M 945 1100 L 945 944" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="anthropic-model" data-edge-to="llm-port" data-edge-label="implements ModelClient" data-edge-key="34" data-edge-id="e45" data-composition-points="945,1100;945,944" data-composition-crossover="halo" data-composition-independent="true" d="M 945 1100 L 945 944" class="a-dashed" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:35">
+          <path data-graph-role="automatic-crossover-underlay" d="M 945 1164 L 945 1320" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="anthropic-model" data-edge-to="claude" data-edge-label="HTTPS" data-edge-key="35" data-edge-id="e46" data-composition-points="945,1164;945,1320" data-composition-crossover="halo" data-composition-independent="true" d="M 945 1164 L 945 1320" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
 
         <!-- Components -->
-        <g id="node-desktop" data-node-id="desktop" data-node-label="planned · jarvis-desktop" tabindex="0" role="button" aria-label="Focus planned · jarvis-desktop, client của F14, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="client của F14" data-node-context="Architecture component">
-          <title>planned · jarvis-desktop · client của F14 · Architecture component</title>
-          <rect x="40" y="140" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="40" y="140" width="200" height="60" rx="8" class="c-external" data-animate="node" style="--step:0" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(46 146) scale(0.6875)">
+        <g id="node-telegram" data-node-id="telegram" data-node-label="Telegram Bot API" tabindex="0" role="button" aria-label="Focus Telegram Bot API, webhook in, sendMessage out, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="webhook in, sendMessage out" data-node-context="Architecture component">
+          <title>Telegram Bot API · webhook in, sendMessage out · Architecture component</title>
+          <rect x="920" y="320" width="220" height="64" rx="8" class="c-mask"/>
+          <rect x="920" y="320" width="220" height="64" rx="8" class="c-external" data-animate="node" style="--step:0" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(926 326) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="140" y="168" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · jarvis-desktop</text>
-        <text data-detail="context" x="140" y="184" class="t-muted" font-size="9" text-anchor="middle">client của F14</text>
+          <text data-node-label="" data-detail-anchor="" x="1030" y="350" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Telegram Bot API</text>
+        <text data-detail="context" x="1030" y="366" class="t-muted" font-size="9" text-anchor="middle">webhook in, sendMessage out</text>
         </g>
 
-        <g id="node-tgapi" data-node-id="tgapi" data-node-label="planned · Telegram Bot API" tabindex="0" role="button" aria-label="Focus planned · Telegram Bot API, webhook vào, gửi tin ra (F11), Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="webhook vào, gửi tin ra (F11)" data-node-context="Architecture component">
-          <title>planned · Telegram Bot API · webhook vào, gửi tin ra (F11) · Architecture component</title>
-          <rect x="40" y="290" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="40" y="290" width="200" height="60" rx="8" class="c-external" data-animate="node" style="--step:1" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(46 296) scale(0.6875)">
-            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
-            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
+        <g id="node-cron" data-node-id="cron" data-node-label="Cloudflare Cron Triggers" tabindex="0" role="button" aria-label="Focus Cloudflare Cron Triggers, 0 5, 0 6, 0 7 UTC daily, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="0 5, 0 6, 0 7 UTC daily" data-node-context="Architecture component">
+          <title>Cloudflare Cron Triggers · 0 5, 0 6, 0 7 UTC daily · Architecture component</title>
+          <rect x="24" y="24" width="190" height="64" rx="8" class="c-mask"/>
+          <rect x="24" y="24" width="190" height="64" rx="8" class="c-cloud" data-animate="node" style="--step:1" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(30 30) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="140" y="318" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · Telegram Bot API</text>
-        <text data-detail="context" x="140" y="334" class="t-muted" font-size="9" text-anchor="middle">webhook vào, gửi tin ra (F11)</text>
+          <text data-node-label="" data-detail-anchor="" x="119" y="54" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Cloudflare Cron Triggers</text>
+        <text data-detail="context" x="119" y="70" class="t-muted" font-size="9" text-anchor="middle">0 5, 0 6, 0 7 UTC daily</text>
         </g>
 
-        <g id="node-claude" data-node-id="claude" data-node-label="Claude API" tabindex="0" role="button" aria-label="Focus Claude API, api.anthropic.com (F12), Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="api.anthropic.com (F12)" data-node-context="Architecture component">
-          <title>Claude API · api.anthropic.com (F12) · Architecture component</title>
-          <rect x="970" y="40" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="970" y="40" width="200" height="60" rx="8" class="c-external" data-animate="node" style="--step:11" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(976 46) scale(0.6875)">
+        <g id="node-claude" data-node-id="claude" data-node-label="Claude API" tabindex="0" role="button" aria-label="Focus Claude API, api.anthropic.com, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="api.anthropic.com" data-node-context="Architecture component">
+          <title>Claude API · api.anthropic.com · Architecture component</title>
+          <rect x="820" y="1320" width="220" height="64" rx="8" class="c-mask"/>
+          <rect x="820" y="1320" width="220" height="64" rx="8" class="c-external" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(826 1326) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1070" y="68" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Claude API</text>
-        <text data-detail="context" x="1070" y="84" class="t-muted" font-size="9" text-anchor="middle">api.anthropic.com (F12)</text>
+          <text data-node-label="" data-detail-anchor="" x="930" y="1350" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Claude API</text>
+        <text data-detail="context" x="930" y="1366" class="t-muted" font-size="9" text-anchor="middle">api.anthropic.com</text>
+        </g>
+
+        <g id="node-supabase" data-node-id="supabase" data-node-label="Supabase Postgres" tabindex="0" role="button" aria-label="Focus Supabase Postgres, six migrations, RLS on, no anon access, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="six migrations, RLS on, no anon access" data-node-context="Architecture component">
+          <title>Supabase Postgres · six migrations, RLS on, no anon access · Architecture component</title>
+          <rect x="720" y="1540" width="280" height="68" rx="8" class="c-mask"/>
+          <rect x="720" y="1540" width="280" height="68" rx="8" class="c-database" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(726 1546) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="860" y="1572" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Supabase Postgres</text>
+        <text data-detail="context" x="860" y="1588" class="t-muted" font-size="9" text-anchor="middle">six migrations, RLS on, no anon access</text>
+        </g>
+
+        <g id="node-worker-entry" data-node-id="worker-entry" data-node-label="Worker entry · Default" tabindex="0" role="button" aria-label="Focus Worker entry · Default, fetch → ASGI, scheduled → run_morning, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="fetch → ASGI, scheduled → run_morning" data-node-context="Architecture component">
+          <title>Worker entry · Default · fetch → ASGI, scheduled → run_morning · Architecture component</title>
+          <rect x="290" y="24" width="230" height="68" rx="8" class="c-mask"/>
+          <rect x="290" y="24" width="230" height="68" rx="8" class="c-cloud" data-animate="node" style="--step:2" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(296 30) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="405" y="56" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Worker entry · Default</text>
+        <text data-detail="context" x="405" y="72" class="t-muted" font-size="9" text-anchor="middle">fetch → ASGI, scheduled → run_morning</text>
+        </g>
+
+        <g id="node-fastapi-app" data-node-id="fastapi-app" data-node-label="FastAPI app" tabindex="0" role="button" aria-label="Focus FastAPI app, /health + Telegram router, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="/health + Telegram router" data-node-context="Architecture component">
+          <title>FastAPI app · /health + Telegram router · Architecture component</title>
+          <rect x="610" y="24" width="210" height="64" rx="8" class="c-mask"/>
+          <rect x="610" y="24" width="210" height="64" rx="8" class="c-backend" data-animate="node" style="--step:3" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(616 30) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="715" y="54" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastAPI app</text>
+        <text data-detail="context" x="715" y="70" class="t-muted" font-size="9" text-anchor="middle">/health + Telegram router</text>
+        </g>
+
+        <g id="node-routes-telegram" data-node-id="routes-telegram" data-node-label="Webhook route" tabindex="0" role="button" aria-label="Focus Webhook route, POST /telegram: secret, token, owner checks, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="POST /telegram: secret, token, owner checks" data-node-context="Architecture component">
+          <title>Webhook route · POST /telegram: secret, token, owner checks · Architecture component</title>
+          <rect x="920" y="24" width="270" height="72" rx="8" class="c-mask"/>
+          <rect x="920" y="24" width="270" height="72" rx="8" class="c-backend" data-animate="node" style="--step:1" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(926 30) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1055" y="58" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Webhook route</text>
+        <text data-detail="context" x="1055" y="74" class="t-muted" font-size="9" text-anchor="middle">POST /telegram: secret, token, owner checks</text>
+        </g>
+
+        <g id="node-handle-update" data-node-id="handle-update" data-node-label="handle_update" tabindex="0" role="button" aria-label="Focus handle_update, claim → decide → /next or run_turn → save → send, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="claim → decide → /next or run_turn → save → send" data-node-context="Architecture component">
+          <title>handle_update · claim → decide → /next or run_turn → save → send · Architecture component</title>
+          <rect x="430" y="420" width="300" height="72" rx="8" class="c-mask"/>
+          <rect x="430" y="420" width="300" height="72" rx="8" class="c-backend" data-animate="node" style="--step:7" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(436 426) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="580" y="454" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">handle_update</text>
+        <text data-detail="context" x="580" y="470" class="t-muted" font-size="9" text-anchor="middle">claim → decide → /next or run_turn → save → send</text>
+        </g>
+
+        <g id="node-channel-rules" data-node-id="channel-rules" data-node-label="core/telegram_channel" tabindex="0" role="button" aria-label="Focus core/telegram_channel, decide_receive, split_utf16, dead-after 90 s, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="decide_receive, split_utf16, dead-after 90 s" data-node-context="Architecture component">
+          <title>core/telegram_channel · decide_receive, split_utf16, dead-after 90 s · Architecture component</title>
+          <rect x="430" y="200" width="270" height="68" rx="8" class="c-mask"/>
+          <rect x="430" y="200" width="270" height="68" rx="8" class="c-backend" data-animate="node" style="--step:8" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(436 206) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="565" y="232" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/telegram_channel</text>
+        <text data-detail="context" x="565" y="248" class="t-muted" font-size="9" text-anchor="middle">decide_receive, split_utf16, dead-after 90 s</text>
+        </g>
+
+        <g id="node-morning-core" data-node-id="morning-core" data-node-label="core/morning" tabindex="0" role="button" aria-label="Focus core/morning, decide_digest, render_digest, /next match, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="decide_digest, render_digest, /next match" data-node-context="Architecture component">
+          <title>core/morning · decide_digest, render_digest, /next match · Architecture component</title>
+          <rect x="24" y="420" width="270" height="68" rx="8" class="c-mask"/>
+          <rect x="24" y="420" width="270" height="68" rx="8" class="c-backend" data-animate="node" style="--step:9" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 426) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="159" y="452" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/morning</text>
+        <text data-detail="context" x="159" y="468" class="t-muted" font-size="9" text-anchor="middle">decide_digest, render_digest, /next match</text>
+        </g>
+
+        <g id="node-clock" data-node-id="clock" data-node-label="core/clock + core/log_line" tabindex="0" role="button" aria-label="Focus core/clock + core/log_line, helsinki_clock; one JSON log line, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="helsinki_clock; one JSON log line" data-node-context="Architecture component">
+          <title>core/clock + core/log_line · helsinki_clock; one JSON log line · Architecture component</title>
+          <rect x="24" y="640" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="24" y="640" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 646) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="149" y="670" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/clock + core/log_line</text>
+        <text data-detail="context" x="149" y="686" class="t-muted" font-size="9" text-anchor="middle">helsinki_clock; one JSON log line</text>
+        </g>
+
+        <g id="node-scheduler-morning" data-node-id="scheduler-morning" data-node-label="scheduler/morning · run_morning" tabindex="0" role="button" aria-label="Focus scheduler/morning · run_morning, cron path, 08:00 gate, no model call, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="cron path, 08:00 gate, no model call" data-node-context="Architecture component">
+          <title>scheduler/morning · run_morning · cron path, 08:00 gate, no model call · Architecture component</title>
+          <rect x="24" y="200" width="270" height="72" rx="8" class="c-mask"/>
+          <rect x="24" y="200" width="270" height="72" rx="8" class="c-backend" data-animate="node" style="--step:4" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 206) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="159" y="234" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">scheduler/morning · run_morning</text>
+        <text data-detail="context" x="159" y="250" class="t-muted" font-size="9" text-anchor="middle">cron path, 08:00 gate, no model call</text>
+        </g>
+
+        <g id="node-llm-turn" data-node-id="llm-turn" data-node-label="turns/llm_turn · run_turn" tabindex="0" role="button" aria-label="Focus turns/llm_turn · run_turn, 20 s budget, max 3 tool rounds, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="20 s budget, max 3 tool rounds" data-node-context="Architecture component">
+          <title>turns/llm_turn · run_turn · 20 s budget, max 3 tool rounds · Architecture component</title>
+          <rect x="800" y="420" width="240" height="68" rx="8" class="c-mask"/>
+          <rect x="800" y="420" width="240" height="68" rx="8" class="c-backend" data-animate="node" style="--step:10" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(806 426) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="920" y="452" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">turns/llm_turn · run_turn</text>
+        <text data-detail="context" x="920" y="468" class="t-muted" font-size="9" text-anchor="middle">20 s budget, max 3 tool rounds</text>
+        </g>
+
+        <g id="node-system-prompt" data-node-id="system-prompt" data-node-label="core/system_prompt" tabindex="0" role="button" aria-label="Focus core/system_prompt, prompt version 9, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="prompt version 9" data-node-context="Architecture component">
+          <title>core/system_prompt · prompt version 9 · Architecture component</title>
+          <rect x="820" y="660" width="230" height="64" rx="8" class="c-mask"/>
+          <rect x="820" y="660" width="230" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(826 666) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="935" y="690" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/system_prompt</text>
+        <text data-detail="context" x="935" y="706" class="t-muted" font-size="9" text-anchor="middle">prompt version 9</text>
+        </g>
+
+        <g id="node-llm-port" data-node-id="llm-port" data-node-label="core/llm · ModelClient" tabindex="0" role="button" aria-label="Focus core/llm · ModelClient, provider-neutral port, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="provider-neutral port" data-node-context="Architecture component">
+          <title>core/llm · ModelClient · provider-neutral port · Architecture component</title>
+          <rect x="820" y="880" width="230" height="64" rx="8" class="c-mask"/>
+          <rect x="820" y="880" width="230" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(826 886) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="935" y="910" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/llm · ModelClient</text>
+        <text data-detail="context" x="935" y="926" class="t-muted" font-size="9" text-anchor="middle">provider-neutral port</text>
         </g>
 
         <g id="node-anthropic-model" data-node-id="anthropic-model" data-node-label="AnthropicModel · adapter" tabindex="0" role="button" aria-label="Focus AnthropicModel · adapter, src/clients/anthropic_model.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/clients/anthropic_model.py" data-node-context="Architecture component">
           <title>AnthropicModel · adapter · src/clients/anthropic_model.py · Architecture component</title>
-          <rect x="1280" y="40" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="1280" y="40" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:9" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1286 46) scale(0.6875)">
+          <rect x="820" y="1100" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="820" y="1100" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(826 1106) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1380" y="68" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">AnthropicModel · adapter</text>
-        <text data-detail="context" x="1380" y="84" class="t-muted" font-size="9" text-anchor="middle">src/clients/anthropic_model.py</text>
+          <text data-node-label="" data-detail-anchor="" x="945" y="1130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">AnthropicModel · adapter</text>
+        <text data-detail="context" x="945" y="1146" class="t-muted" font-size="9" text-anchor="middle">src/clients/anthropic_model.py</text>
         </g>
 
-        <g id="node-routes-planning" data-node-id="routes-planning" data-node-label="planned · routes (F14)" tabindex="0" role="button" aria-label="Focus planned · routes (F14), src/api/routes_planning.py, PLANNED — file stub, chưa có logic (src/)" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/api/routes_planning.py" data-node-context="PLANNED — file stub, chưa có logic (src/)">
-          <title>planned · routes (F14) · src/api/routes_planning.py · PLANNED — file stub, chưa có logic (src/)</title>
-          <rect x="350" y="140" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="350" y="140" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:1" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(356 146) scale(0.6875)">
+        <g id="node-tool-router" data-node-id="tool-router" data-node-label="tool_router · execute_tool" tabindex="0" role="button" aria-label="Focus tool_router · execute_tool, validate input, dispatch, log, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="validate input, dispatch, log" data-node-context="Architecture component">
+          <title>tool_router · execute_tool · validate input, dispatch, log · Architecture component</title>
+          <rect x="430" y="880" width="240" height="64" rx="8" class="c-mask"/>
+          <rect x="430" y="880" width="240" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(436 886) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="450" y="168" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · routes (F14)</text>
-        <text data-detail="context" x="450" y="184" class="t-muted" font-size="9" text-anchor="middle">src/api/routes_planning.py</text>
+          <text data-node-label="" data-detail-anchor="" x="550" y="910" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tool_router · execute_tool</text>
+        <text data-detail="context" x="550" y="926" class="t-muted" font-size="9" text-anchor="middle">validate input, dispatch, log</text>
         </g>
 
-        <g id="node-routes-telegram" data-node-id="routes-telegram" data-node-label="planned · webhook (F11)" tabindex="0" role="button" aria-label="Focus planned · webhook (F11), src/api/routes_telegram.py, PLANNED — file stub, chưa có logic (src/)" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/api/routes_telegram.py" data-node-context="PLANNED — file stub, chưa có logic (src/)">
-          <title>planned · webhook (F11) · src/api/routes_telegram.py · PLANNED — file stub, chưa có logic (src/)</title>
-          <rect x="350" y="290" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="350" y="290" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:2" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(356 296) scale(0.6875)">
+        <g id="node-tool-definitions" data-node-id="tool-definitions" data-node-label="tool_definitions · catalog" tabindex="0" role="button" aria-label="Focus tool_definitions · catalog, nine tools, definitions version 4, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="nine tools, definitions version 4" data-node-context="Architecture component">
+          <title>tool_definitions · catalog · nine tools, definitions version 4 · Architecture component</title>
+          <rect x="430" y="1100" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="430" y="1100" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(436 1106) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="450" y="318" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · webhook (F11)</text>
-        <text data-detail="context" x="450" y="334" class="t-muted" font-size="9" text-anchor="middle">src/api/routes_telegram.py</text>
+          <text data-node-label="" data-detail-anchor="" x="555" y="1130" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tool_definitions · catalog</text>
+        <text data-detail="context" x="555" y="1146" class="t-muted" font-size="9" text-anchor="middle">nine tools, definitions version 4</text>
         </g>
 
-        <g id="node-clarify" data-node-id="clarify" data-node-label="planned · clarify + session" tabindex="0" role="button" aria-label="Focus planned · clarify + session, src/core/planning.py + session.py, PLANNED — file stub, chưa có logic (src/)" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/core/planning.py + session.py" data-node-context="PLANNED — file stub, chưa có logic (src/)">
-          <title>planned · clarify + session · src/core/planning.py + session.py · PLANNED — file stub, chưa có logic (src/)</title>
-          <rect x="660" y="215" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="660" y="215" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:3" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 221) scale(0.6875)">
+        <g id="node-plan-tools" data-node-id="plan-tools" data-node-label="plan_tools · nine tools" tabindex="0" role="button" aria-label="Focus plan_tools · nine tools, writes + load check, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="writes + load check" data-node-context="Architecture component">
+          <title>plan_tools · nine tools · writes + load check · Architecture component</title>
+          <rect x="24" y="1120" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="24" y="1120" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 1126) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="760" y="243" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · clarify + session</text>
-        <text data-detail="context" x="760" y="259" class="t-muted" font-size="9" text-anchor="middle">src/core/planning.py + session.py</text>
+          <text data-node-label="" data-detail-anchor="" x="149" y="1150" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">plan_tools · nine tools</text>
+        <text data-detail="context" x="149" y="1166" class="t-muted" font-size="9" text-anchor="middle">writes + load check</text>
         </g>
 
-        <g id="node-system-prompt" data-node-id="system-prompt" data-node-label="core/system_prompt" tabindex="0" role="button" aria-label="Focus core/system_prompt, src/core/system_prompt.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/core/system_prompt.py" data-node-context="Architecture component">
-          <title>core/system_prompt · src/core/system_prompt.py · Architecture component</title>
-          <rect x="970" y="215" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="970" y="215" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:7" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(976 221) scale(0.6875)">
+        <g id="node-saved-reply" data-node-id="saved-reply" data-node-label="saved_reply + tools/base" tabindex="0" role="button" aria-label="Focus saved_reply + tools/base, compose what was saved on an abnormal turn, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="compose what was saved on an abnormal turn" data-node-context="Architecture component">
+          <title>saved_reply + tools/base · compose what was saved on an abnormal turn · Architecture component</title>
+          <rect x="24" y="880" width="280" height="68" rx="8" class="c-mask"/>
+          <rect x="24" y="880" width="280" height="68" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 886) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1070" y="243" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/system_prompt</text>
-        <text data-detail="context" x="1070" y="259" class="t-muted" font-size="9" text-anchor="middle">src/core/system_prompt.py</text>
+          <text data-node-label="" data-detail-anchor="" x="164" y="912" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">saved_reply + tools/base</text>
+        <text data-detail="context" x="164" y="928" class="t-muted" font-size="9" text-anchor="middle">compose what was saved on an abnormal turn</text>
         </g>
 
-        <g id="node-llm-port" data-node-id="llm-port" data-node-label="core/llm · ModelClient" tabindex="0" role="button" aria-label="Focus core/llm · ModelClient, src/core/llm.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/core/llm.py" data-node-context="Architecture component">
-          <title>core/llm · ModelClient · src/core/llm.py · Architecture component</title>
-          <rect x="1280" y="215" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="1280" y="215" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:6" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1286 221) scale(0.6875)">
+        <g id="node-core-plans" data-node-id="core-plans" data-node-label="core/plans" tabindex="0" role="button" aria-label="Focus core/plans, Plan, Subtask, PlanStore port, day load and move proposal, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Plan, Subtask, PlanStore port, day load and move proposal" data-node-context="Architecture component">
+          <title>core/plans · Plan, Subtask, PlanStore port, day load and move proposal · Architecture component</title>
+          <rect x="430" y="560" width="320" height="72" rx="8" class="c-mask"/>
+          <rect x="430" y="560" width="320" height="72" rx="8" class="c-backend" data-animate="node" style="--step:11" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(436 566) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1380" y="243" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/llm · ModelClient</text>
-        <text data-detail="context" x="1380" y="259" class="t-muted" font-size="9" text-anchor="middle">src/core/llm.py</text>
+          <text data-node-label="" data-detail-anchor="" x="590" y="594" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/plans</text>
+        <text data-detail="context" x="590" y="610" class="t-muted" font-size="9" text-anchor="middle">Plan, Subtask, PlanStore port, day load and move proposal</text>
         </g>
 
-        <g id="node-llm-turn" data-node-id="llm-turn" data-node-label="llm_turn · run_turn" tabindex="0" role="button" aria-label="Focus llm_turn · run_turn, src/turns/llm_turn.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/turns/llm_turn.py" data-node-context="Architecture component">
-          <title>llm_turn · run_turn · src/turns/llm_turn.py · Architecture component</title>
-          <rect x="1280" y="380" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="1280" y="380" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:5" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1286 386) scale(0.6875)">
+        <g id="node-plan-store" data-node-id="plan-store" data-node-label="SupabasePlanStore" tabindex="0" role="button" aria-label="Focus SupabasePlanStore, implements PlanStore, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="implements PlanStore" data-node-context="Architecture component">
+          <title>SupabasePlanStore · implements PlanStore · Architecture component</title>
+          <rect x="24" y="1540" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="24" y="1540" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 1546) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1380" y="408" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">llm_turn · run_turn</text>
-        <text data-detail="context" x="1380" y="424" class="t-muted" font-size="9" text-anchor="middle">src/turns/llm_turn.py</text>
+          <text data-node-label="" data-detail-anchor="" x="149" y="1570" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SupabasePlanStore</text>
+        <text data-detail="context" x="149" y="1586" class="t-muted" font-size="9" text-anchor="middle">implements PlanStore</text>
         </g>
 
-        <g id="node-tool-router" data-node-id="tool-router" data-node-label="tool_router · execute_tool" tabindex="0" role="button" aria-label="Focus tool_router · execute_tool, src/tools/tool_router.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/tools/tool_router.py" data-node-context="Architecture component">
-          <title>tool_router · execute_tool · src/tools/tool_router.py · Architecture component</title>
-          <rect x="1280" y="540" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="1280" y="540" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:8" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1286 546) scale(0.6875)">
+        <g id="node-channel-store" data-node-id="channel-store" data-node-label="SupabaseTelegramChannel" tabindex="0" role="button" aria-label="Focus SupabaseTelegramChannel, updates and context, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="updates and context" data-node-context="Architecture component">
+          <title>SupabaseTelegramChannel · updates and context · Architecture component</title>
+          <rect x="24" y="1760" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="24" y="1760" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(30 1766) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1380" y="568" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tool_router · execute_tool</text>
-        <text data-detail="context" x="1380" y="584" class="t-muted" font-size="9" text-anchor="middle">src/tools/tool_router.py</text>
+          <text data-node-label="" data-detail-anchor="" x="149" y="1790" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SupabaseTelegramChannel</text>
+        <text data-detail="context" x="149" y="1806" class="t-muted" font-size="9" text-anchor="middle">updates and context</text>
         </g>
 
-        <g id="node-tool-definitions" data-node-id="tool-definitions" data-node-label="tool_definitions · catalog" tabindex="0" role="button" aria-label="Focus tool_definitions · catalog, src/tools/tool_definitions.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/tools/tool_definitions.py" data-node-context="Architecture component">
-          <title>tool_definitions · catalog · src/tools/tool_definitions.py · Architecture component</title>
-          <rect x="1280" y="680" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="1280" y="680" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:9" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(1286 686) scale(0.6875)">
+        <g id="node-db-client" data-node-id="db-client" data-node-label="db/client · PostgREST" tabindex="0" role="button" aria-label="Focus db/client · PostgREST, only database caller: 7 RPCs, 2 plan reads, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="only database caller: 7 RPCs, 2 plan reads" data-node-context="Architecture component">
+          <title>db/client · PostgREST · only database caller: 7 RPCs, 2 plan reads · Architecture component</title>
+          <rect x="360" y="1540" width="280" height="68" rx="8" class="c-mask"/>
+          <rect x="360" y="1540" width="280" height="68" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(366 1546) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="1380" y="708" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">tool_definitions · catalog</text>
-        <text data-detail="context" x="1380" y="724" class="t-muted" font-size="9" text-anchor="middle">src/tools/tool_definitions.py</text>
+          <text data-node-label="" data-detail-anchor="" x="500" y="1572" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">db/client · PostgREST</text>
+        <text data-detail="context" x="500" y="1588" class="t-muted" font-size="9" text-anchor="middle">only database caller: 7 RPCs, 2 plan reads</text>
         </g>
 
-        <g id="node-checkin" data-node-id="checkin" data-node-label="planned · check-in (F10)" tabindex="0" role="button" aria-label="Focus planned · check-in (F10), src/scheduler/checkin.py, PLANNED — file stub, chưa có logic (src/)" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/scheduler/checkin.py" data-node-context="PLANNED — file stub, chưa có logic (src/)">
-          <title>planned · check-in (F10) · src/scheduler/checkin.py · PLANNED — file stub, chưa có logic (src/)</title>
-          <rect x="660" y="400" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="660" y="400" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 406) scale(0.6875)">
+        <g id="node-tg-client" data-node-id="tg-client" data-node-label="TelegramSenderClient" tabindex="0" role="button" aria-label="Focus TelegramSenderClient, one sendMessage part, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="one sendMessage part" data-node-context="Architecture component">
+          <title>TelegramSenderClient · one sendMessage part · Architecture component</title>
+          <rect x="920" y="540" width="220" height="64" rx="8" class="c-mask"/>
+          <rect x="920" y="540" width="220" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(926 546) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="760" y="428" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · check-in (F10)</text>
-        <text data-detail="context" x="760" y="444" class="t-muted" font-size="9" text-anchor="middle">src/scheduler/checkin.py</text>
+          <text data-node-label="" data-detail-anchor="" x="1030" y="570" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">TelegramSenderClient</text>
+        <text data-detail="context" x="1030" y="586" class="t-muted" font-size="9" text-anchor="middle">one sendMessage part</text>
         </g>
 
-        <g id="node-tg-client" data-node-id="tg-client" data-node-label="planned · Telegram (F11)" tabindex="0" role="button" aria-label="Focus planned · Telegram (F11), src/clients/telegram.py, PLANNED — file stub, chưa có logic (src/)" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/clients/telegram.py" data-node-context="PLANNED — file stub, chưa có logic (src/)">
-          <title>planned · Telegram (F11) · src/clients/telegram.py · PLANNED — file stub, chưa có logic (src/)</title>
-          <rect x="350" y="400" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="350" y="400" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(356 406) scale(0.6875)">
+        <g id="node-settings" data-node-id="settings" data-node-label="config/settings" tabindex="0" role="button" aria-label="Focus config/settings, require_* read from request env, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="require_* read from request env" data-node-context="Architecture component">
+          <title>config/settings · require_* read from request env · Architecture component</title>
+          <rect x="760" y="200" width="220" height="64" rx="8" class="c-mask"/>
+          <rect x="760" y="200" width="220" height="64" rx="8" class="c-backend" data-animate="node" style="--step:6" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(766 206) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="450" y="428" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">planned · Telegram (F11)</text>
-        <text data-detail="context" x="450" y="444" class="t-muted" font-size="9" text-anchor="middle">src/clients/telegram.py</text>
+          <text data-node-label="" data-detail-anchor="" x="870" y="230" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">config/settings</text>
+        <text data-detail="context" x="870" y="246" class="t-muted" font-size="9" text-anchor="middle">require_* read from request env</text>
         </g>
 
-        <g id="node-db-client" data-node-id="db-client" data-node-label="db/client · PostgREST" tabindex="0" role="button" aria-label="Focus db/client · PostgREST, src/db/client.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/db/client.py" data-node-context="Architecture component">
-          <title>db/client · PostgREST · src/db/client.py · Architecture component</title>
-          <rect x="40" y="540" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="40" y="540" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(46 546) scale(0.6875)">
+        <g id="node-routes-planning" data-node-id="routes-planning" data-node-label="Stub · planning endpoint (F14)" tabindex="0" role="button" aria-label="Focus Stub · planning endpoint (F14), one-line docstring, no code, NOT BUILT: one-line stub files in src/" aria-pressed="false" data-node-kind="backend" data-node-sublabel="one-line docstring, no code" data-node-context="NOT BUILT: one-line stub files in src/">
+          <title>Stub · planning endpoint (F14) · one-line docstring, no code · NOT BUILT: one-line stub files in src/</title>
+          <rect x="80" y="2000" width="250" height="64" rx="8" class="c-mask"/>
+          <rect x="80" y="2000" width="250" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(86 2006) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="140" y="568" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">db/client · PostgREST</text>
-        <text data-detail="context" x="140" y="584" class="t-muted" font-size="9" text-anchor="middle">src/db/client.py</text>
+          <text data-node-label="" data-detail-anchor="" x="205" y="2030" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Stub · planning endpoint (F14)</text>
+        <text data-detail="context" x="205" y="2046" class="t-muted" font-size="9" text-anchor="middle">one-line docstring, no code</text>
         </g>
 
-        <g id="node-plan-store" data-node-id="plan-store" data-node-label="SupabasePlanStore" tabindex="0" role="button" aria-label="Focus SupabasePlanStore, src/db/plan_store.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/db/plan_store.py" data-node-context="Architecture component">
-          <title>SupabasePlanStore · src/db/plan_store.py · Architecture component</title>
-          <rect x="350" y="540" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="350" y="540" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(356 546) scale(0.6875)">
+        <g id="node-clarify" data-node-id="clarify" data-node-label="Stub · clarify + session (F01, F02)" tabindex="0" role="button" aria-label="Focus Stub · clarify + session (F01, F02), one-line docstrings, no code, NOT BUILT: one-line stub files in src/" aria-pressed="false" data-node-kind="backend" data-node-sublabel="one-line docstrings, no code" data-node-context="NOT BUILT: one-line stub files in src/">
+          <title>Stub · clarify + session (F01, F02) · one-line docstrings, no code · NOT BUILT: one-line stub files in src/</title>
+          <rect x="380" y="2000" width="270" height="64" rx="8" class="c-mask"/>
+          <rect x="380" y="2000" width="270" height="64" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(386 2006) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="450" y="568" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SupabasePlanStore</text>
-        <text data-detail="context" x="450" y="584" class="t-muted" font-size="9" text-anchor="middle">src/db/plan_store.py</text>
+          <text data-node-label="" data-detail-anchor="" x="515" y="2030" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Stub · clarify + session (F01, F02)</text>
+        <text data-detail="context" x="515" y="2046" class="t-muted" font-size="9" text-anchor="middle">one-line docstrings, no code</text>
         </g>
 
-        <g id="node-core" data-node-id="core" data-node-label="core/plans · Plan, PlanStore" tabindex="0" role="button" aria-label="Focus core/plans · Plan, PlanStore, src/core/plans.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/core/plans.py" data-node-context="Architecture component">
-          <title>core/plans · Plan, PlanStore · src/core/plans.py · Architecture component</title>
-          <rect x="660" y="540" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="660" y="540" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 546) scale(0.6875)">
+        <g id="node-checkin" data-node-id="checkin" data-node-label="Stub · check-in (F10)" tabindex="0" role="button" aria-label="Focus Stub · check-in (F10), one-line docstring; the morning digest lives in scheduler/morning, NOT BUILT: one-line stub files in src/" aria-pressed="false" data-node-kind="backend" data-node-sublabel="one-line docstring; the morning digest lives in scheduler/morning" data-node-context="NOT BUILT: one-line stub files in src/">
+          <title>Stub · check-in (F10) · one-line docstring; the morning digest lives in scheduler/morning · NOT BUILT: one-line stub files in src/</title>
+          <rect x="700" y="2000" width="420" height="68" rx="8" class="c-mask"/>
+          <rect x="700" y="2000" width="420" height="68" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(706 2006) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="760" y="568" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">core/plans · Plan, PlanStore</text>
-        <text data-detail="context" x="760" y="584" class="t-muted" font-size="9" text-anchor="middle">src/core/plans.py</text>
-        </g>
-
-        <g id="node-plan-tools" data-node-id="plan-tools" data-node-label="plan_tools (6 tool, async)" tabindex="0" role="button" aria-label="Focus plan_tools (6 tool, async), src/tools/plan_tools.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/tools/plan_tools.py" data-node-context="Architecture component">
-          <title>plan_tools (6 tool, async) · src/tools/plan_tools.py · Architecture component</title>
-          <rect x="970" y="540" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="970" y="540" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(976 546) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="1070" y="568" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">plan_tools (6 tool, async)</text>
-        <text data-detail="context" x="1070" y="584" class="t-muted" font-size="9" text-anchor="middle">src/tools/plan_tools.py</text>
-        </g>
-
-        <g id="node-supabase" data-node-id="supabase" data-node-label="Supabase Postgres" tabindex="0" role="button" aria-label="Focus Supabase Postgres, supabase/migrations/*.sql, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="supabase/migrations/*.sql" data-node-context="Architecture component">
-          <title>Supabase Postgres · supabase/migrations/*.sql · Architecture component</title>
-          <rect x="40" y="680" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="40" y="680" width="200" height="60" rx="8" class="c-database" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(46 686) scale(0.6875)">
-            <ellipse cx="8" cy="4" rx="5" ry="2"/>
-            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="140" y="708" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Supabase Postgres</text>
-        <text data-detail="context" x="140" y="724" class="t-muted" font-size="9" text-anchor="middle">supabase/migrations/*.sql</text>
-        </g>
-
-        <g id="node-settings" data-node-id="settings" data-node-label="require_supabase()" tabindex="0" role="button" aria-label="Focus require_supabase(), src/config/settings.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/config/settings.py" data-node-context="Architecture component">
-          <title>require_supabase() · src/config/settings.py · Architecture component</title>
-          <rect x="350" y="680" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="350" y="680" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(356 686) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="450" y="708" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">require_supabase()</text>
-        <text data-detail="context" x="450" y="724" class="t-muted" font-size="9" text-anchor="middle">src/config/settings.py</text>
-        </g>
-
-        <g id="node-http-client" data-node-id="http-client" data-node-label="HTTP client" tabindex="0" role="button" aria-label="Focus HTTP client, GET /health, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="GET /health" data-node-context="Architecture component">
-          <title>HTTP client · GET /health · Architecture component</title>
-          <rect x="40" y="800" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="40" y="800" width="200" height="60" rx="8" class="c-external" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(46 806) scale(0.6875)">
-            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
-            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="140" y="828" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">HTTP client</text>
-        <text data-detail="context" x="140" y="844" class="t-muted" font-size="9" text-anchor="middle">GET /health</text>
-        </g>
-
-        <g id="node-worker-entry" data-node-id="worker-entry" data-node-label="Worker entry · Default" tabindex="0" role="button" aria-label="Focus Worker entry · Default, src/entry.py, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="src/entry.py" data-node-context="Architecture component">
-          <title>Worker entry · Default · src/entry.py · Architecture component</title>
-          <rect x="350" y="800" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="350" y="800" width="200" height="60" rx="8" class="c-cloud" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(356 806) scale(0.6875)">
-            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="450" y="828" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Worker entry · Default</text>
-        <text data-detail="context" x="450" y="844" class="t-muted" font-size="9" text-anchor="middle">src/entry.py</text>
-        </g>
-
-        <g id="node-fastapi-app" data-node-id="fastapi-app" data-node-label="FastAPI app · health()" tabindex="0" role="button" aria-label="Focus FastAPI app · health(), src/app.py, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="src/app.py" data-node-context="Architecture component">
-          <title>FastAPI app · health() · src/app.py · Architecture component</title>
-          <rect x="660" y="800" width="200" height="60" rx="8" class="c-mask"/>
-          <rect x="660" y="800" width="200" height="60" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 806) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="760" y="828" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">FastAPI app · health()</text>
-        <text data-detail="context" x="760" y="844" class="t-muted" font-size="9" text-anchor="middle">src/app.py</text>
+          <text data-node-label="" data-detail-anchor="" x="910" y="2032" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Stub · check-in (F10)</text>
+        <text data-detail="context" x="910" y="2048" class="t-muted" font-size="9" text-anchor="middle">one-line docstring; the morning digest lives in scheduler/morning</text>
         </g>
 
         <!-- Connection labels -->
-        <g data-detail="context" data-edge-from="desktop" data-edge-to="routes-planning" data-edge-label="HTTP" data-edge-key="0" data-edge-id="desktop-to-routes">
-          <rect x="280" y="150" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="295" y="160" class="t-edge-dashed" font-size="8" text-anchor="middle">HTTP</text>
+        <g data-detail="context" data-edge-from="telegram" data-edge-to="routes-telegram" data-edge-label="webhook" data-edge-key="0" data-edge-id="e01">
+          <rect x="1033.2" y="300" width="43.6" height="14" rx="3" class="c-mask"/>
+          <text x="1055" y="310" class="t-edge-default" font-size="8" text-anchor="middle">webhook</text>
         </g>
-        <g data-detail="context" data-edge-from="tgapi" data-edge-to="routes-telegram" data-edge-label="webhook" data-edge-key="1" data-edge-id="tgapi-to-webhook">
-          <rect x="273.2" y="300" width="43.6" height="14" rx="3" class="c-mask"/>
-          <text x="295" y="310" class="t-edge-dashed" font-size="8" text-anchor="middle">webhook</text>
+        <g data-detail="context" data-edge-from="cron" data-edge-to="worker-entry" data-edge-label="scheduled" data-edge-key="1" data-edge-id="e02">
+          <rect x="225.4" y="31" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="252" y="41" class="t-edge-default" font-size="8" text-anchor="middle">scheduled</text>
         </g>
-        <g data-detail="context" data-edge-from="routes-planning" data-edge-to="clarify" data-edge-label="yêu cầu" data-edge-key="2" data-edge-id="routes-to-clarify">
-          <rect x="738.2" y="172.5" width="43.6" height="14" rx="3" class="c-mask"/>
-          <text x="760" y="182.5" class="t-edge-dashed" font-size="8" text-anchor="middle">yêu cầu</text>
+        <g data-detail="context" data-edge-from="worker-entry" data-edge-to="fastapi-app" data-edge-label="ASGI fetch" data-edge-key="2" data-edge-id="e03">
+          <rect x="536" y="38" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="565" y="48" class="t-edge-default" font-size="8" text-anchor="middle">ASGI fetch</text>
         </g>
-        <g data-detail="context" data-edge-from="routes-telegram" data-edge-to="clarify" data-edge-label="tin nhắn" data-edge-key="3" data-edge-id="webhook-to-clarify">
-          <rect x="735.8" y="277.5" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="760" y="287.5" class="t-edge-dashed" font-size="8" text-anchor="middle">tin nhắn</text>
+        <g data-detail="context" data-edge-from="worker-entry" data-edge-to="scheduler-morning" data-edge-label="run_morning; constructs ports" data-edge-key="3" data-edge-id="e04">
+          <rect x="150.8" y="147" width="149.2" height="14" rx="3" class="c-mask"/>
+          <text x="225.4" y="157" class="t-edge-default" font-size="8" text-anchor="middle">run_morning; constructs ports</text>
         </g>
-        <g data-detail="context" data-edge-from="clarify" data-edge-to="llm-turn" data-edge-label="một lượt" data-edge-key="4" data-edge-id="clarify-to-turn">
-          <rect x="905.8" y="307.5" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="930" y="317.5" class="t-edge-dashed" font-size="8" text-anchor="middle">một lượt</text>
+        <g data-detail="context" data-edge-from="fastapi-app" data-edge-to="routes-telegram" data-edge-label="include_router" data-edge-key="4" data-edge-id="e05">
+          <rect x="831.4" y="26" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="870" y="36" class="t-edge-default" font-size="8" text-anchor="middle">include_router</text>
         </g>
-        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="llm-port" data-edge-label="dùng cổng" data-edge-key="5" data-edge-id="turn-to-port">
-          <rect x="1327.8000000000002" y="320.5" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
-          <text x="1354.4" y="330.5" class="t-edge-default" font-size="8" text-anchor="middle">dùng cổng</text>
+        <g data-detail="context" data-edge-from="routes-telegram" data-edge-to="settings" data-edge-label="require_*" data-edge-key="5" data-edge-id="e06">
+          <rect x="904.8" y="141" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="931.4" y="151" class="t-edge-default" font-size="8" text-anchor="middle">require_*</text>
         </g>
-        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="system-prompt" data-edge-label="SYSTEM_PROMPT + version" data-edge-key="6" data-edge-id="turn-to-prompt">
-          <rect x="1161.3" y="336" width="120.39999999999999" height="14" rx="3" class="c-mask"/>
-          <text x="1221.5" y="346" class="t-edge-default" font-size="8" text-anchor="middle">SYSTEM_PROMPT + version</text>
+        <g data-detail="context" data-edge-from="routes-telegram" data-edge-to="handle-update" data-edge-label="handle_update; lazy clients" data-edge-key="6" data-edge-id="e07">
+          <rect x="743.7" y="300" width="139.6" height="14" rx="3" class="c-mask"/>
+          <text x="813.5" y="310" class="t-edge-default" font-size="8" text-anchor="middle">handle_update; lazy clients</text>
         </g>
-        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="tool-router" data-edge-label="gọi execute_tool" data-edge-key="7" data-edge-id="turn-to-router">
-          <rect x="1287.1999999999998" y="483" width="86.8" height="14" rx="3" class="c-mask"/>
-          <text x="1330.6" y="493" class="t-edge-default" font-size="8" text-anchor="middle">gọi execute_tool</text>
+        <g data-detail="context" data-edge-from="handle-update" data-edge-to="channel-rules" data-edge-label="decide_receive, split_utf16" data-edge-key="7" data-edge-id="e12">
+          <rect x="426.4" y="337" width="139.6" height="14" rx="3" class="c-mask"/>
+          <text x="496.2" y="347" class="t-edge-default" font-size="8" text-anchor="middle">decide_receive, split_utf16</text>
         </g>
-        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="tool-definitions" data-edge-label="catalog + version" data-edge-key="8" data-edge-id="turn-to-definitions">
-          <rect x="1484.2" y="540" width="91.6" height="14" rx="3" class="c-mask"/>
-          <text x="1530" y="550" class="t-edge-default" font-size="8" text-anchor="middle">catalog + version</text>
+        <g data-detail="context" data-edge-from="handle-update" data-edge-to="morning-core" data-edge-label="/next digest" data-edge-key="8" data-edge-id="e13">
+          <rect x="328.2" y="427" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="362" y="437" class="t-edge-default" font-size="8" text-anchor="middle">/next digest</text>
         </g>
-        <g data-detail="context" data-edge-from="anthropic-model" data-edge-to="llm-port" data-edge-label="cài ModelClient" data-edge-key="9" data-edge-id="anthropic-to-port">
-          <rect x="1292" y="150.5" width="82" height="14" rx="3" class="c-mask"/>
-          <text x="1333" y="160.5" class="t-edge-default" font-size="8" text-anchor="middle">cài ModelClient</text>
+        <g data-detail="context" data-edge-from="handle-update" data-edge-to="llm-turn" data-edge-label="run_turn" data-edge-key="9" data-edge-id="e14">
+          <rect x="740.8" y="427" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="765" y="437" class="t-edge-default" font-size="8" text-anchor="middle">run_turn</text>
         </g>
-        <g data-detail="context" data-edge-from="anthropic-model" data-edge-to="claude" data-edge-label="HTTPS" data-edge-key="10" data-edge-id="anthropic-to-claude">
-          <rect x="1208" y="50" width="34" height="14" rx="3" class="c-mask"/>
-          <text x="1225" y="60" class="t-edge-default" font-size="8" text-anchor="middle">HTTPS</text>
+        <g data-detail="context" data-edge-from="handle-update" data-edge-to="core-plans" data-edge-label="PlanStore port (for /next)" data-edge-key="10" data-edge-id="e15">
+          <rect x="439.20000000000005" y="502" width="134.8" height="14" rx="3" class="c-mask"/>
+          <text x="506.6" y="512" class="t-edge-default" font-size="8" text-anchor="middle">PlanStore port (for /next)</text>
         </g>
-        <g data-detail="context" data-edge-from="tool-router" data-edge-to="plan-tools" data-edge-label="execute_tool" data-edge-key="11" data-edge-id="router-to-tools">
-          <rect x="1191.2" y="550" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="1225" y="560" class="t-edge-default" font-size="8" text-anchor="middle">execute_tool</text>
+        <g data-detail="context" data-edge-from="scheduler-morning" data-edge-to="morning-core" data-edge-label="decide_digest, render_digest" data-edge-key="11" data-edge-id="e17">
+          <rect x="8.599999999999994" y="339" width="144.4" height="14" rx="3" class="c-mask"/>
+          <text x="80.8" y="349" class="t-edge-default" font-size="8" text-anchor="middle">decide_digest, render_digest</text>
         </g>
-        <g data-detail="context" data-edge-from="tool-router" data-edge-to="tool-definitions" data-edge-label="đọc schema + version" data-edge-key="12" data-edge-id="router-to-definitions">
-          <rect x="1268" y="633" width="106" height="14" rx="3" class="c-mask"/>
-          <text x="1321" y="643" class="t-edge-default" font-size="8" text-anchor="middle">đọc schema + version</text>
+        <g data-detail="context" data-edge-from="scheduler-morning" data-edge-to="channel-rules" data-edge-label="split_utf16, UpdateView" data-edge-key="12" data-edge-id="e18">
+          <rect x="301.8" y="260" width="120.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="362" y="270" class="t-edge-default" font-size="8" text-anchor="middle">split_utf16, UpdateView</text>
         </g>
-        <g data-detail="context" data-edge-from="checkin" data-edge-to="tg-client" data-edge-label="gửi nhắc" data-edge-key="13" data-edge-id="checkin-to-tg">
-          <rect x="580.8" y="410" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="605" y="420" class="t-edge-dashed" font-size="8" text-anchor="middle">gửi nhắc</text>
+        <g data-detail="context" data-edge-from="scheduler-morning" data-edge-to="settings" data-edge-label="require_*" data-edge-key="13" data-edge-id="e22">
+          <rect x="324" y="199" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="350.6" y="209" class="t-edge-default" font-size="8" text-anchor="middle">require_*</text>
         </g>
-        <g data-detail="context" data-edge-from="tg-client" data-edge-to="tgapi" data-edge-label="Bot API" data-edge-key="14" data-edge-id="tg-to-tgapi">
-          <rect x="118.2" y="370" width="43.6" height="14" rx="3" class="c-mask"/>
-          <text x="140" y="380" class="t-edge-dashed" font-size="8" text-anchor="middle">Bot API</text>
+        <g data-detail="context" data-edge-from="morning-core" data-edge-to="clock" data-edge-label="helsinki_clock" data-edge-key="14" data-edge-id="e23">
+          <rect x="75.80000000000001" y="557" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="114.4" y="567" class="t-edge-default" font-size="8" text-anchor="middle">helsinki_clock</text>
         </g>
-        <g data-detail="context" data-edge-from="checkin" data-edge-to="core" data-edge-label="dùng Plan" data-edge-key="15" data-edge-id="checkin-to-core">
-          <rect x="700.8" y="493" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
-          <text x="727.4" y="503" class="t-edge-dashed" font-size="8" text-anchor="middle">dùng Plan</text>
+        <g data-detail="context" data-edge-from="morning-core" data-edge-to="core-plans" data-edge-label="render_digest(Plan)" data-edge-key="15" data-edge-id="e24">
+          <rect x="303.4" y="556" width="101.2" height="14" rx="3" class="c-mask"/>
+          <text x="354" y="566" class="t-edge-default" font-size="8" text-anchor="middle">render_digest(Plan)</text>
         </g>
-        <g data-detail="context" data-edge-from="plan-tools" data-edge-to="core" data-edge-label="gọi core" data-edge-key="16" data-edge-id="tools-to-core">
-          <rect x="890.8" y="550" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="915" y="560" class="t-edge-default" font-size="8" text-anchor="middle">gọi core</text>
+        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="llm-port" data-edge-label="uses port" data-edge-key="16" data-edge-id="e25">
+          <rect x="834.9" y="492" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="861.5" y="502" class="t-edge-default" font-size="8" text-anchor="middle">uses port</text>
         </g>
-        <g data-detail="context" data-edge-from="plan-store" data-edge-to="core" data-edge-label="cài PlanStore" data-edge-key="17" data-edge-id="store-to-core">
-          <rect x="568.8" y="550" width="72.4" height="14" rx="3" class="c-mask"/>
-          <text x="605" y="560" class="t-edge-default" font-size="8" text-anchor="middle">cài PlanStore</text>
+        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="system-prompt" data-edge-label="SYSTEM_PROMPT + version" data-edge-key="17" data-edge-id="e26">
+          <rect x="947" y="505.5" width="120.39999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="1007.2" y="515.5" class="t-edge-default" font-size="8" text-anchor="middle">SYSTEM_PROMPT + version</text>
         </g>
-        <g data-detail="context" data-edge-from="plan-store" data-edge-to="db-client" data-edge-label="gọi client" data-edge-key="18" data-edge-id="store-to-client">
-          <rect x="266" y="550" width="58" height="14" rx="3" class="c-mask"/>
-          <text x="295" y="560" class="t-edge-default" font-size="8" text-anchor="middle">gọi client</text>
+        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="tool-router" data-edge-label="execute_tool" data-edge-key="18" data-edge-id="e27">
+          <rect x="822" y="583" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="855.8" y="593" class="t-edge-default" font-size="8" text-anchor="middle">execute_tool</text>
         </g>
-        <g data-detail="context" data-edge-from="plan-store" data-edge-to="settings" data-edge-label="require_supabase" data-edge-key="19" data-edge-id="store-to-settings">
-          <rect x="357.20000000000005" y="633" width="86.8" height="14" rx="3" class="c-mask"/>
-          <text x="400.6" y="643" class="t-edge-default" font-size="8" text-anchor="middle">require_supabase</text>
+        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="tool-definitions" data-edge-label="catalog + version" data-edge-key="19" data-edge-id="e28">
+          <rect x="624.2" y="509" width="91.6" height="14" rx="3" class="c-mask"/>
+          <text x="670" y="519" class="t-edge-default" font-size="8" text-anchor="middle">catalog + version</text>
         </g>
-        <g data-detail="context" data-edge-from="db-client" data-edge-to="supabase" data-edge-label="HTTPS · /rest/v1" data-edge-key="20" data-edge-id="client-to-supabase">
-          <rect x="47.199999999999996" y="633" width="86.8" height="14" rx="3" class="c-mask"/>
-          <text x="90.6" y="643" class="t-edge-default" font-size="8" text-anchor="middle">HTTPS · /rest/v1</text>
+        <g data-detail="context" data-edge-from="llm-turn" data-edge-to="saved-reply" data-edge-label="compose on abnormal turn" data-edge-key="20" data-edge-id="e29">
+          <rect x="560.4" y="828" width="125.19999999999999" height="14" rx="3" class="c-mask"/>
+          <text x="623" y="838" class="t-edge-default" font-size="8" text-anchor="middle">compose on abnormal turn</text>
         </g>
-        <g data-detail="context" data-edge-from="http-client" data-edge-to="worker-entry" data-edge-label="GET /health" data-edge-key="21" data-edge-id="http-to-entry">
-          <rect x="263.6" y="810" width="62.8" height="14" rx="3" class="c-mask"/>
-          <text x="295" y="820" class="t-edge-default" font-size="8" text-anchor="middle">GET /health</text>
+        <g data-detail="context" data-edge-from="tool-router" data-edge-to="plan-tools" data-edge-label="dispatch" data-edge-key="21" data-edge-id="e31">
+          <rect x="351.6" y="1028.5" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="375.8" y="1038.5" class="t-edge-default" font-size="8" text-anchor="middle">dispatch</text>
         </g>
-        <g data-detail="context" data-edge-from="worker-entry" data-edge-to="fastapi-app" data-edge-label="ASGI" data-edge-key="22" data-edge-id="entry-to-app">
-          <rect x="590" y="810" width="30" height="14" rx="3" class="c-mask"/>
-          <text x="605" y="820" class="t-edge-default" font-size="8" text-anchor="middle">ASGI</text>
+        <g data-detail="context" data-edge-from="tool-router" data-edge-to="tool-definitions" data-edge-label="schema + version" data-edge-key="22" data-edge-id="e32">
+          <rect x="455.20000000000005" y="1015" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="498.6" y="1025" class="t-edge-default" font-size="8" text-anchor="middle">schema + version</text>
+        </g>
+        <g data-detail="context" data-edge-from="tool-router" data-edge-to="saved-reply" data-edge-label="ToolResult, ToolError" data-edge-key="23" data-edge-id="e33">
+          <rect x="311.6" y="885" width="110.8" height="14" rx="3" class="c-mask"/>
+          <text x="367" y="895" class="t-edge-default" font-size="8" text-anchor="middle">ToolResult, ToolError</text>
+        </g>
+        <g data-detail="context" data-edge-from="plan-tools" data-edge-to="core-plans" data-edge-label="pure rules and load check" data-edge-key="24" data-edge-id="e34">
+          <rect x="439" y="1178" width="130" height="14" rx="3" class="c-mask"/>
+          <text x="504" y="1188" class="t-edge-default" font-size="8" text-anchor="middle">pure rules and load check</text>
+        </g>
+        <g data-detail="context" data-edge-from="plan-tools" data-edge-to="clock" data-edge-label="helsinki_clock" data-edge-key="25" data-edge-id="e35">
+          <rect x="39.4" y="1076" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="78" y="1086" class="t-edge-default" font-size="8" text-anchor="middle">helsinki_clock</text>
+        </g>
+        <g data-detail="context" data-edge-from="plan-tools" data-edge-to="saved-reply" data-edge-label="saved lines" data-edge-key="26" data-edge-id="e36">
+          <rect x="80.19999999999999" y="1027" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="111.6" y="1037" class="t-edge-default" font-size="8" text-anchor="middle">saved lines</text>
+        </g>
+        <g data-detail="context" data-edge-from="plan-store" data-edge-to="core-plans" data-edge-label="implements PlanStore" data-edge-key="27" data-edge-id="e37">
+          <rect x="405" y="1496" width="106" height="14" rx="3" class="c-mask"/>
+          <text x="458" y="1506" class="t-edge-dashed" font-size="8" text-anchor="middle">implements PlanStore</text>
+        </g>
+        <g data-detail="context" data-edge-from="plan-store" data-edge-to="db-client" data-edge-label="RPC calls" data-edge-key="28" data-edge-id="e38">
+          <rect x="290.4" y="1547" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="317" y="1557" class="t-edge-default" font-size="8" text-anchor="middle">RPC calls</text>
+        </g>
+        <g data-detail="context" data-edge-from="plan-store" data-edge-to="settings" data-edge-label="require_supabase" data-edge-key="29" data-edge-id="e39">
+          <rect x="14" y="1244" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="57.4" y="1254" class="t-edge-default" font-size="8" text-anchor="middle">require_supabase</text>
+        </g>
+        <g data-detail="context" data-edge-from="channel-store" data-edge-to="channel-rules" data-edge-label="ClaimResult, StoredMessage" data-edge-key="30" data-edge-id="e40">
+          <rect x="8.199999999999989" y="1676.5" width="134.8" height="14" rx="3" class="c-mask"/>
+          <text x="75.6" y="1686.5" class="t-edge-default" font-size="8" text-anchor="middle">ClaimResult, StoredMessage</text>
+        </g>
+        <g data-detail="context" data-edge-from="channel-store" data-edge-to="db-client" data-edge-label="RPC calls" data-edge-key="31" data-edge-id="e41">
+          <rect x="349.4" y="1672" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="376" y="1682" class="t-edge-default" font-size="8" text-anchor="middle">RPC calls</text>
+        </g>
+        <g data-detail="context" data-edge-from="db-client" data-edge-to="supabase" data-edge-label="HTTPS · PostgREST: RPC + plan reads" data-edge-key="32" data-edge-id="e43">
+          <rect x="480" y="1610.5" width="178" height="14" rx="3" class="c-mask"/>
+          <text x="569" y="1620.5" class="t-edge-default" font-size="8" text-anchor="middle">HTTPS · PostgREST: RPC + plan reads</text>
+        </g>
+        <g data-detail="context" data-edge-from="tg-client" data-edge-to="telegram" data-edge-label="sendMessage" data-edge-key="33" data-edge-id="e44">
+          <rect x="1132.6" y="442" width="62.8" height="14" rx="3" class="c-mask"/>
+          <text x="1164" y="452" class="t-edge-default" font-size="8" text-anchor="middle">sendMessage</text>
+        </g>
+        <g data-detail="context" data-edge-from="anthropic-model" data-edge-to="llm-port" data-edge-label="implements ModelClient" data-edge-key="34" data-edge-id="e45">
+          <rect x="887.2" y="1080" width="115.6" height="14" rx="3" class="c-mask"/>
+          <text x="945" y="1090" class="t-edge-dashed" font-size="8" text-anchor="middle">implements ModelClient</text>
+        </g>
+        <g data-detail="context" data-edge-from="anthropic-model" data-edge-to="claude" data-edge-label="HTTPS" data-edge-key="35" data-edge-id="e46">
+          <rect x="905" y="1235" width="34" height="14" rx="3" class="c-mask"/>
+          <text x="922" y="1245" class="t-edge-default" font-size="8" text-anchor="middle">HTTPS</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
-        <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="PLANNED — file stub, chưa có logic (src/)">
-          <rect data-graph-role="structural-frame-label-mask" x="324" y="118" width="266.4748633096774" height="18" rx="3" class="c-mask"/>
-          <text data-boundary-label="" x="328" y="132.4258074516129" class="t-cloud" font-size="10.425807451612902" font-weight="600">PLANNED — file stub, chưa có logic (src/)</text>
+        <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="NOT BUILT: one-line stub files in src/">
+          <rect data-graph-role="structural-frame-label-mask" x="54" y="1980" width="215.2" height="16" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="58" y="1993" class="t-cloud" font-size="9" font-weight="600">NOT BUILT: one-line stub files in src/</text>
         </g>
 
         <!-- Legend -->
         <g data-legend="" data-legend-bridge="">
-          <text x="40" y="892" class="t-primary" font-size="12" font-weight="650">Legend</text>
-          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="Backend" data-legend-x="40" data-legend-baseline="912" data-legend-width="87">
-            <rect x="40" y="903" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
-            <text x="62" y="912" class="t-muted" font-size="10" font-weight="500">Backend</text>
+          <text x="40" y="2120" class="t-primary" font-size="12" font-weight="650">Legend</text>
+          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="Backend" data-legend-x="40" data-legend-baseline="2140" data-legend-width="87">
+            <rect x="40" y="2131" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="62" y="2140" class="t-muted" font-size="10" font-weight="500">Backend</text>
           </g>
-          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="Database" data-legend-x="149" data-legend-baseline="912" data-legend-width="93">
-            <rect x="149" y="903" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
-            <text x="171" y="912" class="t-muted" font-size="10" font-weight="500">Database</text>
+          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="Database" data-legend-x="149" data-legend-baseline="2140" data-legend-width="93">
+            <rect x="149" y="2131" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="171" y="2140" class="t-muted" font-size="10" font-weight="500">Database</text>
           </g>
-          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="Cloud" data-legend-x="264" data-legend-baseline="912" data-legend-width="74">
-            <rect x="264" y="903" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
-            <text x="286" y="912" class="t-muted" font-size="10" font-weight="500">Cloud</text>
+          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="Cloud" data-legend-x="264" data-legend-baseline="2140" data-legend-width="74">
+            <rect x="264" y="2131" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
+            <text x="286" y="2140" class="t-muted" font-size="10" font-weight="500">Cloud</text>
           </g>
-          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="External" data-legend-x="360" data-legend-baseline="912" data-legend-width="93">
-            <rect x="360" y="903" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
-            <text x="382" y="912" class="t-muted" font-size="10" font-weight="500">External</text>
+          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="External" data-legend-x="360" data-legend-baseline="2140" data-legend-width="93">
+            <rect x="360" y="2131" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="382" y="2140" class="t-muted" font-size="10" font-weight="500">External</text>
           </g>
         </g>
       </svg>
@@ -5899,108 +6073,77 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>Đã có code — hai cụm chưa nối nhau</h3>
+          <h3>Layering</h3>
         </div>
         <ul>
-          <li>Cụm 1: chỉ có route GET /health (src/app.py:30-33).</li>
-          <li>Cụm 2: run_turn → execute_tool → plan_tools → core ← SupabasePlanStore → db/client → Supabase; run_turn và tool_router cùng đọc tool_definitions; AnthropicModel cài cổng core/llm và gọi Claude API.</li>
-          <li>app.py chỉ import các module, nay có thêm db.plan_store (src/app.py:19); không import turns, core.system_prompt hay clients.anthropic_model, và không route nào gọi run_turn, execute_tool, plan_tools hay SupabasePlanStore.</li>
-          <li>src/ chưa có composition root: không nơi nào dựng SupabasePlanStore hay AnthropicModel, cũng không nơi nào truyền store, api_key và client vào run_turn.</li>
+          <li>src/core imports the standard library and other core modules. check.ps1 lines 423-425 forbid fastapi, pydantic, tools, and db there.</li>
+          <li>The Anthropic SDK is imported only in src/clients/anthropic_model.py.</li>
+          <li>workers is imported only in src/entry.py.</li>
+          <li>postgrest is imported only in src/db/client.py.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot emerald"></div>
-          <h3>Phân lớp (D-011, D-012, D-015)</h3>
+          <h3>Telegram channel</h3>
         </div>
         <ul>
-          <li>D-011: tools import core; core chỉ dùng thư viện chuẩn, không import tools hay db; PlanStore cài ở src/db/.</li>
-          <li>D-015: vòng lượt nằm ở src/turns vì core không được import tools; llm_turn import core.llm, core.plans, core.system_prompt, tools.tool_definitions và tools.tool_router (src/turns/llm_turn.py:7-19).</li>
-          <li>scripts/check.ps1:347-349 kiểm luật core bằng git grep trên src/core.</li>
-          <li>D-012: bốn phương thức PlanStore và tool có gọi store là async def.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-dot violet"></div>
-          <h3>Lưu trữ (D-010, D-013)</h3>
-        </div>
-        <ul>
-          <li>D-010: truy cập Supabase qua PostgREST (postgrest-py), không dùng driver TCP.</li>
-          <li>D-013: add và replace mỗi cái một RPC; CHECK trạng thái; RLS bật, chỉ service_role được grant.</li>
-          <li>src/db/client.py là chỗ duy nhất trong src/ tạo AsyncPostgrestClient.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-dot orange"></div>
-          <h3>Lượt mô hình (D-015, spec 008)</h3>
-        </div>
-        <ul>
-          <li>run_turn(user_message, history, *, store, api_key, client, log=None) -&gt; str (src/turns/llm_turn.py:148-156); chưa có caller trong src/.</li>
-          <li>api_key do người gọi đưa; None hoặc rỗng thì ném MissingKeyError (159-160). ANTHROPIC_API_KEY chỉ còn là chữ trong thông điệp lỗi (dòng 25), không file nào trong src/ đọc biến này.</li>
-          <li>Ngân sách 20 giây (_BUDGET_SECONDS, dòng 21), tối đa 3 vòng tool (_MAX_ROUNDS, dòng 22); mỗi complete nhận timeout bằng phần ngân sách còn lại (101-104, 177).</li>
-          <li>_finish (136-145): end_turn → trả text; tool_use mà đã đủ 3 vòng → câu _CAP; tool_use có yêu cầu tool → chạy tiếp; còn lại → _MODEL_ERROR.</li>
-          <li>_run_tools (107-133): gọi execute_tool tuần tự (120-125); hết ngân sách thì trả câu lỗi, không bắt đầu tool kế.</li>
-          <li>complete ném Exception thì ghi một dòng log rồi trả _MODEL_ERROR (176-188). Mỗi lần complete xong ghi một dòng JSON tám khóa qua hàm log (74-98); hàm log hỏng thì bị nuốt (64-71).</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-dot orange"></div>
-          <h3>Cổng mô hình và adapter (D-004, F12)</h3>
-        </div>
-        <ul>
-          <li>src/core/llm.py chỉ import thư viện chuẩn (dòng 3-4): TextMessage, ToolRequest, ToolResultMessage, ModelRequest, ModelResponse, ModelError và Protocol ModelClient.complete(request, *, api_key, timeout) (69-81).</li>
-          <li>src/core/system_prompt.py: SYSTEM_PROMPT (5-16) và PROMPT_VERSION = 1 (dòng 3); hằng chuỗi, không import gì.</li>
-          <li>AnthropicModel (src/clients/anthropic_model.py:11-46) có model và complete cùng hình dạng với ModelClient; không khai kế thừa và không import ModelClient (dòng 5).</li>
-          <li>Mỗi complete mở một AsyncAnthropic (max_retries=0, base_url https://api.anthropic.com, dòng 30-35) và gọi messages.create một lần với claude-haiku-5-5, max_tokens 2048, thinking tắt (dòng 7-8, 36-43).</li>
-          <li>Mọi Exception của SDK đổi thành ModelError(tên lớp), không giữ thông điệp (dòng 44-45). Khối tool_use chỉ thành ToolRequest khi stop_reason là tool_use (dòng 122, 132).</li>
-          <li>anthropic_model.py:3 là chỗ duy nhất trong src/ import anthropic.</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-dot rose"></div>
-          <h3>Tool router (D-014, spec 007)</h3>
-        </div>
-        <ul>
-          <li>execute_tool(name, tool_input, *, store, log) là lối vào tool call từ LLM (src/tools/tool_router.py:251-263); caller duy nhất trong src/ là _run_tools của llm_turn (src/turns/llm_turn.py:120).</li>
-          <li>_run (225-248): tên lạ → unknown_tool; đầu vào không phải object → invalid_input; _invalid_input (140-168) kiểm theo input_schema của TOOL_DEFINITIONS; rồi _invoke tra _DISPATCH (112-119) gọi sáu hàm của plan_tools.</li>
-          <li>ToolError và PlanDomainError → domain; Exception khác → unexpected, detail chỉ là tên lớp exception.</li>
-          <li>_write_log (195-222): mỗi lần gọi ghi đúng một dòng JSON bảy khóa qua hàm log truyền vào, mặc định print; hàm log ném Exception thì nuốt, kết quả vẫn trả. Đổi khóa thì tăng DEFINITIONS_VERSION hoặc ghi quyết định mới.</li>
-          <li>src/tools/tool_definitions.py: TOOL_DEFINITIONS (sáu tool: description + input_schema, dòng 5-78) và DEFINITIONS_VERSION = 1 (dòng 3); tool_router (tool_router.py:17) và llm_turn (llm_turn.py:18) import.</li>
+          <li>Each update is claimed before it is handled.</li>
+          <li>decide_receive returns Done, Resend, Defer, or SaveUncertain.</li>
+          <li>The reply is saved, context is written, then each part is sent.</li>
+          <li>Outbound text is split at 4096 UTF-16 units.</li>
+          <li>A claim older than 90 seconds is dead.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot amber"></div>
-          <h3>Planned — suy ra từ docstring và docs</h3>
+          <h3>Morning digest</h3>
         </div>
         <ul>
-          <li>Các file stub chỉ có docstring: routes_planning (F14), routes_telegram (F11), planning và session (F01, F02), checkin (F10), clients/telegram (F11).</li>
-          <li>Nét đứt = planned. Các cạnh này lấy từ docs/ARCHITECTURE.md §3-§4 (gồm cạnh clarify → llm_turn) và D-011 (scheduler dùng lại Plan), không từ code.</li>
-          <li>D-004: lớp LLM là cổng trung lập src/core/llm.py cộng adapter theo nhà cung cấp (cập nhật 2026-10-26). D-007: check-in qua remote push, Telegram ở giai đoạn 1.</li>
-          <li>wrangler.jsonc chưa khai báo Cron Trigger.</li>
-          <li>settings.py:46 khai báo TELEGRAM_BOT_TOKEN; chưa file nào trong src/ đọc.</li>
+          <li>Three crons fire at 05:00, 06:00, and 07:00 UTC.</li>
+          <li>Before 08:00 Helsinki the run only logs before_eight.</li>
+          <li>One row per Helsinki day uses a negative update_id.</li>
+          <li>The morning path does not call the model.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot slate"></div>
-          <h3>Ngoài src/</h3>
+          <div class="card-dot violet"></div>
+          <h3>Model turn</h3>
         </div>
         <ul>
-          <li>tests/fakes/memory_plan_store.py: MemoryPlanStore, bản PlanStore chỉ dùng cho test.</li>
-          <li>tests/test_llm_turn.py và tests/test_anthropic_model.py: test của lượt mô hình và adapter.</li>
-          <li>db/models.py (PlanRow, SubtaskRow), tools/base.py và tools/schemas.py gộp vào node cha ở phần sources.</li>
+          <li>A turn has a 20 second budget and at most three tool rounds.</li>
+          <li>replace_plan writes only when version matches, then increments it.</li>
+          <li>An abnormal end after a save returns the composed saved lines.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot orange"></div>
+          <h3>Load check</h3>
+        </div>
+        <ul>
+          <li>Code computes the day load and proposes moves.</li>
+          <li>The first call does not write. A write waits for confirm on a later turn.</li>
+          <li>Each move goes through replace_plan and leaves an append-only history row.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Persistence</h3>
+        </div>
+        <ul>
+          <li>Plan writes and all Telegram channel state use seven RPCs: add_plan, replace_plan, claim_telegram_update, save_telegram_reply, mark_telegram_sent, append_telegram_context, and list_telegram_context.</li>
+          <li>Plan reads are two selects on plans with its subtasks: list_plans and get_plan.</li>
+          <li>All five tables enable RLS. Migrations revoke table and function rights from public, anon, and authenticated.</li>
+          <li>subtask_date_moves is append-only: a trigger blocks update and delete.</li>
         </ul>
       </div>
     </div>
