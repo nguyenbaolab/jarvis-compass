@@ -4,6 +4,8 @@ A personal planning assistant that lives in Telegram. You write what you want to
 
 It is the planning backend for a larger personal-assistant idea (JARVIS), built by one person for personal use. It runs as a Cloudflare Python Worker with Supabase Postgres and Claude Haiku 5.5. Version 1 is finished and frozen (see [Status](#status)).
 
+**Demo video:** [watch it on Google Drive](https://drive.google.com/file/d/1hnKCEjMD_ZOnHmMRyQezpiaK02elFr74/view?usp=drive_link)
+
 <img src="docs/architecture/architecture.png" alt="Architecture diagram of jarvis-compass" width="720">
 
 *Architecture at commit `8da974e`. The interactive version is `docs/architecture/architecture.html`; open it in a browser after cloning.*
@@ -103,4 +105,4 @@ uv run python -m evals.runner
 
 ## Status
 
-Version 1 is complete and frozen (D-028): the Telegram bot, the morning digest, the load check, the evals and the simulation. New features are added only when daily use shows a real gap. Next is a one-week trial of an open-source personal assistant with compass plugged in as a tool, to decide how much of the surrounding assistant is worth building.
+Version 1 is complete and frozen (D-028): the Telegram bot, the morning digest, the load check, the evals, the simulation and the demo video. The frozen state is the git tag `v1-freeze`. New features are added only when daily use shows a real gap. Next is a one-week trial of an open-source personal assistant with compass plugged in as a tool, to decide how much of the surrounding assistant is worth building.

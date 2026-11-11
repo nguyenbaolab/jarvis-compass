@@ -76,7 +76,7 @@ Thứ tự làm tiếp (chốt 2026-11-03, sửa 2026-11-07 theo D-024), mỗi m
 6. Form nhập kế hoạch cùng F18 Telegram Mini App có lịch (D-019, D-024). F18 cần F17.
 7. Xếp lịch thích nghi (D-024).
 
-Điểm dừng (D-028, 2026-11-10): mốc v1 gồm các mục 1, 2, 3 và 5 của danh sách trên cùng phần việc còn lại ghi ở D-028 mục 1. Các mục 4 (đã chuyển sang D-027), 6 và 7 tạm dừng sau v1; thứ tự giữ nguyên làm hướng nếu làm tiếp. Mục 6 chỉ làm nếu dùng hằng ngày thấy nhập kế hoạch bằng chat vướng.
+Điểm dừng (D-028, 2026-11-10): mốc v1 gồm các mục 1, 2, 3 và 5 của danh sách trên cùng phần việc còn lại ghi ở D-028 mục 1. Các mục 4 (đã chuyển sang D-027), 6 và 7 tạm dừng sau v1; thứ tự giữ nguyên làm hướng nếu làm tiếp. Mục 6 chỉ làm nếu dùng hằng ngày thấy nhập kế hoạch bằng chat vướng. Cập nhật 2026-11-11: mốc v1 đã đóng (D-028, mục "Cập nhật 2026-11-11 (đóng v1)"), tag `v1-freeze`. Các mục 1, 2, 3 và 5 xong; các mục 4, 6 và 7 vẫn tạm dừng.
 
 ## §8 Pending — chưa chốt
 

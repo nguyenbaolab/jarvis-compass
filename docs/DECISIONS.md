@@ -544,6 +544,8 @@ Composition root ở đây chỉ tính trong `src/`. `evals/runner.py` không l�
 
 **Cập nhật 2026-11-10:** Starter chốt thay mục tự dùng hằng ngày 1 đến 2 tuần ở mục 1 bằng chạy giả lập (đồng hồ giả, kho trong bộ nhớ, kịch bản nhiều ngày), để khép repo sớm; dùng thật làm khi cắm compass vào trợ lý mã nguồn mở ở bước thử. Vì vậy mục 4 chưa có nguồn: chưa có thiếu sót nào ghi từ dùng thật. README và báo cáo phải ghi đúng điều này: đánh giá bằng eval và giả lập, chưa dùng thật dài ngày; chi phí chỉ là ước tính từ token trong eval.
 
+**Cập nhật 2026-11-11 (đóng v1):** Mốc v1 đã đủ các mục ở mục 1: F11 chạy thật, nhớ vài lượt gần nhất và chỉ nhận chữ; bộ eval v1 đến v3 chạy xong kèm báo cáo (`docs/EVAL_REPORT.md`); quét tải (D-029) và digest 08:00 (D-025) đã deploy và chạy thật trên cloud; README bằng tiếng Anh, sơ đồ kiến trúc (`docs/architecture/`) và video demo (liên kết ở đầu `README.md`, lưu trên Google Drive). Starter chốt ba điểm khi đóng: không thêm LICENSE (repo không có giấy phép, nên mặc định giữ mọi quyền); đặt tag `v1-freeze` ở commit merge của nhánh đóng v1, không dùng `v0.1.0` vì PRODUCT §7 định nghĩa `v0.1.0` là đã kiểm chứng bằng dùng thật, còn v1 mới được đánh giá bằng eval và giả lập (xem cập nhật 2026-11-10 ở trên); và dừng ở đây, không làm thêm tính năng. Bước kế tiếp theo mục 5: một tuần thử trợ lý mã nguồn mở. Cắm compass vào trợ lý đó cần một cửa vào ngoài Telegram (`src/api/routes_planning.py` còn là stub); cách làm chưa chọn. Chưa kiểm chứng: người ngoài có xem được video hay không (phụ thuộc cài đặt chia sẻ trên Drive, repo không kiểm), và nội dung video.
+
 ## D-029 — Quét tải: tải một ngày tính ở code, cảnh báo mềm, lần ghi đã xác nhận mới dời việc
 
 **Date:** 2026-11-10
